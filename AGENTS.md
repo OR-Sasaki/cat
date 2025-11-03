@@ -19,3 +19,11 @@ Starter    Manager     （Scope が全体を構成）
 - NG 例: `State → Service` / `Service → View` の逆流依存。
 
 
+# コーディング規約
+- アクセス修飾子のprivateは省略すること
+- privateなフィールドには_(アンダーバー)を付ける
+- コンストラクタでのみ値が入るフィールドにはreadonlyを付ける
+- ifの中身はパターンが推奨されている
+例)
+正: while (asyncLoad is { isDone: false})
+誤: while (asyncLoad != null && !asyncLoad.isDone)  

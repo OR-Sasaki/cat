@@ -1,6 +1,6 @@
+using System;
 using Fade.Manager;
-using Fade.State;
-using Root.State;
+using UnityEngine;
 using VContainer.Unity;
 
 namespace Fade.Starter
@@ -16,7 +16,14 @@ namespace Fade.Starter
 
         public async void Start()
         {
-            await _fadeManager.StartFadeSequence();
+            try
+            {
+                await _fadeManager.StartFadeSequence();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[FadeStarter] Exception occurred during fade sequence: {ex.Message}\n{ex.StackTrace}");
+            }
         }
     }
 }

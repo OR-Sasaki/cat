@@ -1,6 +1,4 @@
 using Home.Service;
-using Home.View;
-using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 

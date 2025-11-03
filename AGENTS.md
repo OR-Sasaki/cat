@@ -8,6 +8,8 @@
 - **View/**: UI・ビューの実装
 
 これらはTemplateSceneにフォルダが用意されているので、手動で作成する場合はこれをコピーしてください
+RootScopeはVContainerSettingsのRootLifetimeScopeに設定されている
+
 
 ### 依存方向（原則）
 ```

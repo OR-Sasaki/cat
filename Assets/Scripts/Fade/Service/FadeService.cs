@@ -37,6 +37,16 @@ namespace Fade.Service
                 break;
             }
 
+            // 古いシーンをアンロード
+            if (!string.IsNullOrEmpty(oldSceneName))
+            {
+                var asyncUnload = SceneManager.UnloadSceneAsync(oldSceneName);
+                while (asyncUnload is { isDone: false })
+                {
+                    await Task.Yield();
+                }
+            }
+
             // 遷移先のシーンをロード
             var asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             while (asyncLoad is { isDone: false})
@@ -47,16 +57,6 @@ namespace Fade.Service
             // 遷移先のシーンをアクティブに変更
             var newScene = SceneManager.GetSceneByName(sceneName);
             SceneManager.SetActiveScene(newScene);
-
-            // 古いシーンをアンロード
-            if (!string.IsNullOrEmpty(oldSceneName))
-            {
-                var asyncUnload = SceneManager.UnloadSceneAsync(oldSceneName);
-                while (asyncUnload is { isDone: false })
-                {
-                    await Task.Yield();
-                }
-            }
         }
 
         public async Task UnloadFadeScene()

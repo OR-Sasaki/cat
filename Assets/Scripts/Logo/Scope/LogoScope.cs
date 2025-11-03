@@ -1,3 +1,4 @@
+using Logo.Starter;
 using VContainer;
 using VContainer.Unity;
 
@@ -7,6 +8,7 @@ namespace Logo.Scope
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterEntryPoint<LogoStarter>();
         }
     }
 }

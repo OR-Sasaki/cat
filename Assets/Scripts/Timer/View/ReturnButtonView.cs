@@ -1,4 +1,4 @@
-using Timer.Service;
+using Root.Service;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -10,9 +10,9 @@ namespace Timer.View
         [SerializeField] Button _backButton;
 
         [Inject]
-        public void Init(ReturnButtonService returnButtonService)
+        public void Init(SceneLoader sceneLoader)
         {
-            _backButton.onClick.AddListener(() => returnButtonService.NavigateToScene(Const.SceneName.Home));
+            _backButton.onClick.AddListener(() => sceneLoader.Load(Const.SceneName.Home));
         }
     }
 }

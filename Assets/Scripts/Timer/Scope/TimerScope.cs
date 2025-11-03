@@ -1,4 +1,3 @@
-using Timer.Service;
 using VContainer;
 using VContainer.Unity;
 
@@ -8,7 +7,6 @@ namespace Timer.Scope
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register<ReturnButtonService>(Lifetime.Scoped);
         }
     }
 }

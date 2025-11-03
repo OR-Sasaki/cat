@@ -1,7 +1,9 @@
+using System;
 using System.Threading.Tasks;
 using Fade.Service;
 using Fade.State;
 using Root.State;
+using UnityEngine;
 
 namespace Fade.Manager
 {
@@ -20,17 +22,24 @@ namespace Fade.Manager
 
         public async Task StartFadeSequence()
         {
-            _state.SetPhase(FadePhase.FadingOut);
-            await _service.FadeOut(_sceneLoaderState.FadeOutDuration);
+            try
+            {
+                _state.SetPhase(FadePhase.FadingOut);
+                await _service.FadeOut(_sceneLoaderState.FadeOutDuration);
 
-            _state.SetPhase(FadePhase.Loading);
-            await _service.LoadScene(_sceneLoaderState.TargetSceneName);
+                _state.SetPhase(FadePhase.Loading);
+                await _service.LoadScene(_sceneLoaderState.TargetSceneName);
 
-            _state.SetPhase(FadePhase.FadingIn);
-            await _service.FadeIn(_sceneLoaderState.FadeInDuration);
+                _state.SetPhase(FadePhase.FadingIn);
+                await _service.FadeIn(_sceneLoaderState.FadeInDuration);
 
-            _state.SetPhase(FadePhase.Completed);
-            await _service.UnloadFadeScene();
+                _state.SetPhase(FadePhase.Completed);
+                await _service.UnloadFadeScene();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[FadeManager] {e.Message}\n{e.StackTrace}");
+            }
         }
     }
 }

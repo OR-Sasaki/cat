@@ -20,9 +20,9 @@ namespace Fade.Starter
             {
                 await _fadeManager.StartFadeSequence();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Debug.LogError($"[FadeStarter] Exception occurred during fade sequence: {ex.Message}\n{ex.StackTrace}");
+                Debug.LogError($"[FadeStarter] {e.Message}\n{e.StackTrace}");
             }
         }
     }

@@ -27,3 +27,4 @@ Starter    Manager     （Scope が全体を構成）
 例)
 正: while (asyncLoad is { isDone: false})
 誤: while (asyncLoad != null && !asyncLoad.isDone)  
+- エラーログは `Debug.LogError($"[FadeStarter] {e.Message}\n{e.StackTrace}");` のように出力する

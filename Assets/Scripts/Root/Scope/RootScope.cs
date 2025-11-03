@@ -1,14 +1,16 @@
 using Root.Service;
+using Root.State;
 using VContainer;
 using VContainer.Unity;
 
 namespace Root.Scope
 {
-    public class RootScop : LifetimeScope
+    public class RootScope : LifetimeScope
     {
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.Register<ICatLogger, EditorLogger>(Lifetime.Scoped);
+            builder.Register<SceneLoader>(Lifetime.Singleton);
+            builder.Register<SceneLoaderState>(Lifetime.Singleton);
         }
     }
 }

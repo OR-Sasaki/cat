@@ -6,7 +6,6 @@ namespace Fade.Service
 {
     public class FadeService
     {
-        const string FadeSceneName = "Fade";
         readonly FadeView _fadeView;
 
         public FadeService(FadeView fadeView)
@@ -31,7 +30,7 @@ namespace Fade.Service
             for (var i = 0; i < SceneManager.sceneCount; i++)
             {
                 var scene = SceneManager.GetSceneAt(i);
-                if (scene.name == FadeSceneName) continue;
+                if (scene.name == Const.SceneName.Fade) continue;
 
                 oldSceneName = scene.name;
                 break;
@@ -61,7 +60,7 @@ namespace Fade.Service
 
         public async Task UnloadFadeScene()
         {
-            var asyncUnload = SceneManager.UnloadSceneAsync(FadeSceneName);
+            var asyncUnload = SceneManager.UnloadSceneAsync(Const.SceneName.Fade);
             while (asyncUnload is { isDone: false })
             {
                 await Task.Yield();

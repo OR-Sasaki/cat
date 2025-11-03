@@ -16,11 +16,11 @@ namespace Home.View
         [Inject]
         public void Init(HomeFooterService homeFooterService)
         {
-            _redecorateButton.onClick.AddListener(() => homeFooterService.NavigateToScene("Redecorate"));
-            _closetButton.onClick.AddListener(() => homeFooterService.NavigateToScene("Closet"));
-            _timerButton.onClick.AddListener(() => homeFooterService.NavigateToScene("Timer"));
-            _shopButton.onClick.AddListener(() => homeFooterService.NavigateToScene("Shop"));
-            _historyButton.onClick.AddListener(() => homeFooterService.NavigateToScene("History"));
+            _redecorateButton.onClick.AddListener(() => homeFooterService.NavigateToScene(Const.SceneName.Redecorate));
+            _closetButton.onClick.AddListener(() => homeFooterService.NavigateToScene(Const.SceneName.Closet));
+            _timerButton.onClick.AddListener(() => homeFooterService.NavigateToScene(Const.SceneName.Timer));
+            _shopButton.onClick.AddListener(() => homeFooterService.NavigateToScene(Const.SceneName.Shop));
+            _historyButton.onClick.AddListener(() => homeFooterService.NavigateToScene(Const.SceneName.History));
         }
     }
 }

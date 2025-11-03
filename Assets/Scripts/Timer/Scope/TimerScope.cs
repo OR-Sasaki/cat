@@ -1,9 +1,9 @@
 using VContainer;
 using VContainer.Unity;
 
-namespace Closet.Scope
+namespace Timer.Scope
 {
-    public class ClosetScope : LifetimeScope
+    public class TimerScope : LifetimeScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

@@ -39,6 +39,8 @@ namespace Fade.Manager
             catch (Exception e)
             {
                 Debug.LogError($"[FadeManager] {e.Message}\n{e.StackTrace}");
+                _state.SetPhase(FadePhase.None);
+                throw;
             }
         }
     }

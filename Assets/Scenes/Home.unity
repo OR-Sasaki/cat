@@ -186,6 +186,55 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &126049567
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 126049569}
+  - component: {fileID: 126049568}
+  m_Layer: 0
+  m_Name: HomeScope
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &126049568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126049567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d740217f69014efeaca375c5721ca7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Home.Scope.HomeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects:
+  - {fileID: 1444508578}
+--- !u!4 &126049569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126049567}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &133450823
 GameObject:
   m_ObjectHideFlags: 0
@@ -1865,7 +1914,7 @@ GameObject:
   - component: {fileID: 1230001268}
   - component: {fileID: 1230001267}
   m_Layer: 5
-  m_Name: Room
+  m_Name: Redecorate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1962,7 +2011,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 1230001267}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -1985,6 +2034,7 @@ GameObject:
   - component: {fileID: 1444508579}
   - component: {fileID: 1444508581}
   - component: {fileID: 1444508580}
+  - component: {fileID: 1444508582}
   m_Layer: 5
   m_Name: Footer
   m_TagString: Untagged
@@ -2050,6 +2100,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1444508578}
   m_CullTransparentMesh: 1
+--- !u!114 &1444508582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444508578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3df8d97e10d234df9b4c8c93fcfddff1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Home.View.HomeFooterView
+  _redecorateButton: {fileID: 1230001268}
+  _closetButton: {fileID: 523938112}
+  _timerButton: {fileID: 2016897365}
+  _shopButton: {fileID: 1147936727}
+  _historyButton: {fileID: 261973805}
 --- !u!1 &1475118784
 GameObject:
   m_ObjectHideFlags: 0
@@ -2408,7 +2475,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Room
+  m_text: Redecorate
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2435,7 +2502,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 64.9
+  m_fontSize: 39.9
   m_fontSizeBase: 56.8
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2693,3 +2760,4 @@ SceneRoots:
   - {fileID: 1209929619}
   - {fileID: 1481875809}
   - {fileID: 1133747556}
+  - {fileID: 126049569}

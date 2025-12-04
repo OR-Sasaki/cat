@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Cat.Character.Outfits
+namespace Cat.Character
 {
     public enum OutfitType // アルファベット順に並べること
     {

@@ -32,7 +32,7 @@ namespace Cat.Character
         public int GetOrder(PartType partType)
         {
             var index = System.Array.IndexOf(_partOrder, partType);
-            return index >= 0 ? index : int.MaxValue;
+            return _partOrder.Length - index;
         }
 
 #if UNITY_EDITOR

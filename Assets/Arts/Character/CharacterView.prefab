@@ -1695,6 +1695,7 @@ MonoBehaviour:
   _legAccessoryBack: {fileID: 7855753585575564497}
   _legAccessoryFront: {fileID: 4390681638634354338}
   _tail: {fileID: 2233158491331696246}
+  _outfitPartOrderSetting: {fileID: 11400000, guid: cb5fcea00057040fc96bc7b7ae9c1256, type: 2}
 --- !u!95 &1742183859448971863
 Animator:
   serializedVersion: 7

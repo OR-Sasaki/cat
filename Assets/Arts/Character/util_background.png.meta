@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 58f58833ce4264ca9bc30fcc0d75c79a
+guid: 581b7253cd30a471eaa6bdbbb28cf5b0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5685694097614583938
-    second: legaccF005_0
+      213: 4256246711590340990
+    second: util_background_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: legaccF005_0
+      name: util_background_0
       rect:
         serializedVersion: 2
-        x: 380
-        y: 116
-        width: 155
-        height: 75
+        x: 0
+        y: 0
+        width: 1080
+        height: 1921
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e77c522a75b5811b0800000000000000
-      internalID: -5685694097614583938
+      spriteID: e7944c865d9311b30800000000000000
+      internalID: 4256246711590340990
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      legaccF005_0: -5685694097614583938
+      util_background_0: 4256246711590340990
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11043b679d77416ca9b37489a0cfe42f, type: 3}
+  m_Name: Body005
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Body
+  BackFootPart: {fileID: 11400000, guid: a638749e839254ac5a8a3663b88f5f3b, type: 2}
+  BackHandPart: {fileID: 11400000, guid: 921f151cfa02b47f4b2ed7c449b9df86, type: 2}
+  BodyPart: {fileID: 11400000, guid: 6c4b8a29df18a4e8fbc34df353db7f81, type: 2}
+  FrontFoot: {fileID: 11400000, guid: 07c607f6d5b1149c8a2b899545b63f26, type: 2}
+  FrontFootLine: {fileID: 11400000, guid: c824da301d0d847f4a6f2f24d0ccbf7e, type: 2}
+  FrontHand: {fileID: 11400000, guid: e2748f04f31de4f19b98c720e7c2cbd0, type: 2}

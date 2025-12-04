@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ffa8990b63a44eda858ef9bc08a3695, type: 3}
+  m_Name: LegAccessory005
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.LegAccessory
+  LegAccessoryBackPart: {fileID: 11400000, guid: c53198de69f3144f3a54b8480c9652ba, type: 2}
+  LegAccessoryFrontPart: {fileID: 11400000, guid: 2f381fd4c5f534da984d6b89cd6ab0a5, type: 2}

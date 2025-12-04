@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: FrontHand001
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 10
-  Sprite: {fileID: -8328624675017960713, guid: f022dd42d7213495b8900a32895a3260, type: 3}
+  Sprite: {fileID: 21300000, guid: f022dd42d7213495b8900a32895a3260, type: 3}

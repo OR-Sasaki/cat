@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Body019
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 2
-  Sprite: {fileID: -3905463754913807782, guid: 8bdc16fc6244549b08d3c82eef3f6865, type: 3}
+  Sprite: {fileID: 21300000, guid: 8bdc16fc6244549b08d3c82eef3f6865, type: 3}

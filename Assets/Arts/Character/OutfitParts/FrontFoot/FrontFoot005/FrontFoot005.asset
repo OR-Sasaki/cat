@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: FrontFoot005
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 8
-  Sprite: {fileID: 410427310993140019, guid: 6b7156def4a01484abe220c4de377c53, type: 3}
+  Sprite: {fileID: 21300000, guid: 6b7156def4a01484abe220c4de377c53, type: 3}

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: LegAccessoryBack005
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 13
-  Sprite: {fileID: -4676101852190075630, guid: 0edaaec7874e846c0a645950d2158aa2, type: 3}
+  Sprite: {fileID: 21300000, guid: 0edaaec7874e846c0a645950d2158aa2, type: 3}

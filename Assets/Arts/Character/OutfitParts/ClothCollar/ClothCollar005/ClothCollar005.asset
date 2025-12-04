@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ClothCollar005
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 5
-  Sprite: {fileID: 4803492878647263618, guid: 5958e4754d14e44c7873304c3d011a57, type: 3}
+  Sprite: {fileID: 21300000, guid: 5958e4754d14e44c7873304c3d011a57, type: 3}

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: BackFoot003
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 0
-  Sprite: {fileID: 8498599401895185975, guid: e08d6a725d51a4d00a9791f661516c0f, type: 3}
+  Sprite: {fileID: 21300000, guid: e08d6a725d51a4d00a9791f661516c0f, type: 3}

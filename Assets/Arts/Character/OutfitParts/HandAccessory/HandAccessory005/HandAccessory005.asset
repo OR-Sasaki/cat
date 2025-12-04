@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: HandAccessory005
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 11
-  Sprite: {fileID: 6665575567984928673, guid: 17c39c32e80844c8da89c20a37b1d138, type: 3}
+  Sprite: {fileID: 21300000, guid: 17c39c32e80844c8da89c20a37b1d138, type: 3}

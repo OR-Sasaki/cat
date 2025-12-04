@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Tail002
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.OutfitPart
   PartType: 15
-  Sprite: {fileID: -1619522347307262830, guid: 05c3ce6c864924883880762143a90e2b, type: 3}
+  Sprite: {fileID: 21300000, guid: 05c3ce6c864924883880762143a90e2b, type: 3}

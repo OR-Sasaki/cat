@@ -456,8 +456,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6634211952300975951}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &786157580
@@ -542,7 +541,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1194478955}
   m_HandleRect: {fileID: 1194478954}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -602,7 +601,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &811611510
 Transform:
   m_ObjectHideFlags: 0
@@ -615,7 +614,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6634211952300975951}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &811611511
@@ -630,7 +630,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f47e38251aac4919b62069ba868656d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::__CharactorTest
-  animator: {fileID: 0}
+  flagName: Walk
+  animator: {fileID: 6634211952300975952}
   moveSpeed: 5
   view: {fileID: 811611510}
 --- !u!1 &986968636
@@ -1824,7 +1825,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 764124463}
+    m_TransformParent: {fileID: 811611510}
     m_Modifications:
     - target: {fileID: 1978480268837433865, guid: f49968e3e3f7a437293fd397ec7c62a5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1902,6 +1903,11 @@ PrefabInstance:
 --- !u!4 &6634211952300975951 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4799211400229945565, guid: f49968e3e3f7a437293fd397ec7c62a5, type: 3}
+  m_PrefabInstance: {fileID: 6634211952300975950}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6634211952300975952 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 1742183859448971863, guid: f49968e3e3f7a437293fd397ec7c62a5, type: 3}
   m_PrefabInstance: {fileID: 6634211952300975950}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &6634211952300975953 stripped

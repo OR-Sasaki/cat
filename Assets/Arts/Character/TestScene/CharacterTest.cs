@@ -5,7 +5,7 @@ namespace Cat.Character
 {
     public class CharactorTest : MonoBehaviour
     {
-        static readonly int Run = Animator.StringToHash("Run");
+        [SerializeField] string flagName = "Run";
         [SerializeField] Animator animator;
         [SerializeField] float moveSpeed = 5f;
         [SerializeField] Transform view;
@@ -36,7 +36,7 @@ namespace Cat.Character
             }
 
             bool isRunning = Mathf.Abs(moveX) > 0f || Mathf.Abs(moveY) > 0f;
-            animator.SetBool(Run, isRunning);
+            animator.SetBool(flagName, isRunning);
 
             if (isRunning)
             {

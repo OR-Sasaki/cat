@@ -2287,7 +2287,7 @@ MonoBehaviour:
   _flipper: {fileID: 1222582454}
   _animator: {fileID: 8994825603251842678}
   _walkSpeed: 0.9
-  _runSpeed: 1.7
+  _runSpeed: 1.9
 --- !u!1 &868431861
 GameObject:
   m_ObjectHideFlags: 0

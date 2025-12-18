@@ -33,5 +33,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Timer.unity
     guid: 7c542e158054e4bd6969e893d0f6fc9f
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: e6a59bed0a739407b874a2ff994c4cb3, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -11,6 +11,11 @@ namespace Root.Scope
         {
             builder.Register<SceneLoader>(Lifetime.Singleton);
             builder.Register<SceneLoaderState>(Lifetime.Singleton);
+            builder.Register<MasterDataState>(Lifetime.Singleton);
+            builder.Register<MasterDataImportService>(Lifetime.Singleton);
+            builder.Register<PlayerPrefsService>(Lifetime.Singleton);
+            builder.Register<PlayerOutfitState>(Lifetime.Singleton);
+            builder.Register<PlayerOutfitService>(Lifetime.Singleton);
         }
     }
 }

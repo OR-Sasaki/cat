@@ -1,9 +1,9 @@
+using Root.Scope;
 using VContainer;
-using VContainer.Unity;
 
 namespace Shop.Scope
 {
-    public class ShopScope : LifetimeScope
+    public class ShopScope : SceneScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

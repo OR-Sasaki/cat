@@ -1,9 +1,9 @@
+using Root.Scope;
 using VContainer;
-using VContainer.Unity;
 
 namespace Closet.Scope
 {
-    public class ClosetScope : LifetimeScope
+    public class ClosetScope : SceneScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

@@ -1,9 +1,9 @@
-﻿using VContainer;
-using VContainer.Unity;
+﻿using Root.Scope;
+using VContainer;
 
 namespace Title.Scope
 {
-    public class TitleScope : LifetimeScope
+    public class TitleScope : SceneScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

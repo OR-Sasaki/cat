@@ -1,9 +1,9 @@
+using Root.Scope;
 using VContainer;
-using VContainer.Unity;
 
 namespace Timer.Scope
 {
-    public class TimerScope : LifetimeScope
+    public class TimerScope : SceneScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

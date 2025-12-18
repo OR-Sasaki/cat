@@ -3,13 +3,14 @@ using Fade.Service;
 using Fade.Starter;
 using Fade.State;
 using Fade.View;
+using Root.Scope;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
 namespace Fade.Scope
 {
-    public class FadeScope : LifetimeScope
+    public class FadeScope : SceneScope
     {
         [SerializeField] FadeView _fadeView;
 

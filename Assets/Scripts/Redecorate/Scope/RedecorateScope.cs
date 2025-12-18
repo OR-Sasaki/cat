@@ -1,9 +1,9 @@
+using Root.Scope;
 using VContainer;
-using VContainer.Unity;
 
 namespace Redecorate.Scope
 {
-    public class RedecorateScope : LifetimeScope
+    public class RedecorateScope : SceneScope
     {
         protected override void Configure(IContainerBuilder builder)
         {

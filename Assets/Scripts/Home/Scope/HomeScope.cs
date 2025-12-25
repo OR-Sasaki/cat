@@ -1,6 +1,8 @@
 using Cat.Character;
 using Home.Service;
 using Home.Starter;
+using Home.State;
+using Home.View;
 using Root.Scope;
 using UnityEngine;
 using VContainer;
@@ -13,11 +15,20 @@ namespace Home.Scope
         [SerializeField] CharacterView _characterView;
         [SerializeField] OutfitSetting _outfitSetting;
 
+        [SerializeField] HomeUiView _homeUiView;
+        [SerializeField] ClosetUiView _closetUiView;
+        [SerializeField] CameraView _cameraView;
+
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(_characterView);
             builder.RegisterInstance(_outfitSetting);
+            builder.RegisterComponent(_homeUiView);
+            builder.RegisterComponent(_closetUiView);
+            builder.RegisterComponent(_cameraView);
+            builder.Register<HomeState>(Lifetime.Scoped);
             builder.Register<HomeFooterService>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();
         }
     }

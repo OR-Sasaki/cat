@@ -1,23 +1,19 @@
-using Root.Service;
-using Root.State;
-using UnityEngine;
+using Home.State;
 
 namespace Home.Service
 {
     public class HomeFooterService
     {
-        readonly SceneLoader _sceneLoader;
-         readonly MasterDataState _masterDataState;
+        readonly HomeState _homeState;
 
-        public HomeFooterService(SceneLoader sceneLoader, MasterDataState masterDataState)
+        public HomeFooterService(HomeState homeState)
         {
-            _sceneLoader = sceneLoader;
-            _masterDataState = masterDataState;
+            _homeState = homeState;
         }
 
-        public void NavigateToScene(string sceneName)
+        public void SetState(HomeState.State state)
         {
-            _sceneLoader.Load(sceneName);
+            _homeState.SetState(state);
         }
     }
 }

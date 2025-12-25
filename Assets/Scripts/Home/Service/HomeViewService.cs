@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Home.State;
 using Home.View;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace Home.Service
         readonly HomeUiView _homeUiView;
         readonly ClosetUiView _closetUiView;
         readonly CameraView _cameraView;
+        readonly Dictionary<HomeState.State, UiView> _stateViewMap;
 
         public HomeViewService(HomeState homeState, HomeUiView homeUiView, ClosetUiView closetUiView, CameraView cameraView)
         {
@@ -18,6 +20,12 @@ namespace Home.Service
             _homeUiView = homeUiView;
             _closetUiView = closetUiView;
             _cameraView = cameraView;
+
+            _stateViewMap = new Dictionary<HomeState.State, UiView>
+            {
+                { HomeState.State.Home, _homeUiView },
+                { HomeState.State.Closet, _closetUiView }
+            };
         }
 
         public void Initialize()
@@ -30,50 +38,38 @@ namespace Home.Service
             _closetUiView.gameObject.SetActive(false);
         }
 
-        void OnStateChange(HomeState.State state)
+        void OnStateChange(HomeState.State previous, HomeState.State current)
         {
-            _cameraView.SetState(state);
-            switch (state)
-            {
-                case HomeState.State.Home:
-                    ShowHomeView();
-                    break;
-                case HomeState.State.Closet:
-                    ShowClosetView();
-                    break;
-            }
+            _cameraView.SetState(current);
+
+            // 前のステートのViewを閉じる
+            CloseView(previous);
+
+            // 新しいステートのViewを開く
+            OpenView(current);
         }
 
-        void ShowHomeView()
+        void CloseView(HomeState.State state)
         {
-            // クローゼットを閉じる
-            _closetUiView.PlayAnimation(UiView.AnimationType.Out);
-            _closetUiView.SetBlocksRaycast(false);
-            _closetUiView.OnAnimationEnd.AddListener(() =>
-            {
-                _closetUiView.gameObject.SetActive(false);
-            });
+            if (!_stateViewMap.TryGetValue(state, out var view))
+                return;
 
-            // ホームを開く
-            _homeUiView.gameObject.SetActive(true);
-            _homeUiView.SetBlocksRaycast(true);
-            _homeUiView.PlayAnimation(UiView.AnimationType.In);
+            view.PlayAnimation(UiView.AnimationType.Out);
+            view.SetBlocksRaycast(false);
+            view.OnAnimationEnd.AddListener(() =>
+            {
+                view.gameObject.SetActive(false);
+            });
         }
 
-        void ShowClosetView()
+        void OpenView(HomeState.State state)
         {
-            // ホームを閉じる
-            _homeUiView.PlayAnimation(UiView.AnimationType.Out);
-            _homeUiView.SetBlocksRaycast(false);
-            _homeUiView.OnAnimationEnd.AddListener(() =>
-            {
-                _homeUiView.gameObject.SetActive(false);
-            });
+            if (!_stateViewMap.TryGetValue(state, out var view))
+                return;
 
-            // クローゼットを開く
-            _closetUiView.gameObject.SetActive(true);
-            _closetUiView.SetBlocksRaycast(true);
-            _closetUiView.PlayAnimation(UiView.AnimationType.In);
+            view.gameObject.SetActive(true);
+            view.SetBlocksRaycast(true);
+            view.PlayAnimation(UiView.AnimationType.In);
         }
     }
 }

@@ -32,7 +32,6 @@ namespace Home.Service
 
         void OnStateChange(HomeState.State state)
         {
-            Debug.Log($"OnStateChange: {state}");
             _cameraView.SetState(state);
             switch (state)
             {

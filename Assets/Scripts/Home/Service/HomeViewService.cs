@@ -31,11 +31,7 @@ namespace Home.Service
         public void Initialize()
         {
             _homeState.OnStateChange.AddListener(OnStateChange);
-
-            // 初期状態を設定
-            _homeUiView.gameObject.SetActive(true);
-            _homeUiView.SetBlocksRaycast(true);
-            _closetUiView.gameObject.SetActive(false);
+            _homeState.ForceSetState(HomeState.State.Home);
         }
 
         void OnStateChange(HomeState.State previous, HomeState.State current)

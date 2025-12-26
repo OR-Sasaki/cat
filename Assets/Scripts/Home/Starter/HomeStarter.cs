@@ -14,20 +14,17 @@ namespace Home.Starter
         readonly OutfitSetting _outfitSetting;
         readonly PlayerOutfitState _playerOutfitState;
         readonly MasterDataState _masterDataState;
-        readonly HomeState _homeState;
 
         public HomeStarter(
             CharacterView characterView,
             OutfitSetting outfitSetting,
             PlayerOutfitState playerOutfitState,
-            MasterDataState masterDataState,
-            HomeState homeState)
+            MasterDataState masterDataState)
         {
             _characterView = characterView;
             _outfitSetting = outfitSetting;
             _playerOutfitState = playerOutfitState;
             _masterDataState = masterDataState;
-            _homeState = homeState;
         }
 
         public void Start()
@@ -40,8 +37,6 @@ namespace Home.Starter
             {
                 Debug.LogError($"[HomeStarter] {e.Message}\n{e.StackTrace}");
             }
-
-            _homeState.ForceSetState(HomeState.State.Home);
         }
 
         void ApplyOutfits()

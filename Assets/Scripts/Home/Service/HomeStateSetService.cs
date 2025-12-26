@@ -2,11 +2,11 @@ using Home.State;
 
 namespace Home.Service
 {
-    public class HomeFooterService
+    public class HomeStateSetService
     {
         readonly HomeState _homeState;
 
-        public HomeFooterService(HomeState homeState)
+        public HomeStateSetService(HomeState homeState)
         {
             _homeState = homeState;
         }

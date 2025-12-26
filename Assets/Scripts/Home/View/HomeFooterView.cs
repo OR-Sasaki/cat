@@ -15,9 +15,9 @@ namespace Home.View
         [SerializeField] Button _historyButton;
 
         [Inject]
-        public void Init(HomeFooterService homeFooterService)
+        public void Init(HomeStateSetService homeStateSetService)
         {
-            _closetButton.onClick.AddListener(() => homeFooterService.SetState(HomeState.State.Closet));
+            _closetButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Closet));
         }
     }
 }

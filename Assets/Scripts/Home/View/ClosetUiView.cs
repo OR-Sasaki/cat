@@ -11,9 +11,9 @@ namespace Home.View
         [SerializeField] Button _backButton;
 
         [Inject]
-        public void Init(HomeFooterService homeFooterService)
+        public void Init(HomeStateSetService homeStateSetService)
         {
-            _backButton.onClick.AddListener(() => homeFooterService.SetState(HomeState.State.Home));
+            _backButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Home));
         }
     }
 }

@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: 3427d0857b1cfc049930d7c739ce6917
+labels:
+- Cell
+- Cells
+- Data
+- Inventory
+- List
+- Recycle
+- Reuse
+- Scroll
+- ScrollRect
+- ScrollView
+- Scroller
+- UI
+- Virtualize
+timeCreated: 1440078914
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/06 Snapping/Slots Scroller.prefab
+  uploadId: 771272

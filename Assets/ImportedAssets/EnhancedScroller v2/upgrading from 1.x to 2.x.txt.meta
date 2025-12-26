@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: 202821f61db5d6543b5c783e5e246924
+labels:
+- Cell
+- Cells
+- Data
+- Inventory
+- List
+- Recycle
+- Reuse
+- Scroll
+- ScrollRect
+- ScrollView
+- Scroller
+- UI
+- Virtualize
+timeCreated: 1438262016
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/upgrading from 1.x to 2.x.txt
+  uploadId: 771272

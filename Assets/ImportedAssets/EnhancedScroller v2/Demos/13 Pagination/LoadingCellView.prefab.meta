@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c00c8bc98bd4b464f9af6dcb4aa1c444
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/13 Pagination/LoadingCellView.prefab
+  uploadId: 771272

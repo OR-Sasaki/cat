@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: 884600baa3a950a4a9532b8ba814178f
+labels:
+- Cell
+- Cells
+- Data
+- Inventory
+- List
+- Recycle
+- Reuse
+- Scroll
+- ScrollRect
+- ScrollView
+- Scroller
+- UI
+- Virtualize
+timeCreated: 1446733497
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/08 View Driven Cell Sizes/08.unity
+  uploadId: 771272

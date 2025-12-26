@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: a0b942d643ac5e14688d64078ec8d61a
+labels:
+- Cell
+- Cells
+- Data
+- Inventory
+- List
+- Recycle
+- Reuse
+- Scroll
+- ScrollRect
+- ScrollView
+- Scroller
+- UI
+- Virtualize
+timeCreated: 1436470679
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/10b Grid Selection/10b.unity
+  uploadId: 771272

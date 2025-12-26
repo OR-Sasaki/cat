@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: adcce75e642ef451396cfa84c2df8643
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/13 Pagination/LoadingCellView.cs
+  uploadId: 771272

@@ -1,0 +1,40 @@
+fileFormatVersion: 2
+guid: 128b0b7720a1d8247aa33ce24bc515f0
+labels:
+- Cell
+- Cells
+- Data
+- Inventory
+- List
+- Recycle
+- Reuse
+- Scroll
+- ScrollRect
+- ScrollView
+- Scroller
+- UI
+- Virtualize
+- data
+- infinite
+- loop
+- scroll
+- scroller
+- virtualize
+timeCreated: 1436467558
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/12 Nested Scrollers/MasterCellView.cs
+  uploadId: 771272

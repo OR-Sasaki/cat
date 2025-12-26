@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 40cc3a0d2add6f44e8ef26c4c3ca3b4d
+timeCreated: 1523459388
+licenseType: Store
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/ChangeLog.txt
+  uploadId: 771272

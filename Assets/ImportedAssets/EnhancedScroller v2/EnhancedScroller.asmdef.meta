@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 02c11f442ffc148a9b44d2aa0618ec34
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/EnhancedScroller.asmdef
+  uploadId: 771272

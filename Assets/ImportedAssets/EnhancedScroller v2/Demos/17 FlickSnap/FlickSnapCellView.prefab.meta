@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f7483d6c0ea3e4d2aa846e46f27793b6
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/17 FlickSnap/FlickSnapCellView.prefab
+  uploadId: 771272

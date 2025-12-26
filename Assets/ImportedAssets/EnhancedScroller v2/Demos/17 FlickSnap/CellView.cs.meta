@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b7ae00a2249cf489c926ba2bd948a389
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/17 FlickSnap/CellView.cs
+  uploadId: 771272

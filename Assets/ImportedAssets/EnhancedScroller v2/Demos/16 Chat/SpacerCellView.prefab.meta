@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6a6a0582cca824522a219ef6ab9ffd4b
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/16 Chat/SpacerCellView.prefab
+  uploadId: 771272

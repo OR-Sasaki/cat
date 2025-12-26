@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a6207826d65b143ffbd6fa6f1821adcd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/14b Key Control Grid/RowCellView.cs
+  uploadId: 771272

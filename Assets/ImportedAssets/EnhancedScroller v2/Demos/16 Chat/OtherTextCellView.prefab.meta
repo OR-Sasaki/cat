@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 92e099a51e6974f80bd4926f5a138472
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/16 Chat/OtherTextCellView.prefab
+  uploadId: 771272

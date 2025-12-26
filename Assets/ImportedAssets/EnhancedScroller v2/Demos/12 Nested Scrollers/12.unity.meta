@@ -1,0 +1,36 @@
+fileFormatVersion: 2
+guid: c3701a538cfcaf841b12ea2dc520f3e3
+labels:
+- Cell
+- Cells
+- Data
+- Inventory
+- List
+- Recycle
+- Reuse
+- Scroll
+- ScrollRect
+- ScrollView
+- Scroller
+- UI
+- Virtualize
+- data
+- infinite
+- loop
+- scroll
+- scroller
+- virtualize
+timeCreated: 1436470679
+licenseType: Store
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 36378
+  packageName: EnhancedScroller
+  packageVersion: 2.40.2
+  assetPath: Assets/EnhancedScroller v2/Demos/12 Nested Scrollers/12.unity
+  uploadId: 771272

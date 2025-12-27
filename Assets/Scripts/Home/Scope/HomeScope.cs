@@ -24,7 +24,9 @@ namespace Home.Scope
             builder.RegisterComponent(_closetUiView);
             builder.RegisterComponent(_cameraView);
             builder.Register<HomeState>(Lifetime.Scoped);
+            builder.Register<OutfitAssetState>(Lifetime.Scoped);
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<OutfitAssetStarter>();
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Cat.Character;
 using EnhancedUI;
@@ -8,16 +7,11 @@ using Home.View;
 using Root.Service;
 using Root.State;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer.Unity;
 
 namespace Home.Service
 {
-    /// <summary>
-    /// Closetスクローラーのビジネスロジック
-    /// </summary>
     public class ClosetScrollerService : IEnhancedScrollerDelegate, IStartable
     {
         readonly CharacterView _characterView;
@@ -25,24 +19,24 @@ namespace Home.Service
         readonly PlayerOutfitState _playerOutfitState;
         readonly PlayerOutfitService _playerOutfitService;
         readonly MasterDataState _masterDataState;
+        readonly OutfitAssetState _outfitAssetState;
         readonly UnityEvent<ClosetRowCellView> _cellSelectedEvent = new();
         SmallList<ClosetOutfitData> _data = new();
-        Dictionary<string, Cat.Character.Outfit> _loadedOutfits = new();
-        int _pendingLoadCount;
-        bool _isOutfitsLoaded;
 
         public ClosetScrollerService(
             CharacterView characterView,
             ClosetUiView closetUiView,
             PlayerOutfitState playerOutfitState,
             PlayerOutfitService playerOutfitService,
-            MasterDataState masterDataState)
+            MasterDataState masterDataState,
+            OutfitAssetState outfitAssetState)
         {
             _characterView = characterView;
             _closetUiView = closetUiView;
             _playerOutfitState = playerOutfitState;
             _playerOutfitService = playerOutfitService;
             _masterDataState = masterDataState;
+            _outfitAssetState = outfitAssetState;
 
             _closetUiView.OnOpen.AddListener(Initialize);
             _cellSelectedEvent.AddListener(OnCellViewSelected);
@@ -53,51 +47,19 @@ namespace Home.Service
             var scroller = _closetUiView.Scroller;
             scroller.Delegate = this;
 
-            if (_isOutfitsLoaded)
+            if (_outfitAssetState.IsLoaded)
             {
                 LoadData();
             }
             else
             {
-                LoadOutfitsAsync();
+                _outfitAssetState.OnLoaded += LoadData;
             }
         }
 
         public void Start()
         {
             // ClosetScrollerServiceはInjectされないため、IStartableをRegisterすることで強制的にインスタンスを作る
-        }
-
-        void LoadOutfitsAsync()
-        {
-            if (_masterDataState.Outfits is null || _masterDataState.Outfits.Length == 0)
-            {
-                Debug.LogError("[ClosetScrollerService] MasterDataState.Outfits is null or empty");
-                return;
-            }
-
-            _pendingLoadCount = _masterDataState.Outfits.Length;
-
-            foreach (var masterOutfit in _masterDataState.Outfits)
-            {
-                var outfitName = masterOutfit.Name;
-                var address = $"{masterOutfit.Type}/{outfitName}.asset";
-                var handle = Addressables.LoadAssetAsync<Cat.Character.Outfit>(address);
-                handle.Completed += h =>
-                {
-                    if (h.Status == AsyncOperationStatus.Succeeded && h.Result is not null)
-                    {
-                        _loadedOutfits[outfitName] = h.Result;
-                    }
-
-                    _pendingLoadCount--;
-                    if (_pendingLoadCount <= 0)
-                    {
-                        _isOutfitsLoaded = true;
-                        LoadData();
-                    }
-                };
-            }
         }
 
         void LoadData()
@@ -120,10 +82,8 @@ namespace Home.Service
 
             foreach (var masterOutfit in _masterDataState.Outfits)
             {
-                if (!_loadedOutfits.TryGetValue(masterOutfit.Name, out var outfit))
-                {
-                    continue;
-                }
+                var outfit = _outfitAssetState.Get(masterOutfit.Name);
+                if (outfit is null) continue;
 
                 var closetData = new ClosetOutfitData(outfit);
 

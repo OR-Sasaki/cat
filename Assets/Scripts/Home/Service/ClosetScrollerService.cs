@@ -7,6 +7,7 @@ using Home.View;
 using Root.Service;
 using Root.State;
 using UnityEngine;
+using UnityEngine.Events;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -22,6 +23,7 @@ namespace Home.Service
         readonly PlayerOutfitState _playerOutfitState;
         readonly PlayerOutfitService _playerOutfitService;
         readonly MasterDataState _masterDataState;
+        readonly UnityEvent<ClosetRowCellView> _cellSelectedEvent = new();
         SmallList<ClosetOutfitData> _data = new();
 
         public ClosetScrollerService(
@@ -40,6 +42,7 @@ namespace Home.Service
             _masterDataState = masterDataState;
 
             _closetUiView.OnOpen.AddListener(Initialize);
+            _cellSelectedEvent.AddListener(OnCellViewSelected);
         }
 
         void Initialize()
@@ -59,7 +62,7 @@ namespace Home.Service
             // 既存データのハンドラーをクリア
             for (var i = 0; i < _data.Count; i++)
             {
-                _data[i].SelectedChanged = null;
+                _data[i].SelectedChanged.RemoveAllListeners();
             }
 
             _data.Clear();
@@ -92,23 +95,6 @@ namespace Home.Service
             if (selectedData?.Outfit is null) return;
 
             var selectedOutfitType = selectedData.Outfit.OutfitType;
-            var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == selectedData.Outfit.name);
-
-            // すでに装備済みの場合はUnEquip
-            var equippedId = _playerOutfitState.GetEquippedOutfitId(selectedOutfitType);
-            if (masterOutfit is not null && equippedId == masterOutfit.Id)
-            {
-                // 選択状態を解除
-                selectedData.Selected = false;
-
-                // キャラクターから装備を削除
-                _characterView.RemoveOutfit(selectedOutfitType);
-
-                // PlayerOutfitServiceで保存
-                _playerOutfitService.Unequip(selectedOutfitType);
-                _playerOutfitService.Save();
-                return;
-            }
 
             // 同じOutfitTypeのものだけ選択状態を更新
             for (var i = 0; i < _data.Count; i++)
@@ -123,6 +109,7 @@ namespace Home.Service
             _characterView.SetOutfit(selectedData.Outfit);
 
             // PlayerOutfitServiceで保存
+            var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == selectedData.Outfit.name);
             if (masterOutfit is not null)
             {
                 _playerOutfitService.Equip(selectedOutfitType, masterOutfit.Id);
@@ -159,13 +146,13 @@ namespace Home.Service
             if (dataIndex >= DataRowCount)
             {
                 cellView.name = "Cell Padding";
-                cellView.SetData(ref _data, _data.Count, OnCellViewSelected);
+                cellView.SetData(ref _data, _data.Count, _cellSelectedEvent);
                 return cellView;
             }
 
             var di = dataIndex * cellsPerRow;
             cellView.name = $"Cell {di} to {di + cellsPerRow - 1}";
-            cellView.SetData(ref _data, di, OnCellViewSelected);
+            cellView.SetData(ref _data, di, _cellSelectedEvent);
 
             return cellView;
         }

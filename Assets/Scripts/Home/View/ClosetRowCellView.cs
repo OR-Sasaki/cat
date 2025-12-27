@@ -1,11 +1,10 @@
 using Home.State;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Home.View
 {
-    public delegate void ClosetCellSelectedDelegate(ClosetRowCellView rowCellView);
-
     /// <summary>
     /// Closetスクローラーの行内の個々のセルビュー
     /// </summary>
@@ -17,24 +16,24 @@ namespace Home.View
 
         public int DataIndex { get; private set; }
 
-        ClosetCellSelectedDelegate _selected;
+        UnityEvent<ClosetRowCellView> _selected;
         ClosetOutfitData _data;
 
         void OnDestroy()
         {
             if (_data != null)
             {
-                _data.SelectedChanged -= OnSelectedChanged;
+                _data.SelectedChanged.RemoveListener(OnSelectedChanged);
             }
         }
 
-        public void SetData(int dataIndex, ClosetOutfitData data, ClosetCellSelectedDelegate selected)
+        public void SetData(int dataIndex, ClosetOutfitData data, UnityEvent<ClosetRowCellView> selected)
         {
             _selected = selected;
 
             if (_data != null)
             {
-                _data.SelectedChanged -= OnSelectedChanged;
+                _data.SelectedChanged.RemoveListener(OnSelectedChanged);
             }
 
             DataIndex = dataIndex;
@@ -49,7 +48,7 @@ namespace Home.View
             _container.SetActive(true);
             _outfitImage.sprite = data.Outfit.Thumbnail;
 
-            _data.SelectedChanged += OnSelectedChanged;
+            _data.SelectedChanged.AddListener(OnSelectedChanged);
             OnSelectedChanged(_data.Selected);
         }
 

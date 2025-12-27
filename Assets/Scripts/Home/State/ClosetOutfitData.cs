@@ -1,16 +1,15 @@
 using Cat.Character;
+using UnityEngine.Events;
 
 namespace Home.State
 {
-    public delegate void SelectedChangedDelegate(bool val);
-
     /// <summary>
     /// Closetで使用するOutfitのデータ
     /// </summary>
     public class ClosetOutfitData
     {
         public Outfit Outfit { get; }
-        public SelectedChangedDelegate SelectedChanged;
+        public readonly UnityEvent<bool> SelectedChanged = new();
 
         bool _selected;
 
@@ -21,7 +20,7 @@ namespace Home.State
             {
                 if (_selected == value) return;
                 _selected = value;
-                SelectedChanged?.Invoke(_selected);
+                SelectedChanged.Invoke(_selected);
             }
         }
 

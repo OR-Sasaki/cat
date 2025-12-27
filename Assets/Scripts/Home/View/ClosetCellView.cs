@@ -1,6 +1,7 @@
 using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using Home.State;
+using UnityEngine.Events;
 
 namespace Home.View
 {
@@ -11,7 +12,7 @@ namespace Home.View
     {
         public ClosetRowCellView[] RowCellViews;
 
-        public void SetData(ref SmallList<ClosetOutfitData> data, int startingIndex, ClosetCellSelectedDelegate selected)
+        public void SetData(ref SmallList<ClosetOutfitData> data, int startingIndex, UnityEvent<ClosetRowCellView> selected)
         {
             for (var i = 0; i < RowCellViews.Length; i++)
             {

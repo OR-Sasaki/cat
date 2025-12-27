@@ -13,7 +13,7 @@ namespace Home.View
         [SerializeField] PlayableAsset _inPlayable;
         [SerializeField] PlayableAsset _outPlayable;
 
-        public readonly UnityEvent OnAnimationEnd = new ();
+        public readonly UnityEvent OnAnimationEnd = new (); // イベント発火後にRemoveAllListenersされる
         public readonly UnityEvent OnOpen = new();
 
         public enum AnimationType

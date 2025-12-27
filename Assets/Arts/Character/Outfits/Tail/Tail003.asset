@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d1bfbabbcf54f4c99c0c121ca855eff, type: 3}
   m_Name: Tail003
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Tail
+  Thumbnail: {fileID: 21300000, guid: 1aa2c993710cc48ca9ac95c0e8d35f7d, type: 3}
   TailPart: {fileID: 11400000, guid: 44af0a7541a36467ea176deef6567384, type: 2}

@@ -35,6 +35,9 @@ namespace Cat.Character
             var outfitType = outfit.GetType();
             var fields = outfitType.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
+            // TODO: リフレクションを使用しないように修正する
+            //       SpriteRenderを取りまとめるクラスを作り、それをOutfitクラスへ渡すことで
+            //       Spriteをセットするようにする
             foreach (var field in fields)
             {
                 if (field.FieldType == typeof(OutfitPart))

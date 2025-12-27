@@ -14,6 +14,7 @@ namespace Home.View
         [SerializeField] PlayableAsset _outPlayable;
 
         public readonly UnityEvent OnAnimationEnd = new ();
+        public readonly UnityEvent OnOpen = new();
 
         public enum AnimationType
         {
@@ -41,6 +42,12 @@ namespace Home.View
         public void SetBlocksRaycast(bool value)
         {
             _canvasGroup.blocksRaycasts = value;
+        }
+
+        // UIを開いた時のイベント
+        public void Open()
+        {
+            OnOpen.Invoke();
         }
     }
 }

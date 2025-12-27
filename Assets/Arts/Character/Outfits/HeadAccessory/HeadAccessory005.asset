@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c42b3096bf74677a63e6f7840844e4f, type: 3}
   m_Name: HeadAccessory005
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HeadAccessory
+  Thumbnail: {fileID: 21300000, guid: e20939c5df0564be188dc4c92bfd99fe, type: 3}
   HeadAccessoryPart: {fileID: 11400000, guid: 9c58abcc4eaa94070b67faaf1b18187d, type: 2}

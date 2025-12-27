@@ -28,6 +28,7 @@ namespace Home.Scope
             builder.RegisterComponent(_cameraView);
             builder.Register<HomeState>(Lifetime.Scoped);
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
+            builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();
         }

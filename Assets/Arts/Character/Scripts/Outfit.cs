@@ -16,5 +16,7 @@ namespace Cat.Character
     public abstract class Outfit : ScriptableObject
     {
         public abstract OutfitType OutfitType { get; }
+
+        public Sprite Thumbnail;
     }
 }

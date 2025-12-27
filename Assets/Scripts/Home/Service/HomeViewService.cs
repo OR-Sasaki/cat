@@ -66,6 +66,7 @@ namespace Home.Service
             view.gameObject.SetActive(true);
             view.SetBlocksRaycast(true);
             view.PlayAnimation(UiView.AnimationType.In);
+            view.Open();
         }
     }
 }

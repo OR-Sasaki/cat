@@ -61,6 +61,34 @@ namespace Cat.Character
             }
         }
 
+        public void RemoveOutfit(OutfitType outfitType)
+        {
+            var partTypes = GetPartTypes(outfitType);
+            foreach (var partType in partTypes)
+            {
+                var spriteRenderer = GetSpriteRenderer(partType);
+                if (spriteRenderer is not null)
+                {
+                    spriteRenderer.sprite = null;
+                }
+            }
+        }
+
+        PartType[] GetPartTypes(OutfitType outfitType)
+        {
+            return outfitType switch
+            {
+                OutfitType.Body => new[] { PartType.BackFoot, PartType.BackHand, PartType.Body, PartType.FrontFoot, PartType.FrontFootLine, PartType.FrontHand },
+                OutfitType.Cloth => new[] { PartType.ClothBack, PartType.ClothBody, PartType.ClothCollar, PartType.ClothFront },
+                OutfitType.Face => new[] { PartType.Face },
+                OutfitType.HandAccessory => new[] { PartType.HandAccessory },
+                OutfitType.HeadAccessory => new[] { PartType.HeadAccessory },
+                OutfitType.LegAccessory => new[] { PartType.LegAccessoryBack, PartType.LegAccessoryFront },
+                OutfitType.Tail => new[] { PartType.Tail },
+                _ => System.Array.Empty<PartType>(),
+            };
+        }
+
         SpriteRenderer GetSpriteRenderer(PartType partType)
         {
             return partType switch

@@ -1,8 +1,11 @@
+using System.Linq;
 using Cat.Character;
 using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using Home.State;
 using Home.View;
+using Root.Service;
+using Root.State;
 using UnityEngine;
 using VContainer.Unity;
 
@@ -16,13 +19,25 @@ namespace Home.Service
         readonly OutfitSetting _outfitSetting;
         readonly CharacterView _characterView;
         readonly ClosetUiView _closetUiView;
+        readonly PlayerOutfitState _playerOutfitState;
+        readonly PlayerOutfitService _playerOutfitService;
+        readonly MasterDataState _masterDataState;
         SmallList<ClosetOutfitData> _data = new();
 
-        public ClosetScrollerService(OutfitSetting outfitSetting, CharacterView characterView, ClosetUiView closetUiView)
+        public ClosetScrollerService(
+            OutfitSetting outfitSetting,
+            CharacterView characterView,
+            ClosetUiView closetUiView,
+            PlayerOutfitState playerOutfitState,
+            PlayerOutfitService playerOutfitService,
+            MasterDataState masterDataState)
         {
             _outfitSetting = outfitSetting;
             _characterView = characterView;
             _closetUiView = closetUiView;
+            _playerOutfitState = playerOutfitState;
+            _playerOutfitService = playerOutfitService;
+            _masterDataState = masterDataState;
 
             _closetUiView.OnOpen.AddListener(Initialize);
         }
@@ -49,9 +64,20 @@ namespace Home.Service
 
             _data.Clear();
 
+            var equippedOutfitIds = _playerOutfitState.GetAllEquippedOutfitIds();
+
             foreach (var outfit in _outfitSetting.Outfits)
             {
-                _data.Add(new ClosetOutfitData(outfit));
+                var closetData = new ClosetOutfitData(outfit);
+
+                // 装備中のOutfitか確認
+                var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == outfit.name);
+                if (masterOutfit is not null && equippedOutfitIds.TryGetValue(outfit.OutfitType, out var equippedId))
+                {
+                    closetData.Selected = masterOutfit.Id == equippedId;
+                }
+
+                _data.Add(closetData);
             }
 
             _closetUiView.Scroller.ReloadData();
@@ -62,17 +88,45 @@ namespace Home.Service
             if (cellView is null) return;
 
             var selectedDataIndex = cellView.DataIndex;
+            var selectedData = _data[selectedDataIndex];
+            if (selectedData?.Outfit is null) return;
 
+            var selectedOutfitType = selectedData.Outfit.OutfitType;
+            var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == selectedData.Outfit.name);
+
+            // すでに装備済みの場合はUnEquip
+            var equippedId = _playerOutfitState.GetEquippedOutfitId(selectedOutfitType);
+            if (masterOutfit is not null && equippedId == masterOutfit.Id)
+            {
+                // 選択状態を解除
+                selectedData.Selected = false;
+
+                // キャラクターから装備を削除
+                _characterView.RemoveOutfit(selectedOutfitType);
+
+                // PlayerOutfitServiceで保存
+                _playerOutfitService.Unequip(selectedOutfitType);
+                _playerOutfitService.Save();
+                return;
+            }
+
+            // 同じOutfitTypeのものだけ選択状態を更新
             for (var i = 0; i < _data.Count; i++)
             {
-                _data[i].Selected = selectedDataIndex == i;
+                if (_data[i].Outfit.OutfitType == selectedOutfitType)
+                {
+                    _data[i].Selected = selectedDataIndex == i;
+                }
             }
 
             // 選択されたOutfitをキャラクターに適用
-            var selectedData = _data[selectedDataIndex];
-            if (selectedData?.Outfit != null)
+            _characterView.SetOutfit(selectedData.Outfit);
+
+            // PlayerOutfitServiceで保存
+            if (masterOutfit is not null)
             {
-                _characterView.SetOutfit(selectedData.Outfit);
+                _playerOutfitService.Equip(selectedOutfitType, masterOutfit.Id);
+                _playerOutfitService.Save();
             }
         }
 

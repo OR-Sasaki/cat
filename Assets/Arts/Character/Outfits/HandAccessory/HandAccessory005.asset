@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c42b3096bf74677a63e6f7840844e4f, type: 3}
+  m_Script: {fileID: 11500000, guid: 727d90b0b35741bba36dbfd8ebd9dd5d, type: 3}
   m_Name: HandAccessory005
-  m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HeadAccessory
-  Thumbnail: {fileID: 21300000, guid: 17c39c32e80844c8da89c20a37b1d138, type: 3}
-  HeadAccessoryPart: {fileID: 11400000, guid: dc60ccd307a0549a9b242ce1f31973dd, type: 2}
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HandAccessory
+  Thumbnail: {fileID: 0}
+  HandAccessoryPart: {fileID: 0}

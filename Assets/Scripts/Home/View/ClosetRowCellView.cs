@@ -13,9 +13,7 @@ namespace Home.View
     {
         [SerializeField] GameObject _container;
         [SerializeField] Image _outfitImage;
-        [SerializeField] Image _selectionPanel;
-        [SerializeField] Color _selectedColor = new(0.5f, 0.8f, 1f, 1f);
-        [SerializeField] Color _unSelectedColor = new(1f, 1f, 1f, 1f);
+        [SerializeField] GameObject _selectedView;
 
         public int DataIndex { get; private set; }
 
@@ -57,7 +55,7 @@ namespace Home.View
 
         void OnSelectedChanged(bool selected)
         {
-            _selectionPanel.color = selected ? _selectedColor : _unSelectedColor;
+            _selectedView.SetActive(selected);
         }
 
         /// <summary>

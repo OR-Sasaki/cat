@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using Cat.Character;
-using Home.State;
+using Root.Service;
 using Root.State;
 using UnityEngine;
 using VContainer.Unity;
@@ -13,17 +13,20 @@ namespace Home.Starter
         readonly CharacterView _characterView;
         readonly OutfitSetting _outfitSetting;
         readonly PlayerOutfitState _playerOutfitState;
+        readonly PlayerOutfitService _playerOutfitService;
         readonly MasterDataState _masterDataState;
 
         public HomeStarter(
             CharacterView characterView,
             OutfitSetting outfitSetting,
             PlayerOutfitState playerOutfitState,
+            PlayerOutfitService playerOutfitService,
             MasterDataState masterDataState)
         {
             _characterView = characterView;
             _outfitSetting = outfitSetting;
             _playerOutfitState = playerOutfitState;
+            _playerOutfitService = playerOutfitService;
             _masterDataState = masterDataState;
         }
 
@@ -48,12 +51,8 @@ namespace Home.Starter
         void ApplyDefaultOutfits()
         {
             var csv = Resources.Load<TextAsset>("default_outfits");
-            if (csv is null)
-            {
-                Debug.LogError("[HomeStarter] default_outfits.csv not found");
-                return;
-            }
 
+            var hasNewEquip = false;
             var lines = csv.text.Split('\n').Skip(1).Where(line => !string.IsNullOrWhiteSpace(line));
             foreach (var line in lines)
             {
@@ -63,7 +62,20 @@ namespace Home.Starter
                 var outfit = _outfitSetting.Outfits?.FirstOrDefault(o => o.name == outfitName);
                 if (outfit is null) continue;
 
-                _characterView.SetOutfit(outfit);
+                // 同じOutfitTypeがすでに装備されている場合はスキップ
+                if (_playerOutfitState.GetEquippedOutfitId(outfit.OutfitType) is not null) continue;
+
+                // マスターデータからOutfitIdを取得
+                var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == outfitName);
+                if (masterOutfit is null) continue;
+
+                _playerOutfitService.Equip(outfit.OutfitType, masterOutfit.Id);
+                hasNewEquip = true;
+            }
+
+            if (hasNewEquip)
+            {
+                _playerOutfitService.Save();
             }
         }
 

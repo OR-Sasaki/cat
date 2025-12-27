@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Cat.Character;
 using EnhancedUI;
@@ -7,7 +8,9 @@ using Home.View;
 using Root.Service;
 using Root.State;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -17,7 +20,6 @@ namespace Home.Service
     /// </summary>
     public class ClosetScrollerService : IEnhancedScrollerDelegate, IStartable
     {
-        readonly OutfitSetting _outfitSetting;
         readonly CharacterView _characterView;
         readonly ClosetUiView _closetUiView;
         readonly PlayerOutfitState _playerOutfitState;
@@ -25,16 +27,17 @@ namespace Home.Service
         readonly MasterDataState _masterDataState;
         readonly UnityEvent<ClosetRowCellView> _cellSelectedEvent = new();
         SmallList<ClosetOutfitData> _data = new();
+        Dictionary<string, Cat.Character.Outfit> _loadedOutfits = new();
+        int _pendingLoadCount;
+        bool _isOutfitsLoaded;
 
         public ClosetScrollerService(
-            OutfitSetting outfitSetting,
             CharacterView characterView,
             ClosetUiView closetUiView,
             PlayerOutfitState playerOutfitState,
             PlayerOutfitService playerOutfitService,
             MasterDataState masterDataState)
         {
-            _outfitSetting = outfitSetting;
             _characterView = characterView;
             _closetUiView = closetUiView;
             _playerOutfitState = playerOutfitState;
@@ -49,12 +52,52 @@ namespace Home.Service
         {
             var scroller = _closetUiView.Scroller;
             scroller.Delegate = this;
-            LoadData();
+
+            if (_isOutfitsLoaded)
+            {
+                LoadData();
+            }
+            else
+            {
+                LoadOutfitsAsync();
+            }
         }
 
         public void Start()
         {
             // ClosetScrollerServiceはInjectされないため、IStartableをRegisterすることで強制的にインスタンスを作る
+        }
+
+        void LoadOutfitsAsync()
+        {
+            if (_masterDataState.Outfits is null || _masterDataState.Outfits.Length == 0)
+            {
+                Debug.LogError("[ClosetScrollerService] MasterDataState.Outfits is null or empty");
+                return;
+            }
+
+            _pendingLoadCount = _masterDataState.Outfits.Length;
+
+            foreach (var masterOutfit in _masterDataState.Outfits)
+            {
+                var outfitName = masterOutfit.Name;
+                var address = $"{masterOutfit.Type}/{outfitName}.asset";
+                var handle = Addressables.LoadAssetAsync<Cat.Character.Outfit>(address);
+                handle.Completed += h =>
+                {
+                    if (h.Status == AsyncOperationStatus.Succeeded && h.Result is not null)
+                    {
+                        _loadedOutfits[outfitName] = h.Result;
+                    }
+
+                    _pendingLoadCount--;
+                    if (_pendingLoadCount <= 0)
+                    {
+                        _isOutfitsLoaded = true;
+                        LoadData();
+                    }
+                };
+            }
         }
 
         void LoadData()
@@ -67,15 +110,25 @@ namespace Home.Service
 
             _data.Clear();
 
+            if (_masterDataState.Outfits is null)
+            {
+                Debug.LogError("[ClosetScrollerService] MasterDataState.Outfits is null");
+                return;
+            }
+
             var equippedOutfitIds = _playerOutfitState.GetAllEquippedOutfitIds();
 
-            foreach (var outfit in _outfitSetting.Outfits)
+            foreach (var masterOutfit in _masterDataState.Outfits)
             {
+                if (!_loadedOutfits.TryGetValue(masterOutfit.Name, out var outfit))
+                {
+                    continue;
+                }
+
                 var closetData = new ClosetOutfitData(outfit);
 
                 // 装備中のOutfitか確認
-                var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == outfit.name);
-                if (masterOutfit is not null && equippedOutfitIds.TryGetValue(outfit.OutfitType, out var equippedId))
+                if (equippedOutfitIds.TryGetValue(outfit.OutfitType, out var equippedId))
                 {
                     closetData.Selected = masterOutfit.Id == equippedId;
                 }

@@ -13,8 +13,6 @@ namespace Home.Scope
     public class HomeScope : SceneScope
     {
         [SerializeField] CharacterView _characterView;
-        [SerializeField] OutfitSetting _outfitSetting;
-
         [SerializeField] HomeUiView _homeUiView;
         [SerializeField] ClosetUiView _closetUiView;
         [SerializeField] CameraView _cameraView;
@@ -22,7 +20,6 @@ namespace Home.Scope
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(_characterView);
-            builder.RegisterInstance(_outfitSetting);
             builder.RegisterComponent(_homeUiView);
             builder.RegisterComponent(_closetUiView);
             builder.RegisterComponent(_cameraView);

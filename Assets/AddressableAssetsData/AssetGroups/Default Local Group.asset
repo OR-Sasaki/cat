@@ -15,11 +15,6 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: e7806845ddd1a49eab4e3c5e8f5d2cce
   m_SerializeEntries:
-  - m_GUID: 488e7d6eb023241a794b0edb4a9b165f
-    m_Address: Outfits
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 81fbfc6edf58348a6b6a7c6fc879e8bb
     m_Address: OutfitParts
     m_ReadOnly: 0

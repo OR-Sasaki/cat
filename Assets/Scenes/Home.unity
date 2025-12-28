@@ -270,7 +270,6 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 1444508578}
   _characterView: {fileID: 8994825603251842679}
-  _outfitSetting: {fileID: 11400000, guid: 9a9b6a8330d624bef970e67007febf1e, type: 2}
   _homeUiView: {fileID: 514082147}
   _closetUiView: {fileID: 902082513}
   _cameraView: {fileID: 760997518}
@@ -442,7 +441,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2.66
+  orthographic size: 6.34
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -467,7 +466,7 @@ Transform:
   m_GameObject: {fileID: 140467738}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.66, y: 0.21000001, z: -10}
+  m_LocalPosition: {x: 0.66000015, y: 1.4099997, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5665,7 +5664,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 506.63498, y: -76.745}
+  m_AnchoredPosition: {x: 506.635, y: -76.745}
   m_SizeDelta: {x: 174.79, y: 111.07}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1838396423
@@ -6193,19 +6192,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &730696093757148859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4422846014193727685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6961c6adbfb584608ab7a801d7b26bfb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Closet.View.ReturnButtonView
-  _backButton: {fileID: 2161734355334054795}
 --- !u!1 &1131467138067892165
 GameObject:
   m_ObjectHideFlags: 0
@@ -6605,7 +6591,6 @@ GameObject:
   - component: {fileID: 7410652744654581214}
   - component: {fileID: 5000675829051110380}
   - component: {fileID: 2161734355334054795}
-  - component: {fileID: 730696093757148859}
   - component: {fileID: 7410652744654581215}
   m_Layer: 5
   m_Name: BackButton

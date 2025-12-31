@@ -30,16 +30,21 @@ Focus on capabilities and outcomes, not code structure.
 - Validate core functionality early in sequence
 - Respect architecture boundaries defined in design.md (Architecture Pattern & Boundary Map)
 - Honor interface contracts documented in design.md
-- Use major task summaries sparingly—omit detail bullets if the work is fully captured by child tasks.
+- Use task descriptions sparingly—detailed work items go in nested bullet points.
+
+**PR Independence Requirement**:
+- Each PR must be self-contained and compile without errors on its own.
+- Task N must NOT reference definitions that will be created in Task N+1.
+- If Task 1 needs something from Task 2, reorder the tasks or merge them.
 
 **End with integration tasks** to wire everything together.
 
 ### 3. Flexible Task Sizing
 
 **Guidelines**:
-- **Major tasks**: As many sub-tasks as logically needed (group by cohesion)
-- **Sub-tasks**: 1-3 hours each, 3-10 details per sub-task
-- Balance between too granular and too broad
+- **Major tasks**: Group related work by cohesion (1 task = 1 PR)
+- **Task size**: Each task should take 2-8 hours, containing 3-15 detail items
+- Balance between too granular (single file) and too broad (entire feature)
 
 **Don't force arbitrary numbers** - let logical grouping determine structure.
 
@@ -66,22 +71,26 @@ Focus on capabilities and outcomes, not code structure.
 ### Optional Test Coverage Tasks
 
 - When the design already guarantees functional coverage and rapid MVP delivery is prioritized, mark purely test-oriented follow-up work (e.g., baseline rendering/unit tests) as **optional** using the `- [ ]*` checkbox form.
-- Only apply the optional marker when the sub-task directly references acceptance criteria from requirements.md in its detail bullets.
+- Only apply the optional marker when the task directly references acceptance criteria from requirements.md in its detail bullets.
 - Never mark implementation work or integration-critical verification as optional—reserve `*` for auxiliary/deferrable test coverage that can be revisited post-MVP.
 
 ## Task Hierarchy Rules
 
-### Maximum 2 Levels
-- **Level 1**: Major tasks (1, 2, 3, 4...)
-- **Level 2**: Sub-tasks (1.1, 1.2, 2.1, 2.2...)
-- **No deeper nesting** (no 1.1.1)
-- If a major task would contain only a single actionable item, collapse the structure and promote the sub-task to the major level (e.g., replace `1.1` with `1.`).
-- When a major task exists purely as a container, keep the checkbox description concise and avoid duplicating detailed bullets—reserve specifics for its sub-tasks.
+### 1 Task = 1 PR (No Sub-tasks)
+- **Only major tasks** (1, 2, 3, 4...) are used. Do NOT create sub-tasks (1.1, 1.2).
+- Each major task represents one PR-sized unit of work.
+- Group related work into a single major task using nested bullet points and bold subtopics.
+- Major tasks MUST increment sequentially: 1, 2, 3, 4, 5... (never repeat numbers).
 
-### Sequential Numbering
-- Major tasks MUST increment: 1, 2, 3, 4, 5...
-- Sub-tasks reset per major task: 1.1, 1.2, then 2.1, 2.2...
-- Never repeat major task numbers
+**Branch Naming**:
+- Feature branch: `feature/{FEATURE_NAME}`
+- Task branch: `feature/{FEATURE_NAME}-{TASK_NAME}`
+
+### Task Sizing
+- Each task should be a cohesive functional unit (e.g., "Dialog State Management", "Dialog UI Components").
+- Avoid tasks that are too small (single file/definition only) or too large (entire feature).
+- GOOD: Setup tasks, single responsibility + its dependencies, grouped related components.
+- BAD: Single file changes, overly broad "implement everything" tasks.
 
 ### Parallel Analysis (default)
 - Assume parallel analysis is enabled unless explicitly disabled (e.g. `--sequential` flag).
@@ -92,30 +101,29 @@ Focus on capabilities and outcomes, not code structure.
 - Validate that identified parallel tasks operate within separate boundaries defined in the Architecture Pattern & Boundary Map.
 - Confirm API/event contracts from design.md do not overlap in ways that cause conflicts.
 - Append `(P)` immediately after the task number for each parallel-capable task:
-  - Example: `- [ ] 2.1 (P) Build background worker`
-  - Apply to both major tasks and sub-tasks when appropriate.
+  - Example: `- [ ] 2. (P) Build background worker`
 - If sequential mode is requested, omit `(P)` markers entirely.
-- Group parallel tasks logically (same parent when possible) and highlight any ordering caveats in detail bullets.
 - Explicitly call out dependencies that prevent `(P)` even when tasks look similar.
 
 ### Checkbox Format
 ```markdown
-- [ ] 1. Major task description
-- [ ] 1.1 Sub-task description
+- [ ] 1. First major task description
+  - **Subtopic A**
+    - Detail item 1
+    - Detail item 2
+  - **Subtopic B**
+    - Detail item 3
+  - _Requirements: X.X, Y.Y_
+  - _Branch: `feature/feature-name-task-name`_
+
+- [ ] 2. Second major task description
   - Detail item 1
   - Detail item 2
-  - _Requirements: X.X_
-
-- [ ] 1.2 Sub-task description
-  - Detail items...
-  - _Requirements: Y.Y_
-
-- [ ] 1.3 Sub-task description
-  - Detail items...
   - _Requirements: Z.Z, W.W_
+  - _Branch: `feature/feature-name-task-name`_
 
-- [ ] 2. Next major task (NOT 1 again!)
-- [ ] 2.1 Sub-task...
+- [ ] 3. Third major task (NOT 1 or 2 again!)
+  - ...
 ```
 
 ## Requirements Coverage

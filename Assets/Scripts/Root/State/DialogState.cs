@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Root.Dialog
+namespace Root.State
 {
     public class DialogState
     {

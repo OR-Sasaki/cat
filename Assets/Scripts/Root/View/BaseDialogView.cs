@@ -6,8 +6,22 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Root.Dialog
+namespace Root.View
 {
+    public enum DialogResult
+    {
+        Ok,
+        Cancel,
+        Close
+    }
+
+    public interface IDialogArgs { }
+
+    public interface IDialogWithArgs<in TArgs> where TArgs : IDialogArgs
+    {
+        void Initialize(TArgs args);
+    }
+
     [RequireComponent(typeof(CanvasGroup))]
     public abstract class BaseDialogView : MonoBehaviour
     {

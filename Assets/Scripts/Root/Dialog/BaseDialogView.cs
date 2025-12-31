@@ -18,8 +18,6 @@ namespace Root.Dialog
         static readonly int OpenTrigger = Animator.StringToHash("Open");
         static readonly int CloseTrigger = Animator.StringToHash("Close");
 
-        UniTaskCompletionSource? _animationCompletionSource;
-
         public event Action<DialogResult>? OnCloseRequested;
 
         protected virtual void Reset()
@@ -72,24 +70,19 @@ namespace Root.Dialog
             await WaitForAnimationCompleteAsync(cancellationToken);
         }
 
-        // AnimationEventから呼び出す
-        public void OnAnimationComplete()
-        {
-            _animationCompletionSource?.TrySetResult();
-        }
-
         async UniTask WaitForAnimationCompleteAsync(CancellationToken cancellationToken)
         {
-            _animationCompletionSource = new UniTaskCompletionSource();
-
             await UniTask.Yield(cancellationToken);
 
-            var timeoutTask = UniTask.Delay(TimeSpan.FromSeconds(2), cancellationToken: cancellationToken);
-            var completionTask = _animationCompletionSource.Task;
-
-            await UniTask.WhenAny(completionTask, timeoutTask);
-
-            _animationCompletionSource = null;
+            while (_animator != null)
+            {
+                var stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+                if (stateInfo.normalizedTime >= 1.0f)
+                {
+                    break;
+                }
+                await UniTask.Yield(cancellationToken);
+            }
         }
 
         void SetInteractable(bool interactable)

@@ -20,7 +20,7 @@
   - _Requirements: 2.1, 2.2, 2.4, 2.5_
   - _Branch: `feature/dialog-system-dialog-state`_
 
-- [ ] 3. ダイアログUI基盤の実装
+- [x] 3. ダイアログUI基盤の実装
   - **Backdrop表示コンポーネント**
     - 半透明の黒背景を表示するViewコンポーネントを実装
     - CanvasGroupによるalpha制御（基底0.5、ダイアログ毎に+0.1、上限0.9）

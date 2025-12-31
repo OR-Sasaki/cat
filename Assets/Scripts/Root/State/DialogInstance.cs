@@ -1,7 +1,9 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace Root.Dialog
+using Root.View;
+
+namespace Root.State
 {
     public class DialogInstance
     {

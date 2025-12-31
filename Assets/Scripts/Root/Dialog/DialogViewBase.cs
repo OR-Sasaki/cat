@@ -76,10 +76,10 @@ namespace Root.Dialog
                 return;
             }
 
-            // Wait a frame for the animation to start
+            // アニメーション開始を1フレーム待つ
             await UniTask.Yield();
 
-            // Wait for animation to complete
+            // アニメーション完了を待つ
             while (_animator != null)
             {
                 var stateInfo = _animator.GetCurrentAnimatorStateInfo(0);

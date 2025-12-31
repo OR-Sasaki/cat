@@ -99,4 +99,18 @@ namespace Root.Dialog
             }
         }
     }
+
+    public abstract class DialogViewBase<TArgs> : DialogViewBase, IDialogWithArgs<TArgs>
+        where TArgs : IDialogArgs
+    {
+        protected TArgs Args { get; private set; } = default!;
+
+        public void Initialize(TArgs args)
+        {
+            Args = args;
+            OnArgsSet(args);
+        }
+
+        protected virtual void OnArgsSet(TArgs args) { }
+    }
 }

@@ -134,6 +134,12 @@ git push -u origin {task-branch}
 **Title Format:** Japanese, task name (without task number)
 Example: `record型有効化とダイアログ共通型の定義`
 
+**Get Repository URL:**
+```bash
+gh repo view --json url -q .url
+# Example output: https://github.com/owner/repo
+```
+
 **Body Format:**
 ```markdown
 ## タスク
@@ -146,9 +152,9 @@ Example: `record型有効化とダイアログ共通型の定義`
 - ...
 
 ## 関連ドキュメント
-- [Requirements](.kiro/specs/{feature-name}/requirements.md)
-- [Design](.kiro/specs/{feature-name}/design.md)
-- [Tasks](.kiro/specs/{feature-name}/tasks.md)
+- [Requirements]({repo-url}/blob/{task-branch}/.kiro/specs/{feature-name}/requirements.md)
+- [Design]({repo-url}/blob/{task-branch}/.kiro/specs/{feature-name}/design.md)
+- [Tasks]({repo-url}/blob/{task-branch}/.kiro/specs/{feature-name}/tasks.md)
 ```
 
 **Command:**

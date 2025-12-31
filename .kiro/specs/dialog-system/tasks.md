@@ -11,7 +11,7 @@
   - _Requirements: 6.2, 6.4, 6.5, 7.2_
   - _Branch: `feature/dialog-system-foundation-types`_
 
-- [ ] 2. ダイアログ状態管理の実装
+- [x] 2. ダイアログ状態管理の実装
   - Stack構造で表示中ダイアログをLIFO管理する状態クラスを実装
   - スタックへのPush/Pop操作を実装
   - 現在のダイアログ数や最前面のダイアログを取得するプロパティを実装

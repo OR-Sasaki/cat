@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Root.Dialog
 {
@@ -57,6 +58,12 @@ namespace Root.Dialog
             }
 
             var poppedInstances = new List<DialogInstance>();
+
+            if (!_dialogStack.Contains(target))
+            {
+                Debug.LogWarning($"[DialogState] PopUntil: target not found in stack");
+                return poppedInstances;
+            }
 
             while (_dialogStack.Count > 0)
             {

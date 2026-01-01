@@ -35,7 +35,7 @@
   - _Requirements: 1.3, 1.4, 2.3, 3.1, 3.2, 4.1, 4.2, 4.3, 4.4, 6.1_
   - _Branch: `feature/dialog-system-dialog-ui`_
 
-- [ ] 4. ダイアログコンテナの実装
+- [x] 4. ダイアログコンテナの実装
   - **Addressablesによるプレハブロードと表示管理**
     - ダイアログ用Canvasの管理機能を実装
     - Addressablesによるダイアログプレハブのロード機能を実装

@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Root.State;
+using Root.View;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer.Unity;
 
-namespace Root.View
+namespace Root.Service
 {
     public class DialogContainer : ITickable, IDisposable
     {

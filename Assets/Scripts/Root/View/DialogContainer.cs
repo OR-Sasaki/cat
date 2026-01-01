@@ -142,9 +142,9 @@ namespace Root.View
                 _backdropView.SetAlphaByStackIndex(_dialogState.Count - 1);
 
                 var backdropCanvas = _backdropView.GetComponent<Canvas>();
-                if (backdropCanvas != null && _dialogState.Current != null)
+                if (backdropCanvas != null && _dialogState.Current is { } currentDialog)
                 {
-                    backdropCanvas.sortingOrder = _dialogState.Current.SortingOrder - 1;
+                    backdropCanvas.sortingOrder = currentDialog.SortingOrder - 1;
                 }
             }
         }

@@ -186,3 +186,29 @@ Provide brief summary in the language specified in spec.json:
 ### PR Creation Failure
 - Show error message
 - Suggest: manual PR creation with `gh pr create`
+
+## Step 7: Review Response (After PR Review)
+
+Guidelines for addressing PR review feedback.
+
+### Commit Strategy
+- **Do NOT use `git commit --amend`** for review fixes
+- **Create new commits** for each fix so reviewers can see what changed
+- Group related fixes into logical commits (e.g., one commit per review comment)
+
+### Commit Message Format
+Review fix commits should clearly describe what was fixed:
+- `Remove redundant active dialog tracking`
+- `Add stack trace to error log for prefab load failure`
+- `Move DialogContainer from View to Service`
+
+### Push
+```bash
+git push origin {task-branch}
+```
+
+### Reply to Review
+After pushing fixes, reply to the review comment summarizing:
+1. What was fixed
+2. How it was fixed
+3. Any additional improvements made

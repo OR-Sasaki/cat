@@ -112,8 +112,10 @@ namespace Root.View
 
             if (handle.Status != AsyncOperationStatus.Succeeded)
             {
-                var error = handle.OperationException?.Message ?? "Unknown error";
-                Debug.LogError($"[DialogContainer] Failed to load prefab '{addressableKey}': {error}");
+                var exception = handle.OperationException;
+                var error = exception?.Message ?? "Unknown error";
+                var stackTrace = exception?.StackTrace ?? "";
+                Debug.LogError($"[DialogContainer] Failed to load prefab '{addressableKey}': {error}\n{stackTrace}");
                 if (handle.IsValid())
                 {
                     Addressables.Release(handle);

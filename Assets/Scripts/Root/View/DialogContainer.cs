@@ -16,7 +16,6 @@ namespace Root.View
     {
         readonly DialogState _dialogState;
         readonly Dictionary<string, AsyncOperationHandle<GameObject>> _prefabCache = new();
-        readonly List<(DialogInstance instance, AsyncOperationHandle<GameObject> handle)> _activeDialogs = new();
 
         Canvas? _dialogCanvas;
         BackdropView? _backdropView;
@@ -126,14 +125,6 @@ namespace Root.View
             return handle.Result;
         }
 
-        public void RegisterActiveDialog(DialogInstance instance, string addressableKey)
-        {
-            if (_prefabCache.TryGetValue(addressableKey, out var handle))
-            {
-                _activeDialogs.Add((instance, handle));
-            }
-        }
-
         public void UpdateBackdrop()
         {
             if (_backdropView == null)
@@ -161,12 +152,6 @@ namespace Root.View
             if (instance.View != null)
             {
                 UnityEngine.Object.Destroy(instance.View.gameObject);
-            }
-
-            var index = _activeDialogs.FindIndex(x => x.instance == instance);
-            if (index >= 0)
-            {
-                _activeDialogs.RemoveAt(index);
             }
         }
 
@@ -202,15 +187,6 @@ namespace Root.View
             {
                 _backdropView.OnClicked -= OnBackdropClicked;
             }
-
-            foreach (var (_, handle) in _activeDialogs)
-            {
-                if (handle.IsValid())
-                {
-                    Addressables.Release(handle);
-                }
-            }
-            _activeDialogs.Clear();
 
             foreach (var handle in _prefabCache.Values)
             {

@@ -59,7 +59,7 @@ namespace Root.View
             OnCloseRequested?.Invoke(result);
         }
 
-        public async UniTask PlayOpenAnimationAsync(CancellationToken cancellationToken = default)
+        public async UniTask PlayOpenAnimationAsync(CancellationToken cancellationToken)
         {
             if (_animator == null)
             {
@@ -72,7 +72,7 @@ namespace Root.View
             SetInteractable(true);
         }
 
-        public async UniTask PlayCloseAnimationAsync(CancellationToken cancellationToken = default)
+        public async UniTask PlayCloseAnimationAsync(CancellationToken cancellationToken)
         {
             if (_animator == null)
             {

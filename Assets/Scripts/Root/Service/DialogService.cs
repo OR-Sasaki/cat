@@ -208,6 +208,11 @@ namespace Root.Service
 
         void CloseDialogImmediate(DialogInstance instance)
         {
+            if (_dialogState.Current != instance)
+            {
+                return;
+            }
+
             _dialogState.Pop();
             _dialogContainer.DestroyDialog(instance);
             _dialogContainer.UpdateBackdrop();

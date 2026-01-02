@@ -79,12 +79,14 @@ namespace Cat
         }
 
         /// <summary>
-        /// ワールド座標を最寄りの床グリッド位置にスナップ
+        /// ワールド座標を最寄りの床グリッドセルの中心にスナップ
         /// </summary>
         public Vector3 SnapToFloorGrid(Vector3 worldPos)
         {
             var gridPos = WorldToFloorGrid(worldPos);
-            return FloorGridToWorld(gridPos);
+            // セルの中心にスナップ（グリッド座標に0.5を加算）
+            var cellCenter = (gridPos.x + 0.5f) * _xAxis + (gridPos.y + 0.5f) * _yAxis;
+            return transform.position + (Vector3)cellCenter;
         }
 
         /// <summary>

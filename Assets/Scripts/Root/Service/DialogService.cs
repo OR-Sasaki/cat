@@ -88,13 +88,7 @@ namespace Root.Service
             using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var linkedToken = linkedCts.Token;
 
-            await using var registration = linkedToken.Register(() =>
-            {
-                if (_dialogState.Current == dialogInstance)
-                {
-                    CloseDialogImmediate(dialogInstance);
-                }
-            });
+            await using var registration = linkedToken.Register(() => CloseDialogImmediate(dialogInstance));
 
             try
             {

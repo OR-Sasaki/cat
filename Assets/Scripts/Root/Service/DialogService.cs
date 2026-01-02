@@ -14,7 +14,6 @@ namespace Root.Service
         readonly DialogState _dialogState;
         readonly DialogContainer _dialogContainer;
 
-        DialogInstance? _activeDialogInstance;
         bool _isDisposed;
 
         public bool HasOpenDialog => _dialogState.HasDialog;

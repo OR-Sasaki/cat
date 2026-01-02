@@ -8,10 +8,10 @@ namespace Root.Service
 {
     public interface IDialogService
     {
-        UniTask<DialogResult> OpenAsync<TDialog>(CancellationToken cancellationToken = default)
+        UniTask<DialogResult> OpenAsync<TDialog>(CancellationToken cancellationToken)
             where TDialog : BaseDialogView;
 
-        UniTask<DialogResult> OpenAsync<TDialog, TArgs>(TArgs args, CancellationToken cancellationToken = default)
+        UniTask<DialogResult> OpenAsync<TDialog, TArgs>(TArgs args, CancellationToken cancellationToken)
             where TDialog : BaseDialogView, IDialogWithArgs<TArgs>
             where TArgs : IDialogArgs;
 

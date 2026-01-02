@@ -25,14 +25,14 @@ namespace Root.Service
             _dialogContainer.OnBackButtonPressed += HandleBackButtonPressed;
         }
 
-        public async UniTask<DialogResult> OpenAsync<TDialog>(CancellationToken cancellationToken = default)
+        public async UniTask<DialogResult> OpenAsync<TDialog>(CancellationToken cancellationToken)
             where TDialog : BaseDialogView
         {
             var addressableKey = GetAddressableKey<TDialog>();
             return await OpenDialogInternalAsync<TDialog>(addressableKey, null, cancellationToken);
         }
 
-        public async UniTask<DialogResult> OpenAsync<TDialog, TArgs>(TArgs args, CancellationToken cancellationToken = default)
+        public async UniTask<DialogResult> OpenAsync<TDialog, TArgs>(TArgs args, CancellationToken cancellationToken)
             where TDialog : BaseDialogView, IDialogWithArgs<TArgs>
             where TArgs : IDialogArgs
         {
@@ -92,7 +92,7 @@ namespace Root.Service
             {
                 if (_dialogState.Current == dialogInstance)
                 {
-                    CloseDialogAsync(dialogInstance, DialogResult.Cancel).Forget();
+                    CloseDialogImmediate(dialogInstance);
                 }
             });
 
@@ -102,30 +102,23 @@ namespace Root.Service
             }
             catch (OperationCanceledException)
             {
-                await CloseDialogImmediateAsync(dialogInstance);
+                CloseDialogImmediate(dialogInstance);
                 throw;
             }
 
-            try
-            {
-                return await dialogInstance.CompletionSource.Task;
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
+            return await dialogInstance.CompletionSource.Task;
         }
 
         void HandleCloseRequested(DialogInstance instance, DialogResult result)
         {
-            CloseDialogAsync(instance, result).Forget();
+            CloseDialogFireAndForget(instance, result).Forget();
         }
 
         void HandleBackButtonPressed()
         {
             if (_dialogState.Current is { } currentDialog)
             {
-                CloseDialogAsync(currentDialog, DialogResult.Cancel).Forget();
+                CloseDialogFireAndForget(currentDialog, DialogResult.Cancel).Forget();
             }
         }
 
@@ -139,26 +132,62 @@ namespace Root.Service
 
             if (closeParent)
             {
-                CloseWithParentAsync(currentDialog, result).Forget();
+                CloseWithParentFireAndForget(currentDialog, result).Forget();
             }
             else
             {
-                CloseDialogAsync(currentDialog, result).Forget();
+                CloseDialogFireAndForget(currentDialog, result).Forget();
             }
         }
 
-        async UniTask CloseWithParentAsync(DialogInstance targetDialog, DialogResult result)
+        async UniTaskVoid CloseWithParentFireAndForget(DialogInstance targetDialog, DialogResult result)
         {
-            var dialogsToClose = _dialogState.PopUntil(targetDialog);
-
-            foreach (var dialog in dialogsToClose)
+            try
             {
-                var dialogView = dialog.View as BaseDialogView;
-                if (dialogView != null)
+                var dialogsToClose = _dialogState.PopUntil(targetDialog);
+
+                foreach (var dialog in dialogsToClose)
+                {
+                    if (dialog.View is BaseDialogView dialogView)
+                    {
+                        try
+                        {
+                            await dialogView.PlayCloseAnimationAsync(CancellationToken.None);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"[DialogService] Error during close animation: {e.Message}\n{e.StackTrace}");
+                        }
+                    }
+
+                    _dialogContainer.DestroyDialog(dialog);
+                    dialog.CompletionSource.TrySetResult(result);
+                }
+
+                _dialogContainer.UpdateBackdrop();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[DialogService] Error during CloseWithParent: {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        async UniTaskVoid CloseDialogFireAndForget(DialogInstance instance, DialogResult result)
+        {
+            try
+            {
+                if (_dialogState.Current != instance)
+                {
+                    return;
+                }
+
+                _dialogState.Pop();
+
+                if (instance.View is BaseDialogView dialogView)
                 {
                     try
                     {
-                        await dialogView.PlayCloseAnimationAsync();
+                        await dialogView.PlayCloseAnimationAsync(CancellationToken.None);
                     }
                     catch (Exception e)
                     {
@@ -166,48 +195,23 @@ namespace Root.Service
                     }
                 }
 
-                _dialogContainer.DestroyDialog(dialog);
-                dialog.CompletionSource.TrySetResult(result);
-            }
+                _dialogContainer.DestroyDialog(instance);
+                _dialogContainer.UpdateBackdrop();
 
-            _dialogContainer.UpdateBackdrop();
+                instance.CompletionSource.TrySetResult(result);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[DialogService] Error during CloseDialog: {e.Message}\n{e.StackTrace}");
+            }
         }
 
-        async UniTask CloseDialogAsync(DialogInstance instance, DialogResult result)
-        {
-            if (_dialogState.Current != instance)
-            {
-                return;
-            }
-
-            _dialogState.Pop();
-
-            var dialogView = instance.View as BaseDialogView;
-            if (dialogView != null)
-            {
-                try
-                {
-                    await dialogView.PlayCloseAnimationAsync();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[DialogService] Error during close animation: {e.Message}\n{e.StackTrace}");
-                }
-            }
-
-            _dialogContainer.DestroyDialog(instance);
-            _dialogContainer.UpdateBackdrop();
-
-            instance.CompletionSource.TrySetResult(result);
-        }
-
-        async UniTask CloseDialogImmediateAsync(DialogInstance instance)
+        void CloseDialogImmediate(DialogInstance instance)
         {
             _dialogState.Pop();
             _dialogContainer.DestroyDialog(instance);
             _dialogContainer.UpdateBackdrop();
             instance.CompletionSource.TrySetCanceled();
-            await UniTask.CompletedTask;
         }
 
         static string GetAddressableKey<TDialog>() where TDialog : BaseDialogView

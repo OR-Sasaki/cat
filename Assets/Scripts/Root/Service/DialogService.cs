@@ -85,14 +85,11 @@ namespace Root.Service
 
             dialogView.OnCloseRequested += result => HandleCloseRequested(dialogInstance, result);
 
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var linkedToken = linkedCts.Token;
-
-            await using var registration = linkedToken.Register(() => CloseDialogImmediate(dialogInstance));
+            await using var registration = cancellationToken.Register(() => CloseDialogImmediate(dialogInstance));
 
             try
             {
-                await dialogView.PlayOpenAnimationAsync(linkedToken);
+                await dialogView.PlayOpenAnimationAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {

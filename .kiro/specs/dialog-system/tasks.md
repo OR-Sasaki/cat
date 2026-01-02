@@ -50,7 +50,7 @@
   - _Requirements: 1.1, 1.2, 3.3, 5.1, 5.5, 5.6_
   - _Branch: `feature/dialog-system-dialog-container`_
 
-- [ ] 5. ダイアログサービスの実装
+- [x] 5. ダイアログサービスの実装
   - **非同期ダイアログ表示API**
     - UniTaskCompletionSourceを使用した非同期待機管理を実装
     - 引数なしダイアログを開くOpenAsyncメソッドを実装

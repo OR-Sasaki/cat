@@ -65,7 +65,7 @@
   - _Requirements: 1.1, 6.1, 6.3, 7.1, 7.3, 7.4_
   - _Branch: `feature/dialog-system-dialog-service`_
 
-- [ ] 6. (P) VContainer統合とダイアログプレハブ作成
+- [x] 6. (P) VContainer統合とダイアログプレハブ作成
   - **RootScopeへの登録**
     - DialogService、DialogState、DialogContainerをRootScopeにSingleton登録
     - インターフェースによる依存性注入設定を実装

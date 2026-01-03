@@ -9,6 +9,7 @@ using Root.View;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using VContainer;
 using VContainer.Unity;
 
 namespace Root.Service
@@ -24,6 +25,7 @@ namespace Root.Service
 
         public event Action? OnBackButtonPressed;
 
+        [Inject]
         public DialogContainer(DialogState dialogState)
         {
             _dialogState = dialogState;

@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Root.State;
 using Root.View;
 using UnityEngine;
+using VContainer;
 
 namespace Root.Service
 {
@@ -18,6 +19,7 @@ namespace Root.Service
 
         public bool HasOpenDialog => _dialogState.HasDialog;
 
+        [Inject]
         public DialogService(DialogState dialogState, DialogContainer dialogContainer)
         {
             _dialogState = dialogState;

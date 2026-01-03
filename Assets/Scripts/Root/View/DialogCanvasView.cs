@@ -23,6 +23,7 @@ namespace Root.View
         void Reset()
         {
             _dialogCanvas = GetComponent<Canvas>();
+            _backdropView = GetComponentInChildren<BackdropView>();
         }
 
         void Start()

@@ -29,19 +29,19 @@ namespace Root.View
         {
             if (_dialogContainer == null)
             {
-                Debug.LogError("[DialogCanvasInitializer] DialogContainer is not injected.");
+                Debug.LogError("[DialogCanvasView] DialogContainer is not injected.");
                 return;
             }
 
             if (_dialogCanvas == null)
             {
-                Debug.LogError("[DialogCanvasInitializer] DialogCanvas is not assigned.");
+                Debug.LogError("[DialogCanvasView] DialogCanvas is not assigned.");
                 return;
             }
 
             if (_backdropView == null)
             {
-                Debug.LogError("[DialogCanvasInitializer] BackdropView is not assigned.");
+                Debug.LogError("[DialogCanvasView] BackdropView is not assigned.");
                 return;
             }
 

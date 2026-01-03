@@ -14,12 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Dialogs
   m_GUID: ce31d1e2c96aa714c9a4c840f850d36a
-  m_SerializeEntries:
-  - m_GUID: 55284411cf3149d499d41e2f2d4f4260
-    m_Address: Dialogs/SampleDialog
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 0fdc12809a15643368e99ab31e710690, type: 2}
   m_SchemaSet:

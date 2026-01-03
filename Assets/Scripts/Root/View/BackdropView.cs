@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace Root.View
 {
+    [RequireComponent(typeof(Canvas))]
     [RequireComponent(typeof(CanvasGroup))]
     [RequireComponent(typeof(Image))]
     public class BackdropView : MonoBehaviour, IPointerClickHandler
@@ -15,18 +16,28 @@ namespace Root.View
         const float AlphaIncrement = 0.1f;
         const float MaxAlpha = 0.9f;
 
+        [SerializeField] Canvas? _canvas;
         [SerializeField] CanvasGroup? _canvasGroup;
+
+        public Canvas? Canvas => _canvas;
 
         public event Action? OnClicked;
 
         void Reset()
         {
+            _canvas = GetComponent<Canvas>();
             _canvasGroup = GetComponent<CanvasGroup>();
         }
 
         void Awake()
         {
+            _canvas ??= GetComponent<Canvas>();
             _canvasGroup ??= GetComponent<CanvasGroup>();
+
+            if (_canvas != null)
+            {
+                _canvas.overrideSorting = true;
+            }
         }
 
         public void SetAlphaByStackIndex(int stackIndex)

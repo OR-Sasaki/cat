@@ -29,13 +29,14 @@ namespace Root.View
         [SerializeField] Button? _closeButton;
         [SerializeField] CanvasGroup? _canvasGroup;
 
-        static readonly int OpenTrigger = Animator.StringToHash("Open");
-        static readonly int CloseTrigger = Animator.StringToHash("Close");
+        static readonly int OpenState = Animator.StringToHash("Open");
+        static readonly int CloseState = Animator.StringToHash("Close");
 
         public event Action<DialogResult>? OnCloseRequested;
 
         protected virtual void Reset()
         {
+            _animator = GetComponent<Animator>();
             _canvasGroup = GetComponent<CanvasGroup>();
         }
 
@@ -67,7 +68,7 @@ namespace Root.View
             }
 
             SetInteractable(false);
-            _animator.SetTrigger(OpenTrigger);
+            _animator.Play(OpenState);
             await WaitForAnimationCompleteAsync(cancellationToken);
             SetInteractable(true);
         }
@@ -80,7 +81,7 @@ namespace Root.View
             }
 
             SetInteractable(false);
-            _animator.SetTrigger(CloseTrigger);
+            _animator.Play(CloseState);
             await WaitForAnimationCompleteAsync(cancellationToken);
         }
 

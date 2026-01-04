@@ -17,6 +17,7 @@ namespace Root.Service
     public class DialogContainer : ITickable, IDisposable
     {
         readonly DialogState _dialogState;
+        readonly IObjectResolver _resolver;
         readonly Dictionary<string, AsyncOperationHandle<GameObject>> _prefabCache = new();
 
         Canvas? _dialogCanvas;
@@ -26,9 +27,10 @@ namespace Root.Service
         public event Action? OnBackButtonPressed;
 
         [Inject]
-        public DialogContainer(DialogState dialogState)
+        public DialogContainer(DialogState dialogState, IObjectResolver resolver)
         {
             _dialogState = dialogState;
+            _resolver = resolver;
         }
 
         public void SetCanvas(Canvas canvas)
@@ -59,6 +61,9 @@ namespace Root.Service
 
             var prefab = await LoadPrefabAsync(addressableKey, cancellationToken);
             var instance = UnityEngine.Object.Instantiate(prefab, _dialogCanvas.transform);
+
+            // Inject dependencies into dynamically instantiated dialog
+            _resolver.InjectGameObject(instance);
 
             var dialogView = instance.GetComponent<BaseDialogView>();
             if (dialogView == null)

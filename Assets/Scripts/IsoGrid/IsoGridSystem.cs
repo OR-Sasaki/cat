@@ -13,10 +13,15 @@ namespace Cat
         [Header("Wall Settings")]
         [SerializeField] int _wallHeight = 5;
 
+        [Header("Debug")]
+        [SerializeField] string _floorCellsDebugView = "";
+
         Vector2 _xAxis;
         Vector2 _yAxis;
         Vector2 _zAxis;
         float _determinant;
+
+        IsoGridCell[,] _floorCells;
 
         public int GridWidth => _gridWidth;
         public int GridHeight => _gridHeight;
@@ -28,11 +33,47 @@ namespace Cat
         void Awake()
         {
             UpdateAxisVectors();
+            InitializeCells();
+        }
+
+        /// <summary>
+        /// セル配列を初期化
+        /// </summary>
+        void InitializeCells()
+        {
+            _floorCells = new IsoGridCell[_gridWidth, _gridHeight];
         }
 
         void OnValidate()
         {
             UpdateAxisVectors();
+        }
+
+        void Update()
+        {
+            UpdateFloorCellsDebugView();
+        }
+
+        /// <summary>
+        /// デバッグ用にセル配列の内容を文字列化
+        /// </summary>
+        void UpdateFloorCellsDebugView()
+        {
+            if (_floorCells == null) return;
+
+            var sb = new System.Text.StringBuilder();
+            // Y軸を上から下に表示（グリッド座標のY=maxが上）
+            for (var y = _gridHeight - 1; y >= 0; y--)
+            {
+                for (var x = 0; x < _gridWidth; x++)
+                {
+                    var objectId = _floorCells[x, y].ObjectId;
+                    sb.Append(objectId == 0 ? "." : objectId.ToString());
+                    if (x < _gridWidth - 1) sb.Append(" ");
+                }
+                if (y > 0) sb.AppendLine();
+            }
+            _floorCellsDebugView = sb.ToString();
         }
 
         /// <summary>
@@ -132,6 +173,71 @@ namespace Cat
         {
             return gridX >= 0 && gridX < _gridWidth
                 && gridZ >= 0 && gridZ < _wallHeight;
+        }
+
+        /// <summary>
+        /// 指定位置のセル情報を取得
+        /// </summary>
+        public IsoGridCell GetCell(Vector2Int gridPos)
+        {
+            if (!IsValidFloorPosition(gridPos))
+            {
+                return default;
+            }
+            return _floorCells[gridPos.x, gridPos.y];
+        }
+
+        /// <summary>
+        /// 指定範囲のセルにオブジェクトを配置
+        /// </summary>
+        public void PlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int objectId)
+        {
+            for (var x = 0; x < footprintSize.x; x++)
+            {
+                for (var y = 0; y < footprintSize.y; y++)
+                {
+                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
+                    if (!IsValidFloorPosition(cellPos)) continue;
+
+                    _floorCells[cellPos.x, cellPos.y].ObjectId = objectId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 指定範囲のセルからオブジェクトを削除
+        /// </summary>
+        public void RemoveObject(Vector2Int footprintStart, Vector2Int footprintSize)
+        {
+            for (var x = 0; x < footprintSize.x; x++)
+            {
+                for (var y = 0; y < footprintSize.y; y++)
+                {
+                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
+                    if (!IsValidFloorPosition(cellPos)) continue;
+
+                    _floorCells[cellPos.x, cellPos.y].Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 指定範囲が配置可能かチェック（自分自身のIDは無視）
+        /// </summary>
+        public bool CanPlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int selfObjectId = 0)
+        {
+            for (var x = 0; x < footprintSize.x; x++)
+            {
+                for (var y = 0; y < footprintSize.y; y++)
+                {
+                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
+                    if (!IsValidFloorPosition(cellPos)) return false;
+
+                    var cell = _floorCells[cellPos.x, cellPos.y];
+                    if (cell.IsOccupied && cell.ObjectId != selfObjectId) return false;
+                }
+            }
+            return true;
         }
     }
 }

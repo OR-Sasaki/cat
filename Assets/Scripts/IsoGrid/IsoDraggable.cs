@@ -16,7 +16,13 @@ namespace Cat
         [Tooltip("オブジェクト内のピボット位置（IsoGrid座標）。フットプリントの左下を(0,0)とする")]
         [SerializeField] Vector2Int _pivotGridPosition = Vector2Int.zero;
 
+        [Header("Object Settings")]
+        [SerializeField] int _objectId;
+
         IsoGridSystem _gridSystem;
+        Vector2Int _currentFootprintStartPos;
+        Vector2Int _dragStartFootprintPos;
+        bool _isPlaced;
         bool _isDragging;
         Vector3 _dragOffset;
         Camera _mainCamera;
@@ -49,6 +55,14 @@ namespace Cat
             var mouseWorldPos = GetMouseWorldPosition();
             _dragOffset = transform.position - mouseWorldPos;
 
+            // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
+            _dragStartFootprintPos = _currentFootprintStartPos;
+            if (_isPlaced)
+            {
+                _gridSystem.RemoveObject(_currentFootprintStartPos, _footprintSize);
+                _isPlaced = false;
+            }
+
             // ソートオーダーを一時的に上げる
             if (_spriteRenderer != null)
             {
@@ -71,10 +85,27 @@ namespace Cat
 
             _isDragging = false;
 
-            // グリッドにスナップ（pivotOffsetを考慮）
+            // グリッドにスナップして配置
             if (_gridSystem != null)
             {
-                transform.position = SnapToGridWithPivot(transform.position);
+                var gridPos = _gridSystem.WorldToFloorGrid(transform.position);
+                var newFootprintStartPos = gridPos - _pivotGridPosition;
+
+                // 配置可能かチェック
+                if (_gridSystem.CanPlaceObject(newFootprintStartPos, _footprintSize, _objectId))
+                {
+                    // 新しい位置に配置
+                    _currentFootprintStartPos = newFootprintStartPos;
+                }
+                else
+                {
+                    // 配置不可能なら元の位置に戻す
+                    _currentFootprintStartPos = _dragStartFootprintPos;
+                }
+
+                transform.position = SnapToGrid(_currentFootprintStartPos);
+                _gridSystem.PlaceObject(_currentFootprintStartPos, _footprintSize, _objectId);
+                _isPlaced = true;
             }
 
             // ソートオーダーを元に戻す
@@ -85,21 +116,15 @@ namespace Cat
         }
 
         /// <summary>
-        /// ピボット位置を考慮してグリッド頂点にスナップ
+        /// フットプリント開始位置からピボット位置のワールド座標を計算
         /// </summary>
-        Vector3 SnapToGridWithPivot(Vector3 worldPos)
+        Vector3 SnapToGrid(Vector2Int footprintStartPos)
         {
-            // 現在のワールド位置をグリッド座標に変換
-            var gridPos = _gridSystem.WorldToFloorGrid(worldPos);
-
             // 軸ベクトルを計算
             var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
             var cellSize = _gridSystem.CellSize;
             var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-
-            // フットプリントの左下位置を計算
-            var footprintStartPos = gridPos - _pivotGridPosition;
 
             // ピボット位置のグリッド頂点のワールド座標を計算
             var pivotVertex = (footprintStartPos.x + _pivotGridPosition.x) * xAxis +
@@ -135,24 +160,11 @@ namespace Cat
             var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var origin = _gridSystem.Origin;
 
-            // 全セルが有効かチェック
-            var allValid = true;
-            for (var x = 0; x < _footprintSize.x; x++)
-            {
-                for (var y = 0; y < _footprintSize.y; y++)
-                {
-                    var cellPos = new Vector2Int(footprintStartPos.x + x, footprintStartPos.y + y);
-                    if (!_gridSystem.IsValidFloorPosition(cellPos))
-                    {
-                        allValid = false;
-                        break;
-                    }
-                }
-                if (!allValid) break;
-            }
+            // 配置可能かチェック
+            var canPlace = _gridSystem.CanPlaceObject(footprintStartPos, _footprintSize, _objectId);
 
-            // 有効な位置なら緑、無効なら赤
-            var color = allValid ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
+            // 配置可能なら緑、不可能なら赤
+            var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
             Gizmos.color = color;
 
             // footprintSize分のセルを描画
@@ -179,7 +191,7 @@ namespace Cat
             var outerCorner2 = footprintOrigin + (Vector3)(xAxis * _footprintSize.x + yAxis * _footprintSize.y);
             var outerCorner3 = footprintOrigin + (Vector3)(yAxis * _footprintSize.y);
 
-            Gizmos.color = allValid ? Color.green : Color.red;
+            Gizmos.color = canPlace ? Color.green : Color.red;
             Gizmos.DrawLine(outerCorner0, outerCorner1);
             Gizmos.DrawLine(outerCorner1, outerCorner2);
             Gizmos.DrawLine(outerCorner2, outerCorner3);

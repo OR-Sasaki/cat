@@ -184,8 +184,13 @@ namespace Root.Service
                 return;
             }
 
+            if (_backdropView != null && !_backdropView.IsInteractable)
+            {
+                return;
+            }
+
             // AndroidではEscapeキーがバックボタンにマッピングされている
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (UnityEngine.InputSystem.Keyboard.current.escapeKey.wasReleasedThisFrame)
             {
                 OnBackButtonPressed?.Invoke();
             }

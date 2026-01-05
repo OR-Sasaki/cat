@@ -21,6 +21,8 @@ namespace Root.View
 
         public Canvas? Canvas => _canvas;
 
+        public bool IsInteractable => _canvasGroup != null && _canvasGroup.blocksRaycasts;
+
         public event Action? OnClicked;
 
         void Reset()

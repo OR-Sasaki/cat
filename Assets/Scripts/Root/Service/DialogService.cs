@@ -138,6 +138,7 @@ namespace Root.Service
             try
             {
                 var dialogsToClose = _dialogState.PopUntil(targetDialog);
+                _dialogContainer.SetBackdropInteractable(false);
 
                 foreach (var dialog in dialogsToClose)
                 {
@@ -163,6 +164,10 @@ namespace Root.Service
             {
                 Debug.LogError($"[DialogService] Error during CloseWithParent: {e.Message}\n{e.StackTrace}");
             }
+            finally
+            {
+                _dialogContainer.SetBackdropInteractable(true);
+            }
         }
 
         async UniTaskVoid CloseDialogFireAndForget(DialogInstance instance, DialogResult result)
@@ -175,6 +180,7 @@ namespace Root.Service
                 }
 
                 _dialogState.Pop();
+                _dialogContainer.SetBackdropInteractable(false);
 
                 if (instance.View is BaseDialogView dialogView)
                 {
@@ -196,6 +202,10 @@ namespace Root.Service
             catch (Exception e)
             {
                 Debug.LogError($"[DialogService] Error during CloseDialog: {e.Message}\n{e.StackTrace}");
+            }
+            finally
+            {
+                _dialogContainer.SetBackdropInteractable(true);
             }
         }
 

@@ -21,6 +21,8 @@ namespace Root.View
 
         public Canvas? Canvas => _canvas;
 
+        public bool IsInteractable => _canvasGroup != null && _canvasGroup.blocksRaycasts;
+
         public event Action? OnClicked;
 
         void Reset()
@@ -49,6 +51,16 @@ namespace Root.View
 
             var alpha = BaseAlpha + (stackIndex * AlphaIncrement);
             _canvasGroup.alpha = Mathf.Min(alpha, MaxAlpha);
+        }
+
+        public void SetInteractable(bool interactable)
+        {
+            if (_canvasGroup == null)
+            {
+                return;
+            }
+
+            _canvasGroup.blocksRaycasts = interactable;
         }
 
         public void OnPointerClick(PointerEventData eventData)

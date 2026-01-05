@@ -51,6 +51,16 @@ namespace Root.View
             _canvasGroup.alpha = Mathf.Min(alpha, MaxAlpha);
         }
 
+        public void SetInteractable(bool interactable)
+        {
+            if (_canvasGroup == null)
+            {
+                return;
+            }
+
+            _canvasGroup.blocksRaycasts = interactable;
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
             OnClicked?.Invoke();

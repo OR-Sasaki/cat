@@ -156,6 +156,14 @@ namespace Root.Service
             }
         }
 
+        public void SetBackdropInteractable(bool interactable)
+        {
+            if (_backdropView != null)
+            {
+                _backdropView.SetInteractable(interactable);
+            }
+        }
+
         public void DestroyDialog(DialogInstance instance)
         {
             if (instance.View != null)

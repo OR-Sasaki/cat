@@ -68,9 +68,15 @@ namespace Root.View
             }
 
             SetInteractable(false);
-            _animator.Play(OpenState);
-            await WaitForAnimationCompleteAsync(cancellationToken);
-            SetInteractable(true);
+            try
+            {
+                _animator.Play(OpenState);
+                await WaitForAnimationCompleteAsync(cancellationToken);
+            }
+            finally
+            {
+                SetInteractable(true);
+            }
         }
 
         public async UniTask PlayCloseAnimationAsync(CancellationToken cancellationToken)

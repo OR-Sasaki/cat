@@ -190,7 +190,8 @@ namespace Root.Service
             }
 
             // AndroidではEscapeキーがバックボタンにマッピングされている
-            if (UnityEngine.InputSystem.Keyboard.current.escapeKey.wasReleasedThisFrame)
+            if (UnityEngine.InputSystem.Keyboard.current is { } keyboard &&
+                keyboard.escapeKey.wasReleasedThisFrame)
             {
                 OnBackButtonPressed?.Invoke();
             }

@@ -17,7 +17,15 @@ namespace Root.Service
         {
             if (_masterDataState.IsImported) return;
 
-            var csv = Resources.Load<TextAsset>("outfit");
+            ImportOutfits();
+            ImportFurnitures();
+
+            _masterDataState.IsImported = true;
+        }
+
+        void ImportOutfits()
+        {
+            var csv = Resources.Load<TextAsset>("outfits");
             if (csv is null)
             {
                 Debug.LogError("[MasterDataImportService] outfit.csv not found");
@@ -35,8 +43,28 @@ namespace Root.Service
                     Name = columns[2].Trim()
                 };
             }).ToArray();
+        }
 
-            _masterDataState.IsImported = true;
+        void ImportFurnitures()
+        {
+            var csv = Resources.Load<TextAsset>("furnitures");
+            if (csv is null)
+            {
+                Debug.LogError("[MasterDataImportService] furniture.csv not found");
+                return;
+            }
+
+            var lines = csv.text.Split('\n').Skip(1).Where(line => !string.IsNullOrWhiteSpace(line));
+            _masterDataState.Furnitures = lines.Select(line =>
+            {
+                var columns = line.Split(',');
+                return new Furniture
+                {
+                    Id = uint.Parse(columns[0].Trim()),
+                    Type = columns[1].Trim(),
+                    Name = columns[2].Trim()
+                };
+            }).ToArray();
         }
     }
 }

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Furnitures
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Furnitures
+  m_GUID: c913bb8d11b0d4aba9e2f9da54321081
+  m_SerializeEntries:
+  - m_GUID: 0ad5f7cf49ba0481fa1efd0a39a4aefa
+    m_Address: Furnitures/LargeBox
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 85084805fe85245e5a986173ca59eec3
+    m_Address: Furnitures/SmallBox
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4e2e5acc38e448b4bd8fc9a005dccaa
+    m_Address: Furnitures/MidBox
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 0fdc12809a15643368e99ab31e710690, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 4a58469aae0ae469d8dee32cc8de3977, type: 2}
+    - {fileID: 11400000, guid: 1b758259d13da4782b8c8e2b193e70b2, type: 2}

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Cat
 {
@@ -20,17 +21,20 @@ namespace Cat
 
         void Update()
         {
-            var mouseWorldPos = GetMouseWorldPosition();
+            var mouse = Mouse.current;
+            if (mouse == null) return;
 
-            if (Input.GetMouseButtonDown(0))
+            var mouseWorldPos = GetMouseWorldPosition(mouse);
+
+            if (mouse.leftButton.wasPressedThisFrame)
             {
                 HandleMouseDown(mouseWorldPos);
             }
-            else if (Input.GetMouseButton(0) && _currentDraggable != null)
+            else if (mouse.leftButton.isPressed && _currentDraggable != null)
             {
                 HandleMouseDrag(mouseWorldPos);
             }
-            else if (Input.GetMouseButtonUp(0) && _currentDraggable != null)
+            else if (mouse.leftButton.wasReleasedThisFrame && _currentDraggable != null)
             {
                 HandleMouseUp();
             }
@@ -95,11 +99,11 @@ namespace Cat
         /// <summary>
         /// マウスのワールド座標を取得
         /// </summary>
-        Vector3 GetMouseWorldPosition()
+        Vector3 GetMouseWorldPosition(Mouse mouse)
         {
-            var mousePos = Input.mousePosition;
-            mousePos.z = -_mainCamera.transform.position.z;
-            return _mainCamera.ScreenToWorldPoint(mousePos);
+            var mousePos = mouse.position.ReadValue();
+            var screenPos = new Vector3(mousePos.x, mousePos.y, -_mainCamera.transform.position.z);
+            return _mainCamera.ScreenToWorldPoint(screenPos);
         }
     }
 }

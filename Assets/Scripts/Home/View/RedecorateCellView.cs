@@ -6,13 +6,13 @@ using UnityEngine.Events;
 namespace Home.View
 {
     /// <summary>
-    /// Closetスクローラーの行ビュー（EnhancedScrollerのセル）
+    /// Redecorateスクローラーの行ビュー（EnhancedScrollerのセル）
     /// </summary>
-    public class ClosetCellView : EnhancedScrollerCellView
+    public class RedecorateCellView : EnhancedScrollerCellView
     {
-        public ClosetRowCellView[] RowCellViews;
+        public RedecorateRowCellView[] RowCellViews;
 
-        public void SetData(ref SmallList<ClosetOutfitData> data, int startingIndex, UnityEvent<ClosetRowCellView> selected)
+        public void SetData(ref SmallList<RedecorateFurnitureData> data, int startingIndex, UnityEvent<RedecorateRowCellView> selected)
         {
             for (var i = 0; i < RowCellViews.Length; i++)
             {

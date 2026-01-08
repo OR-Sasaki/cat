@@ -8,13 +8,13 @@ namespace Cat
     /// </summary>
     public class IsoDraggable : MonoBehaviour
     {
-        [Header("Drag Settings")]
-        [SerializeField] int _dragSortingOrderBoost = 100;
+        static readonly int DragSortingOrderBoost = 100;
 
         [Header("Footprint Settings")]
         [SerializeField] Vector2Int _footprintSize = Vector2Int.one;
         [Tooltip("オブジェクト内のピボット位置（IsoGrid座標）。フットプリントの左下を(0,0)とする")]
         [SerializeField] Vector2Int _pivotGridPosition = Vector2Int.zero;
+        [SerializeField] Transform _viewPivot;
 
         [Header("Object Settings")]
         [SerializeField] int _objectId;
@@ -25,13 +25,11 @@ namespace Cat
         bool _isPlaced;
         bool _isDragging;
         Vector3 _dragOffset;
-        Camera _mainCamera;
         SpriteRenderer _spriteRenderer;
         int _originalSortingOrder;
 
         void Awake()
         {
-            _mainCamera = Camera.main;
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _gridSystem = FindFirstObjectByType<IsoGridSystem>();
 
@@ -41,7 +39,12 @@ namespace Cat
             }
         }
 
-        void OnMouseDown()
+        public float ViewPivotY => _viewPivot.position.y;
+
+        /// <summary>
+        /// ドラッグ開始（外部から呼び出し）
+        /// </summary>
+        public void BeginDrag(Vector3 mouseWorldPos)
         {
             if (_gridSystem == null)
             {
@@ -52,7 +55,6 @@ namespace Cat
             _isDragging = true;
 
             // マウス位置とオブジェクト位置の差分を記録
-            var mouseWorldPos = GetMouseWorldPosition();
             _dragOffset = transform.position - mouseWorldPos;
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
@@ -67,19 +69,24 @@ namespace Cat
             if (_spriteRenderer != null)
             {
                 _originalSortingOrder = _spriteRenderer.sortingOrder;
-                _spriteRenderer.sortingOrder += _dragSortingOrderBoost;
+                _spriteRenderer.sortingOrder += DragSortingOrderBoost;
             }
         }
 
-        void OnMouseDrag()
+        /// <summary>
+        /// ドラッグ中の更新（外部から呼び出し）
+        /// </summary>
+        public void UpdateDrag(Vector3 mouseWorldPos)
         {
             if (!_isDragging) return;
 
-            var mouseWorldPos = GetMouseWorldPosition();
             transform.position = mouseWorldPos + _dragOffset;
         }
 
-        void OnMouseUp()
+        /// <summary>
+        /// ドラッグ終了（外部から呼び出し）
+        /// </summary>
+        public void EndDrag()
         {
             if (!_isDragging) return;
 
@@ -116,6 +123,11 @@ namespace Cat
         }
 
         /// <summary>
+        /// 現在ドラッグ中かどうか
+        /// </summary>
+        public bool IsDragging => _isDragging;
+
+        /// <summary>
         /// フットプリント開始位置からピボット位置のワールド座標を計算
         /// </summary>
         Vector3 SnapToGrid(Vector2Int footprintStartPos)
@@ -130,16 +142,6 @@ namespace Cat
             var pivotVertex = (footprintStartPos.x + _pivotGridPosition.x) * xAxis +
                               (footprintStartPos.y + _pivotGridPosition.y) * yAxis;
             return _gridSystem.Origin + (Vector3)pivotVertex;
-        }
-
-        /// <summary>
-        /// マウスのワールド座標を取得
-        /// </summary>
-        Vector3 GetMouseWorldPosition()
-        {
-            var mousePos = Input.mousePosition;
-            mousePos.z = -_mainCamera.transform.position.z;
-            return _mainCamera.ScreenToWorldPoint(mousePos);
         }
 
 #if UNITY_EDITOR

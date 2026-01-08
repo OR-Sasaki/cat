@@ -142,16 +142,13 @@ namespace Root.Service
 
                 foreach (var dialog in dialogsToClose)
                 {
-                    if (dialog.View is BaseDialogView dialogView)
+                    try
                     {
-                        try
-                        {
-                            await dialogView.PlayCloseAnimationAsync(CancellationToken.None);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError($"[DialogService] Error during close animation: {e.Message}\n{e.StackTrace}");
-                        }
+                        await dialog.View.PlayCloseAnimationAsync(CancellationToken.None);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"[DialogService] Error during close animation: {e.Message}\n{e.StackTrace}");
                     }
 
                     _dialogContainer.DestroyDialog(dialog);
@@ -182,16 +179,13 @@ namespace Root.Service
                 _dialogState.Pop();
                 _dialogContainer.SetBackdropInteractable(false);
 
-                if (instance.View is BaseDialogView dialogView)
+                try
                 {
-                    try
-                    {
-                        await dialogView.PlayCloseAnimationAsync(CancellationToken.None);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError($"[DialogService] Error during close animation: {e.Message}\n{e.StackTrace}");
-                    }
+                    await instance.View.PlayCloseAnimationAsync(CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[DialogService] Error during close animation: {e.Message}\n{e.StackTrace}");
                 }
 
                 _dialogContainer.DestroyDialog(instance);

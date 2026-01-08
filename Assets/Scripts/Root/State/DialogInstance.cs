@@ -8,11 +8,11 @@ namespace Root.State
     public class DialogInstance
     {
         public string DialogId { get; }
-        public MonoBehaviour View { get; }
+        public BaseDialogView View { get; }
         public UniTaskCompletionSource<DialogResult> CompletionSource { get; }
         public int SortingOrder { get; }
 
-        public DialogInstance(string dialogId, MonoBehaviour view, int sortingOrder)
+        public DialogInstance(string dialogId, BaseDialogView view, int sortingOrder)
         {
             if (string.IsNullOrEmpty(dialogId))
             {

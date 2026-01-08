@@ -14,6 +14,7 @@ namespace Root.Service
     {
         readonly DialogState _dialogState;
         readonly DialogContainer _dialogContainer;
+        readonly CancellationTokenSource _cancellationTokenSource = new();
 
         bool _isDisposed;
 
@@ -144,7 +145,7 @@ namespace Root.Service
                 {
                     try
                     {
-                        await dialog.View.PlayCloseAnimationAsync(CancellationToken.None);
+                        await dialog.View.PlayCloseAnimationAsync(_cancellationTokenSource.Token);
                     }
                     catch (Exception e)
                     {
@@ -181,7 +182,7 @@ namespace Root.Service
 
                 try
                 {
-                    await instance.View.PlayCloseAnimationAsync(CancellationToken.None);
+                    await instance.View.PlayCloseAnimationAsync(_cancellationTokenSource.Token);
                 }
                 catch (Exception e)
                 {
@@ -230,6 +231,8 @@ namespace Root.Service
 
             _isDisposed = true;
             _dialogContainer.OnBackButtonPressed -= HandleBackButtonPressed;
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }

@@ -386,54 +386,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &130549712
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 130549714}
-  - component: {fileID: 130549713}
-  m_Layer: 0
-  m_Name: IsoDragManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &130549713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130549712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: faf20478a60664b009de181646adc8d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoDragManager
-  _gridSystem: {fileID: 1759482995}
-  _draggableLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
---- !u!4 &130549714
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130549712}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &140467738
 GameObject:
   m_ObjectHideFlags: 0
@@ -4215,6 +4167,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1759482994}
   - {fileID: 868431864}
   - {fileID: 830769975}
   - {fileID: 1667132848}
@@ -5192,8 +5145,9 @@ GameObject:
   - component: {fileID: 1759482994}
   - component: {fileID: 1759482995}
   - component: {fileID: 1759482993}
+  - component: {fileID: 1759482996}
   m_Layer: 0
-  m_Name: IsoGridTest
+  m_Name: IsoGrid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5230,12 +5184,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1759482992}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 3.054, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1220964331}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1759482995
 MonoBehaviour:
@@ -5253,9 +5207,23 @@ MonoBehaviour:
   _gridHeight: 32
   _cellSize: 0.4885
   _angle: 15.5
-  _wallHeight: 10
   _surface2D: {fileID: 868431863}
   _floorCellsDebugView: 
+--- !u!114 &1759482996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759482992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf20478a60664b009de181646adc8d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoDragManager
+  _draggableLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1838396421
 GameObject:
   m_ObjectHideFlags: 0
@@ -6560,8 +6528,6 @@ SceneRoots:
   - {fileID: 1209929619}
   - {fileID: 126049569}
   - {fileID: 1220964331}
-  - {fileID: 1759482994}
-  - {fileID: 130549714}
   - {fileID: 36443260}
   - {fileID: 490167971}
   - {fileID: 610093976268675746}

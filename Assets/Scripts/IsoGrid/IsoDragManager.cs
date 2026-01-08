@@ -1,78 +1,105 @@
-using System;
 using UnityEngine;
 
 namespace Cat
 {
+    /// <summary>
+    /// Raycastベースのドラッグ管理システム
+    /// 前面のColliderを貫通してIsoDraggableを検出する
+    /// </summary>
     public class IsoDragManager : MonoBehaviour
     {
-        [SerializeField] IsoGridSystem _gridSystem;
+        [SerializeField] LayerMask _draggableLayerMask = -1;
 
+        Camera _mainCamera;
         IsoDraggable _currentDraggable;
 
-        public event Action<IsoDraggable> OnDragStarted;
-        public event Action<IsoDraggable> OnDragEnded;
+        void Awake()
+        {
+            _mainCamera = Camera.main;
+        }
 
-        public IsoDraggable CurrentDraggable => _currentDraggable;
-        public bool IsDragging => _currentDraggable != null;
+        void Update()
+        {
+            var mouseWorldPos = GetMouseWorldPosition();
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                HandleMouseDown(mouseWorldPos);
+            }
+            else if (Input.GetMouseButton(0) && _currentDraggable != null)
+            {
+                HandleMouseDrag(mouseWorldPos);
+            }
+            else if (Input.GetMouseButtonUp(0) && _currentDraggable != null)
+            {
+                HandleMouseUp();
+            }
+        }
 
         /// <summary>
-        /// ドラッグ開始を通知
+        /// マウスダウン時の処理
         /// </summary>
-        public void NotifyDragStarted(IsoDraggable draggable)
+        void HandleMouseDown(Vector3 mouseWorldPos)
         {
+            var draggable = RaycastForDraggable(mouseWorldPos);
+            if (draggable == null) return;
+
             _currentDraggable = draggable;
-            OnDragStarted?.Invoke(draggable);
+            _currentDraggable.BeginDrag(mouseWorldPos);
         }
 
         /// <summary>
-        /// ドラッグ終了を通知
+        /// マウスドラッグ中の処理
         /// </summary>
-        public void NotifyDragEnded(IsoDraggable draggable)
+        void HandleMouseDrag(Vector3 mouseWorldPos)
         {
-            if (_currentDraggable == draggable)
-            {
-                _currentDraggable = null;
-            }
-            OnDragEnded?.Invoke(draggable);
+            _currentDraggable.UpdateDrag(mouseWorldPos);
         }
 
         /// <summary>
-        /// 指定位置に他のオブジェクトが存在するかチェック
+        /// マウスアップ時の処理
         /// </summary>
-        public bool IsPositionOccupied(Vector2Int gridPos, IsoDraggable excludeObject = null)
+        void HandleMouseUp()
         {
-            var draggables = FindObjectsByType<IsoDraggable>(FindObjectsSortMode.None);
-
-            foreach (var draggable in draggables)
-            {
-                if (draggable == excludeObject) continue;
-
-                var otherGridPos = _gridSystem.WorldToFloorGrid(draggable.transform.position);
-                if (otherGridPos == gridPos)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            _currentDraggable.EndDrag();
+            _currentDraggable = null;
         }
 
         /// <summary>
-        /// 指定位置が配置可能かチェック
+        /// Raycastで最前面のIsoDraggableを検出
         /// </summary>
-        public bool CanPlaceAt(Vector2Int gridPos, IsoDraggable draggable)
+        IsoDraggable RaycastForDraggable(Vector3 worldPos)
         {
-            if (!_gridSystem.IsValidFloorPosition(gridPos))
+            // 2D Raycastで全てのヒットを取得
+            var hits = Physics2D.RaycastAll(worldPos, Vector2.zero, 0f, _draggableLayerMask);
+
+            if (hits.Length == 0) return null;
+
+            IsoDraggable bestDraggable = null;
+            float bestY = float.MaxValue;
+
+            // 最も手前(Yが小さい)Draggableを探す
+            foreach (var hit in hits)
             {
-                return false;
+                var draggable = hit.collider.GetComponent<IsoDraggable>();
+                if (draggable == null) continue;
+                if (draggable.ViewPivotY > bestY) continue;
+
+                bestDraggable = draggable;
+                bestY = draggable.ViewPivotY;
             }
 
-            if (IsPositionOccupied(gridPos, draggable))
-            {
-                return false;
-            }
+            return bestDraggable;
+        }
 
-            return true;
+        /// <summary>
+        /// マウスのワールド座標を取得
+        /// </summary>
+        Vector3 GetMouseWorldPosition()
+        {
+            var mousePos = Input.mousePosition;
+            mousePos.z = -_mainCamera.transform.position.z;
+            return _mainCamera.ScreenToWorldPoint(mousePos);
         }
     }
 }

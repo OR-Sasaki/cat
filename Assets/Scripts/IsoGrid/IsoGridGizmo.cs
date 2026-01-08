@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Cat
 {
-    public class IsoGridTest : MonoBehaviour
+    public class IsoGridGizmo : MonoBehaviour
     {
         [Header("Grid Settings")]
         [SerializeField] int _gridWidth = 10;

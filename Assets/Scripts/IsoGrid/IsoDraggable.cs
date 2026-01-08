@@ -2,21 +2,34 @@ using UnityEngine;
 
 namespace Cat
 {
+    /// <summary>
+    /// ドラッグ可能なアイソメトリックオブジェクト
+    /// Pivotはオブジェクトが床に接している面の中心に設定されている前提
+    /// </summary>
     public class IsoDraggable : MonoBehaviour
     {
-        [Header("Drag Settings")]
-        [SerializeField] int _dragSortingOrderBoost = 100;
+        static readonly int DragSortingOrderBoost = 100;
+
+        [Header("Footprint Settings")]
+        [SerializeField] Vector2Int _footprintSize = Vector2Int.one;
+        [Tooltip("オブジェクト内のピボット位置（IsoGrid座標）。フットプリントの左下を(0,0)とする")]
+        [SerializeField] Vector2Int _pivotGridPosition = Vector2Int.zero;
+        [SerializeField] Transform _viewPivot;
+
+        [Header("Object Settings")]
+        [SerializeField] int _objectId;
 
         IsoGridSystem _gridSystem;
+        Vector2Int _currentFootprintStartPos;
+        Vector2Int _dragStartFootprintPos;
+        bool _isPlaced;
         bool _isDragging;
         Vector3 _dragOffset;
-        Camera _mainCamera;
         SpriteRenderer _spriteRenderer;
         int _originalSortingOrder;
 
         void Awake()
         {
-            _mainCamera = Camera.main;
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _gridSystem = FindFirstObjectByType<IsoGridSystem>();
 
@@ -26,7 +39,12 @@ namespace Cat
             }
         }
 
-        void OnMouseDown()
+        public float ViewPivotY => _viewPivot.position.y;
+
+        /// <summary>
+        /// ドラッグ開始（外部から呼び出し）
+        /// </summary>
+        public void BeginDrag(Vector3 mouseWorldPos)
         {
             if (_gridSystem == null)
             {
@@ -37,35 +55,64 @@ namespace Cat
             _isDragging = true;
 
             // マウス位置とオブジェクト位置の差分を記録
-            var mouseWorldPos = GetMouseWorldPosition();
             _dragOffset = transform.position - mouseWorldPos;
+
+            // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
+            _dragStartFootprintPos = _currentFootprintStartPos;
+            if (_isPlaced)
+            {
+                _gridSystem.RemoveObject(_currentFootprintStartPos, _footprintSize);
+                _isPlaced = false;
+            }
 
             // ソートオーダーを一時的に上げる
             if (_spriteRenderer != null)
             {
                 _originalSortingOrder = _spriteRenderer.sortingOrder;
-                _spriteRenderer.sortingOrder += _dragSortingOrderBoost;
+                _spriteRenderer.sortingOrder += DragSortingOrderBoost;
             }
         }
 
-        void OnMouseDrag()
+        /// <summary>
+        /// ドラッグ中の更新（外部から呼び出し）
+        /// </summary>
+        public void UpdateDrag(Vector3 mouseWorldPos)
         {
             if (!_isDragging) return;
 
-            var mouseWorldPos = GetMouseWorldPosition();
             transform.position = mouseWorldPos + _dragOffset;
         }
 
-        void OnMouseUp()
+        /// <summary>
+        /// ドラッグ終了（外部から呼び出し）
+        /// </summary>
+        public void EndDrag()
         {
             if (!_isDragging) return;
 
             _isDragging = false;
 
-            // グリッドにスナップ
+            // グリッドにスナップして配置
             if (_gridSystem != null)
             {
-                transform.position = _gridSystem.SnapToFloorGrid(transform.position);
+                var gridPos = _gridSystem.WorldToFloorGrid(transform.position);
+                var newFootprintStartPos = gridPos - _pivotGridPosition;
+
+                // 配置可能かチェック
+                if (_gridSystem.CanPlaceObject(newFootprintStartPos, _footprintSize, _objectId))
+                {
+                    // 新しい位置に配置
+                    _currentFootprintStartPos = newFootprintStartPos;
+                }
+                else
+                {
+                    // 配置不可能なら元の位置に戻す
+                    _currentFootprintStartPos = _dragStartFootprintPos;
+                }
+
+                transform.position = SnapToGrid(_currentFootprintStartPos);
+                _gridSystem.PlaceObject(_currentFootprintStartPos, _footprintSize, _objectId);
+                _isPlaced = true;
             }
 
             // ソートオーダーを元に戻す
@@ -76,13 +123,93 @@ namespace Cat
         }
 
         /// <summary>
-        /// マウスのワールド座標を取得
+        /// 現在ドラッグ中かどうか
         /// </summary>
-        Vector3 GetMouseWorldPosition()
+        public bool IsDragging => _isDragging;
+
+        /// <summary>
+        /// フットプリント開始位置からピボット位置のワールド座標を計算
+        /// </summary>
+        Vector3 SnapToGrid(Vector2Int footprintStartPos)
         {
-            var mousePos = Input.mousePosition;
-            mousePos.z = -_mainCamera.transform.position.z;
-            return _mainCamera.ScreenToWorldPoint(mousePos);
+            // 軸ベクトルを計算
+            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
+            var cellSize = _gridSystem.CellSize;
+            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+
+            // ピボット位置のグリッド頂点のワールド座標を計算
+            var pivotVertex = (footprintStartPos.x + _pivotGridPosition.x) * xAxis +
+                              (footprintStartPos.y + _pivotGridPosition.y) * yAxis;
+            return _gridSystem.Origin + (Vector3)pivotVertex;
         }
+
+#if UNITY_EDITOR
+        void OnDrawGizmos()
+        {
+            if (!_isDragging || _gridSystem == null) return;
+
+            // スナップ先のグリッド座標を取得（pivotの位置）
+            var pivotGridPos = _gridSystem.WorldToFloorGrid(transform.position);
+
+            // footprintの開始位置（左下）を計算
+            var footprintStartPos = pivotGridPos - _pivotGridPosition;
+
+            // 軸ベクトルを計算
+            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
+            var cellSize = _gridSystem.CellSize;
+            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var origin = _gridSystem.Origin;
+
+            // 配置可能かチェック
+            var canPlace = _gridSystem.CanPlaceObject(footprintStartPos, _footprintSize, _objectId);
+
+            // 配置可能なら緑、不可能なら赤
+            var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
+            Gizmos.color = color;
+
+            // footprintSize分のセルを描画
+            for (var x = 0; x < _footprintSize.x; x++)
+            {
+                for (var y = 0; y < _footprintSize.y; y++)
+                {
+                    var cellOrigin = origin + (Vector3)((footprintStartPos.x + x) * xAxis + (footprintStartPos.y + y) * yAxis);
+
+                    var corner0 = cellOrigin;
+                    var corner1 = cellOrigin + (Vector3)xAxis;
+                    var corner2 = cellOrigin + (Vector3)xAxis + (Vector3)yAxis;
+                    var corner3 = cellOrigin + (Vector3)yAxis;
+
+                    // 塗りつぶし
+                    DrawFilledQuad(corner0, corner1, corner2, corner3, color);
+                }
+            }
+
+            // 外周のアウトラインを描画
+            var footprintOrigin = origin + (Vector3)(footprintStartPos.x * xAxis + footprintStartPos.y * yAxis);
+            var outerCorner0 = footprintOrigin;
+            var outerCorner1 = footprintOrigin + (Vector3)(xAxis * _footprintSize.x);
+            var outerCorner2 = footprintOrigin + (Vector3)(xAxis * _footprintSize.x + yAxis * _footprintSize.y);
+            var outerCorner3 = footprintOrigin + (Vector3)(yAxis * _footprintSize.y);
+
+            Gizmos.color = canPlace ? Color.green : Color.red;
+            Gizmos.DrawLine(outerCorner0, outerCorner1);
+            Gizmos.DrawLine(outerCorner1, outerCorner2);
+            Gizmos.DrawLine(outerCorner2, outerCorner3);
+            Gizmos.DrawLine(outerCorner3, outerCorner0);
+        }
+
+        void DrawFilledQuad(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
+        {
+            var mesh = new Mesh();
+            mesh.vertices = new[] { p0, p1, p2, p3 };
+            mesh.normals = new[] { Vector3.back, Vector3.back, Vector3.back, Vector3.back };
+            mesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
+
+            Gizmos.color = color;
+            Gizmos.DrawMesh(mesh);
+        }
+#endif
     }
 }

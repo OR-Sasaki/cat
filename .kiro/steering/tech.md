@@ -13,6 +13,7 @@
 
 ## Key Libraries
 
+- **Async**: UniTask (async/await拡張、UniTaskVoid、CancellationToken対応)
 - **Input System**: New Input System 1.14.2
 - **Navigation**: NavMeshPlus (2D用NavMesh)
 - **Animation**: 2D Animation 12.0.3, Cinemachine 3.1.5

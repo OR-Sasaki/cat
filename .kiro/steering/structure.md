@@ -30,6 +30,13 @@
 **Purpose**: 定数・ユーティリティクラス
 **Example**: `Const.cs` (シーン名定数)
 
+### Standalone Systems
+**Location**: `Assets/Scripts/{SystemName}/`
+**Purpose**: シーンに依存しない独立システム（MonoBehaviourベース）
+**Pattern**: シーンフォルダ構造 (Scope/Service/etc.) を使わず、機能単位でファイルを配置
+**Example**: `IsoGrid/` - アイソメトリックグリッドシステム
+**Namespace**: `Cat` (プロジェクト共通) または機能名
+
 ### Scene Template
 **Location**: `Assets/Scripts/TemplateScene/`
 **Purpose**: 新規シーン作成時のテンプレート

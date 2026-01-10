@@ -17,23 +17,34 @@ namespace Home.Scope
         [SerializeField] ClosetUiView _closetUiView;
         [SerializeField] RedecorateUiView _redecorateUiView;
         [SerializeField] CameraView _cameraView;
+        [SerializeField] IsoGridSystemView _isoGridSystemView;
 
         protected override void Configure(IContainerBuilder builder)
         {
+            // View
             builder.RegisterInstance(_characterView);
             builder.RegisterComponent(_homeUiView);
             builder.RegisterComponent(_closetUiView);
             builder.RegisterComponent(_redecorateUiView);
             builder.RegisterComponent(_cameraView);
+            builder.RegisterComponent(_isoGridSystemView);
+
+            // State
             builder.Register<HomeState>(Lifetime.Scoped);
             builder.Register<OutfitAssetState>(Lifetime.Scoped);
             builder.Register<FurnitureAssetState>(Lifetime.Scoped);
+
+            // Service
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
+
+            // EntryPoint
             builder.RegisterEntryPoint<OutfitAssetStarter>();
             builder.RegisterEntryPoint<FurnitureAssetStarter>();
+            builder.RegisterEntryPoint<IsoDraggableStarter>();
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<RedecorateScrollerService>();
             builder.RegisterEntryPoint<RedecorateCameraService>();
+            builder.RegisterEntryPoint<IsoDragService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();
         }

@@ -1,12 +1,13 @@
 using UnityEngine;
+using VContainer;
 
-namespace Cat
+namespace Home.View
 {
     /// <summary>
     /// ドラッグ可能なアイソメトリックオブジェクト
     /// Pivotはオブジェクトが床に接している面の中心に設定されている前提
     /// </summary>
-    public class IsoDraggable : MonoBehaviour
+    public class IsoDraggableView : MonoBehaviour
     {
         static readonly int DragSortingOrderBoost = 100;
 
@@ -19,7 +20,18 @@ namespace Cat
         [Header("Object Settings")]
         [SerializeField] int _objectId;
 
-        IsoGridSystem _gridSystem;
+        /// <summary>
+        /// 現在ドラッグ中かどうか
+        /// </summary>
+        public bool IsDragging => _isDragging;
+
+        // Gizmo描画用のプロパティ
+        public IsoGridSystemView GridSystem => _gridSystem;
+        public Vector2Int FootprintSize => _footprintSize;
+        public Vector2Int PivotGridPosition => _pivotGridPosition;
+        public int ObjectId => _objectId;
+
+        [Inject] IsoGridSystemView _gridSystem;
         Vector2Int _currentFootprintStartPos;
         Vector2Int _dragStartFootprintPos;
         bool _isPlaced;
@@ -31,27 +43,22 @@ namespace Cat
         void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
-            _gridSystem = FindFirstObjectByType<IsoGridSystem>();
 
-            if (_gridSystem == null)
+#if UNITY_EDITOR
+            if (GetComponent<IsoDraggableGizmo>() == null)
             {
-                Debug.LogError($"[IsoDraggable] IsoGridSystem not found in scene.");
+                gameObject.AddComponent<IsoDraggableGizmo>();
             }
+#endif
         }
 
         public float ViewPivotY => _viewPivot.position.y;
 
         /// <summary>
-        /// ドラッグ開始（外部から呼び出し）
+        /// ドラッグ開始
         /// </summary>
         public void BeginDrag(Vector3 mouseWorldPos)
         {
-            if (_gridSystem == null)
-            {
-                Debug.LogError($"[IsoDraggable] IsoGridSystem is not assigned.");
-                return;
-            }
-
             _isDragging = true;
 
             // マウス位置とオブジェクト位置の差分を記録
@@ -74,7 +81,7 @@ namespace Cat
         }
 
         /// <summary>
-        /// ドラッグ中の更新（外部から呼び出し）
+        /// ドラッグ中の更新
         /// </summary>
         public void UpdateDrag(Vector3 mouseWorldPos)
         {
@@ -84,7 +91,7 @@ namespace Cat
         }
 
         /// <summary>
-        /// ドラッグ終了（外部から呼び出し）
+        /// ドラッグ終了
         /// </summary>
         public void EndDrag()
         {
@@ -123,11 +130,6 @@ namespace Cat
         }
 
         /// <summary>
-        /// 現在ドラッグ中かどうか
-        /// </summary>
-        public bool IsDragging => _isDragging;
-
-        /// <summary>
         /// フットプリント開始位置からピボット位置のワールド座標を計算
         /// </summary>
         Vector3 SnapToGrid(Vector2Int footprintStartPos)
@@ -143,73 +145,5 @@ namespace Cat
                               (footprintStartPos.y + _pivotGridPosition.y) * yAxis;
             return _gridSystem.Origin + (Vector3)pivotVertex;
         }
-
-#if UNITY_EDITOR
-        void OnDrawGizmos()
-        {
-            if (!_isDragging || _gridSystem == null) return;
-
-            // スナップ先のグリッド座標を取得（pivotの位置）
-            var pivotGridPos = _gridSystem.WorldToFloorGrid(transform.position);
-
-            // footprintの開始位置（左下）を計算
-            var footprintStartPos = pivotGridPos - _pivotGridPosition;
-
-            // 軸ベクトルを計算
-            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
-            var cellSize = _gridSystem.CellSize;
-            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var origin = _gridSystem.Origin;
-
-            // 配置可能かチェック
-            var canPlace = _gridSystem.CanPlaceObject(footprintStartPos, _footprintSize, _objectId);
-
-            // 配置可能なら緑、不可能なら赤
-            var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
-            Gizmos.color = color;
-
-            // footprintSize分のセルを描画
-            for (var x = 0; x < _footprintSize.x; x++)
-            {
-                for (var y = 0; y < _footprintSize.y; y++)
-                {
-                    var cellOrigin = origin + (Vector3)((footprintStartPos.x + x) * xAxis + (footprintStartPos.y + y) * yAxis);
-
-                    var corner0 = cellOrigin;
-                    var corner1 = cellOrigin + (Vector3)xAxis;
-                    var corner2 = cellOrigin + (Vector3)xAxis + (Vector3)yAxis;
-                    var corner3 = cellOrigin + (Vector3)yAxis;
-
-                    // 塗りつぶし
-                    DrawFilledQuad(corner0, corner1, corner2, corner3, color);
-                }
-            }
-
-            // 外周のアウトラインを描画
-            var footprintOrigin = origin + (Vector3)(footprintStartPos.x * xAxis + footprintStartPos.y * yAxis);
-            var outerCorner0 = footprintOrigin;
-            var outerCorner1 = footprintOrigin + (Vector3)(xAxis * _footprintSize.x);
-            var outerCorner2 = footprintOrigin + (Vector3)(xAxis * _footprintSize.x + yAxis * _footprintSize.y);
-            var outerCorner3 = footprintOrigin + (Vector3)(yAxis * _footprintSize.y);
-
-            Gizmos.color = canPlace ? Color.green : Color.red;
-            Gizmos.DrawLine(outerCorner0, outerCorner1);
-            Gizmos.DrawLine(outerCorner1, outerCorner2);
-            Gizmos.DrawLine(outerCorner2, outerCorner3);
-            Gizmos.DrawLine(outerCorner3, outerCorner0);
-        }
-
-        void DrawFilledQuad(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color color)
-        {
-            var mesh = new Mesh();
-            mesh.vertices = new[] { p0, p1, p2, p3 };
-            mesh.normals = new[] { Vector3.back, Vector3.back, Vector3.back, Vector3.back };
-            mesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
-
-            Gizmos.color = color;
-            Gizmos.DrawMesh(mesh);
-        }
-#endif
     }
 }

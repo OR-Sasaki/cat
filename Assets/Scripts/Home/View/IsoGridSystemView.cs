@@ -1,10 +1,11 @@
 using System.Collections;
+using Home.State;
 using NavMeshPlus.Components;
 using UnityEngine;
 
-namespace Cat
+namespace Home.View
 {
-    public class IsoGridSystem : MonoBehaviour
+    public class IsoGridSystemView : MonoBehaviour
     {
         [Header("Grid Settings")]
         [SerializeField] int _gridWidth = 10;

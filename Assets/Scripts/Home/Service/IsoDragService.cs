@@ -1,28 +1,47 @@
+using Home.State;
+using Home.View;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VContainer.Unity;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
-namespace Cat
+namespace Home.Service
 {
     /// <summary>
     /// Raycastベースのドラッグ管理システム
-    /// 前面のColliderを貫通してIsoDraggableを検出する
+    /// 前面のColliderを貫通してIsoDraggableViewを検出する
     /// PC: マウス入力、スマホ: タッチ入力に対応
     /// </summary>
-    public class IsoDragManager : MonoBehaviour
+    public class IsoDragService : ITickable, IInitializable
     {
-        [SerializeField] LayerMask _draggableLayerMask = -1;
+        readonly HomeState _homeState;
 
         Camera _mainCamera;
-        IsoDraggable _currentDraggable;
+        IsoDraggableView _currentDraggable;
+        bool _isActive;
+        LayerMask _draggableLayerMask = -1;
 
-        void Awake()
+        public IsoDragService(HomeState homeState)
         {
-            _mainCamera = Camera.main;
+            _homeState = homeState;
         }
 
-        void Update()
+        public void Initialize()
         {
+            _mainCamera = Camera.main;
+            _homeState.OnStateChange.AddListener(OnStateChange);
+        }
+
+        void OnStateChange(HomeState.State previous, HomeState.State current)
+        {
+            _isActive = current == HomeState.State.Redecorate;
+        }
+
+        public void Tick()
+        {
+            if (!_isActive) return;
+
             // タッチ入力を優先してチェック
             if (Touch.activeTouches.Count > 0)
             {
@@ -41,16 +60,16 @@ namespace Cat
 
             switch (touch.phase)
             {
-                case UnityEngine.InputSystem.TouchPhase.Began:
+                case TouchPhase.Began:
                     HandlePointerDown(worldPos);
                     break;
-                case UnityEngine.InputSystem.TouchPhase.Moved:
-                case UnityEngine.InputSystem.TouchPhase.Stationary:
+                case TouchPhase.Moved:
+                case TouchPhase.Stationary:
                     if (_currentDraggable != null)
                         HandlePointerDrag(worldPos);
                     break;
-                case UnityEngine.InputSystem.TouchPhase.Ended:
-                case UnityEngine.InputSystem.TouchPhase.Canceled:
+                case TouchPhase.Ended:
+                case TouchPhase.Canceled:
                     if (_currentDraggable != null)
                         HandlePointerUp();
                     break;
@@ -108,22 +127,22 @@ namespace Cat
         }
 
         /// <summary>
-        /// Raycastで最前面のIsoDraggableを検出
+        /// Raycastで最前面のIsoDraggableViewを検出
         /// </summary>
-        IsoDraggable RaycastForDraggable(Vector3 worldPos)
+        IsoDraggableView RaycastForDraggable(Vector3 worldPos)
         {
             // 2D Raycastで全てのヒットを取得
             var hits = Physics2D.RaycastAll(worldPos, Vector2.zero, 0f, _draggableLayerMask);
 
             if (hits.Length == 0) return null;
 
-            IsoDraggable bestDraggable = null;
+            IsoDraggableView bestDraggable = null;
             float bestY = float.MaxValue;
 
             // 最も手前(Yが小さい)Draggableを探す
             foreach (var hit in hits)
             {
-                var draggable = hit.collider.GetComponent<IsoDraggable>();
+                var draggable = hit.collider.GetComponent<IsoDraggableView>();
                 if (draggable == null) continue;
                 if (draggable.ViewPivotY > bestY) continue;
 

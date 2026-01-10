@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Cat
+namespace Home.View
 {
     public class IsoGridGizmo : MonoBehaviour
     {

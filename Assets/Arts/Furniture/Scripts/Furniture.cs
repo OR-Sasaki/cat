@@ -1,3 +1,4 @@
+using Home.View;
 using UnityEngine;
 
 namespace Cat.Furniture
@@ -15,6 +16,6 @@ namespace Cat.Furniture
     {
         public FurnitureType FurnitureType;
         public Sprite Thumbnail;
-        public IsoDraggable SceneObject;
+        public IsoDraggableView SceneObject;
     }
 }

@@ -1,4 +1,4 @@
-namespace Cat
+namespace Home.State
 {
     /// <summary>
     /// IsoGrid上の1セルの情報

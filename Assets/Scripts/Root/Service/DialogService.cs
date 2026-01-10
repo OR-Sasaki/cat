@@ -219,7 +219,7 @@ namespace Root.Service
 
         static string GetAddressableKey<TDialog>() where TDialog : BaseDialogView
         {
-            return $"Dialogs/{typeof(TDialog).Name}";
+            return $"Dialogs/{typeof(TDialog).Name}.prefab";
         }
 
         public void Dispose()

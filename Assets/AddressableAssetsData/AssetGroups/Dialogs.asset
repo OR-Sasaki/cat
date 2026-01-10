@@ -15,18 +15,8 @@ MonoBehaviour:
   m_GroupName: Dialogs
   m_GUID: ce31d1e2c96aa714c9a4c840f850d36a
   m_SerializeEntries:
-  - m_GUID: 55284411cf3149d499d41e2f2d4f4260
-    m_Address: Dialogs/SampleDialog
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 97aaf896eb5a9d845abdac745372c9c6
-    m_Address: Dialogs/SampleConfirmDialog
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: fc1a3f85e47ec264cbdcd012d9511799
-    m_Address: Dialogs/SampleMessageDialog
+  - m_GUID: b25055c5d74d09948a1c82d0c7eb1823
+    m_Address: Dialogs
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

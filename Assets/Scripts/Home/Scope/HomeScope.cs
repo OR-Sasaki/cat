@@ -33,9 +33,12 @@ namespace Home.Scope
             builder.Register<HomeState>(Lifetime.Scoped);
             builder.Register<OutfitAssetState>(Lifetime.Scoped);
             builder.Register<FurnitureAssetState>(Lifetime.Scoped);
+            builder.Register<IsoGridState>(Lifetime.Scoped);
 
             // Service
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
+            builder.Register<IsoGridService>(Lifetime.Scoped);
+            builder.Register<IsoInputService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
             // EntryPoint
             builder.RegisterEntryPoint<OutfitAssetStarter>();
@@ -44,9 +47,9 @@ namespace Home.Scope
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<RedecorateScrollerService>();
             builder.RegisterEntryPoint<RedecorateCameraService>();
-            builder.RegisterEntryPoint<IsoDragService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();
+            builder.RegisterEntryPoint<IsoDragService>();
         }
     }
 }

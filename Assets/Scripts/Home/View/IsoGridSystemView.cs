@@ -1,7 +1,8 @@
 using System.Collections;
-using Home.State;
+using Home.Service;
 using NavMeshPlus.Components;
 using UnityEngine;
+using VContainer;
 
 namespace Home.View
 {
@@ -16,63 +17,33 @@ namespace Home.View
         [Header("NavMesh Settings")]
         [SerializeField] NavMeshSurface _surface2D;
 
-        [Header("Debug")]
-        [SerializeField] string _floorCellsDebugView = "";
-
         Vector2 _xAxis;
         Vector2 _yAxis;
         float _determinant;
 
-        IsoGridCell[,] _floorCells;
+        IsoGridService _isoGridService;
 
+        public int GridWidth => _gridWidth;
+        public int GridHeight => _gridHeight;
         public float CellSize => _cellSize;
         public float Angle => _angle;
         public Vector3 Origin => transform.position;
 
+        [Inject]
+        public void Init(IsoGridService service)
+        {
+            _isoGridService = service;
+            _isoGridService.InitializeCells(_gridWidth, _gridHeight);
+        }
+
         void Awake()
         {
             UpdateAxisVectors();
-            InitializeCells();
-        }
-
-        /// <summary>
-        /// セル配列を初期化
-        /// </summary>
-        void InitializeCells()
-        {
-            _floorCells = new IsoGridCell[_gridWidth, _gridHeight];
         }
 
         void OnValidate()
         {
             UpdateAxisVectors();
-        }
-
-        void Update()
-        {
-            UpdateFloorCellsDebugView();
-        }
-
-        /// <summary>
-        /// デバッグ用にセル配列の内容を文字列化
-        /// </summary>
-        void UpdateFloorCellsDebugView()
-        {
-            if (_floorCells == null) return;
-
-            var sb = new System.Text.StringBuilder();
-            // Y軸を上から下に表示（グリッド座標のY=maxが上）
-            for (var y = _gridHeight - 1; y >= 0; y--)
-            {
-                for (var x = 0; x < _gridWidth; x++)
-                {
-                    var objectId = _floorCells[x, y].ObjectId;
-                    sb.Append(objectId == 0 ? "." : objectId.ToString());
-                    if (x < _gridWidth - 1) sb.Append(" ");
-                }
-                if (y > 0) sb.AppendLine();
-            }
-            _floorCellsDebugView = sb.ToString();
         }
 
         /// <summary>
@@ -84,21 +55,22 @@ namespace Home.View
             _xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * _cellSize;
             _yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * _cellSize;
             _determinant = _xAxis.x * _yAxis.y - _xAxis.y * _yAxis.x;
+
+            if (Mathf.Approximately(_determinant, 0f))
+                Debug.LogError($"[IsoGridSystem] Determinant is zero, cannot convert coordinates.");
         }
 
-        /// <summary>
+        /// グリッド座標をワールド座標に変換
+        public Vector3 GridToWorld(Vector2Int gridPos)
+        {
+            var worldOffset = gridPos.x * _xAxis + gridPos.y * _yAxis;
+            return transform.position + (Vector3)worldOffset;
+        }
+
         /// ワールド座標を床グリッド座標に変換
-        /// </summary>
         public Vector2Int WorldToFloorGrid(Vector3 worldPos)
         {
             var offset = (Vector2)(worldPos - transform.position);
-
-            if (Mathf.Approximately(_determinant, 0f))
-            {
-                Debug.LogError($"[IsoGridSystem] Determinant is zero, cannot convert coordinates.");
-                return Vector2Int.zero;
-            }
-
             var gridX = (offset.x * _yAxis.y - offset.y * _yAxis.x) / _determinant;
             var gridY = (_xAxis.x * offset.y - _xAxis.y * offset.x) / _determinant;
 
@@ -106,35 +78,20 @@ namespace Home.View
         }
 
         /// <summary>
-        /// 床グリッド座標が有効範囲内かチェック
-        /// </summary>
-        bool IsValidFloorPosition(Vector2Int gridPos)
-        {
-            return gridPos.x >= 0 && gridPos.x < _gridWidth
-                && gridPos.y >= 0 && gridPos.y < _gridHeight;
-        }
-
-        /// <summary>
         /// 指定範囲のセルにオブジェクトを配置
         /// </summary>
         public void PlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int objectId)
         {
-            for (var x = 0; x < footprintSize.x; x++)
-            {
-                for (var y = 0; y < footprintSize.y; y++)
-                {
-                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
-                    if (!IsValidFloorPosition(cellPos)) continue;
+            // 家具配置
+            _isoGridService.PlaceObject(footprintStart, footprintSize, objectId);
 
-                    _floorCells[cellPos.x, cellPos.y].ObjectId = objectId;
-                }
-            }
-
+            // 配置後にNavMesh再構築
             StartCoroutine(BuildNavMeshDelayed());
         }
 
         IEnumerator BuildNavMeshDelayed()
         {
+            // 2フレーム待つ
             yield return null;
             _surface2D.BuildNavMeshAsync();
         }
@@ -144,16 +101,7 @@ namespace Home.View
         /// </summary>
         public void RemoveObject(Vector2Int footprintStart, Vector2Int footprintSize)
         {
-            for (var x = 0; x < footprintSize.x; x++)
-            {
-                for (var y = 0; y < footprintSize.y; y++)
-                {
-                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
-                    if (!IsValidFloorPosition(cellPos)) continue;
-
-                    _floorCells[cellPos.x, cellPos.y].Clear();
-                }
-            }
+            _isoGridService.RemoveObject(footprintStart, footprintSize);
         }
 
         /// <summary>
@@ -161,18 +109,7 @@ namespace Home.View
         /// </summary>
         public bool CanPlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int selfObjectId = 0)
         {
-            for (var x = 0; x < footprintSize.x; x++)
-            {
-                for (var y = 0; y < footprintSize.y; y++)
-                {
-                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
-                    if (!IsValidFloorPosition(cellPos)) return false;
-
-                    var cell = _floorCells[cellPos.x, cellPos.y];
-                    if (cell.IsOccupied && cell.ObjectId != selfObjectId) return false;
-                }
-            }
-            return true;
+            return _isoGridService.CanPlaceObject(footprintStart, footprintSize, selfObjectId);
         }
     }
 }

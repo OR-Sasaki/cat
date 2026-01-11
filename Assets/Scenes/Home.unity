@@ -372,6 +372,7 @@ MonoBehaviour:
   _closetUiView: {fileID: 902082513}
   _redecorateUiView: {fileID: 1839933463}
   _cameraView: {fileID: 760997518}
+  _isoGridSystemView: {fileID: 1759482995}
 --- !u!4 &126049569
 Transform:
   m_ObjectHideFlags: 0
@@ -450,7 +451,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.8
+  orthographic size: 6.34
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -475,7 +476,7 @@ Transform:
   m_GameObject: {fileID: 140467738}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.654, y: -0.60200024, z: -10}
+  m_LocalPosition: {x: 0.6540001, y: 0.5979997, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6804,7 +6805,6 @@ GameObject:
   - component: {fileID: 1759482994}
   - component: {fileID: 1759482995}
   - component: {fileID: 1759482993}
-  - component: {fileID: 1759482996}
   m_Layer: 0
   m_Name: IsoGrid
   m_TagString: Untagged
@@ -6824,11 +6824,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a1752e40454860ada1699adec94c19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoGridTest
-  _gridWidth: 32
-  _gridHeight: 32
-  _cellSize: 0.4885
+  _gridSystem: {fileID: 1759482995}
   _lineInterval: 1
-  _angle: 15.5
   _showFloorGrid: 1
   _floorGridColor: {r: 0, g: 1, b: 0, a: 1}
   _showWallGrid: 1
@@ -6867,22 +6864,6 @@ MonoBehaviour:
   _cellSize: 0.4885
   _angle: 15.5
   _surface2D: {fileID: 868431863}
-  _floorCellsDebugView: 
---- !u!114 &1759482996
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1759482992}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: faf20478a60664b009de181646adc8d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoDragManager
-  _draggableLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!1 &1838396421
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,112 +1,48 @@
-using Home.State;
 using Home.View;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using VContainer;
 using VContainer.Unity;
-using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
-using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
 namespace Home.Service
 {
-    /// <summary>
-    /// Raycastベースのドラッグ管理システム
-    /// 前面のColliderを貫通してIsoDraggableViewを検出する
-    /// PC: マウス入力、スマホ: タッチ入力に対応
-    /// </summary>
-    public class IsoDragService : ITickable, IInitializable
+    /// ドラッグによるオブジェクト移動を管理するService
+    /// Raycastで最前面のIsoDraggableViewを検出し、グリッドへの配置を行う
+    public class IsoDragService : IStartable
     {
-        readonly HomeState _homeState;
+        const int DragSortingOrderBoost = 100;
 
-        Camera _mainCamera;
-        IsoDraggableView _currentDraggable;
-        bool _isActive;
-        LayerMask _draggableLayerMask = -1;
+        readonly IsoInputService _inputService;
+        readonly IsoGridSystemView _isoGridSystemView;
 
-        public IsoDragService(HomeState homeState)
+        IsoDraggableView _currentIsoDraggableView;
+
+        // ドラッグ状態
+        Vector3 _dragOffset;
+        Vector2Int _dragStartFootprintPos;
+
+        [Inject]
+        public IsoDragService(IsoInputService inputService, IsoGridSystemView isoGridSystemView)
         {
-            _homeState = homeState;
+            _inputService = inputService;
+            _isoGridSystemView = isoGridSystemView;
+
+            _inputService.OnPointerDown.AddListener(HandlePointerDown);
+            _inputService.OnPointerDrag.AddListener(HandlePointerDrag);
+            _inputService.OnPointerUp.AddListener(HandlePointerUp);
         }
 
-        public void Initialize()
+        public void Start()
         {
-            _mainCamera = Camera.main;
-            _homeState.OnStateChange.AddListener(OnStateChange);
         }
 
-        void OnStateChange(HomeState.State previous, HomeState.State current)
-        {
-            _isActive = current == HomeState.State.Redecorate;
-        }
-
-        public void Tick()
-        {
-            if (!_isActive) return;
-
-            // タッチ入力を優先してチェック
-            if (Touch.activeTouches.Count > 0)
-            {
-                HandleTouchInput();
-            }
-            else
-            {
-                HandleMouseInput();
-            }
-        }
-
-        void HandleTouchInput()
-        {
-            var touch = Touch.activeTouches[0];
-            var worldPos = ScreenToWorldPosition(touch.screenPosition);
-
-            switch (touch.phase)
-            {
-                case TouchPhase.Began:
-                    HandlePointerDown(worldPos);
-                    break;
-                case TouchPhase.Moved:
-                case TouchPhase.Stationary:
-                    if (_currentDraggable != null)
-                        HandlePointerDrag(worldPos);
-                    break;
-                case TouchPhase.Ended:
-                case TouchPhase.Canceled:
-                    if (_currentDraggable != null)
-                        HandlePointerUp();
-                    break;
-            }
-        }
-
-        void HandleMouseInput()
-        {
-            var mouse = Mouse.current;
-            if (mouse == null) return;
-
-            var worldPos = ScreenToWorldPosition(mouse.position.ReadValue());
-
-            if (mouse.leftButton.wasPressedThisFrame)
-            {
-                HandlePointerDown(worldPos);
-            }
-            else if (mouse.leftButton.isPressed && _currentDraggable != null)
-            {
-                HandlePointerDrag(worldPos);
-            }
-            else if (mouse.leftButton.wasReleasedThisFrame && _currentDraggable != null)
-            {
-                HandlePointerUp();
-            }
-        }
-
-        /// <summary>
         /// ポインター押下時の処理
-        /// </summary>
         void HandlePointerDown(Vector3 worldPos)
         {
             var draggable = RaycastForDraggable(worldPos);
             if (draggable == null) return;
 
-            _currentDraggable = draggable;
-            _currentDraggable.BeginDrag(worldPos);
+            _currentIsoDraggableView = draggable;
+            BeginDrag(worldPos);
         }
 
         /// <summary>
@@ -114,7 +50,9 @@ namespace Home.Service
         /// </summary>
         void HandlePointerDrag(Vector3 worldPos)
         {
-            _currentDraggable.UpdateDrag(worldPos);
+            if (_currentIsoDraggableView == null) return;
+            // 位置更新
+            _currentIsoDraggableView.SetPosition(worldPos + _dragOffset);
         }
 
         /// <summary>
@@ -122,8 +60,75 @@ namespace Home.Service
         /// </summary>
         void HandlePointerUp()
         {
-            _currentDraggable.EndDrag();
-            _currentDraggable = null;
+            if (_currentIsoDraggableView == null) return;
+            EndDrag();
+            _currentIsoDraggableView = null;
+        }
+
+        /// <summary>
+        /// ドラッグ開始
+        /// </summary>
+        void BeginDrag(Vector3 worldPos)
+        {
+            _currentIsoDraggableView.SetDragging(true);
+
+            // マウス位置とオブジェクト位置の差分を記録
+            _dragOffset = _currentIsoDraggableView.Position - worldPos;
+
+            // 現在のグリッド位置を計算
+            var gridPos = _isoGridSystemView.WorldToFloorGrid(_currentIsoDraggableView.Position);
+            var currentFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
+
+            // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
+            _dragStartFootprintPos = currentFootprintStartPos;
+            if (_currentIsoDraggableView.IsPlacedOnGrid)
+            {
+                _isoGridSystemView.RemoveObject(currentFootprintStartPos, _currentIsoDraggableView.FootprintSize);
+                _currentIsoDraggableView.SetPlacedOnGrid(false);
+            }
+
+            // ソートオーダーを一時的に上げる
+            _currentIsoDraggableView.BoostSortingOrder(DragSortingOrderBoost);
+        }
+
+        /// <summary>
+        /// ドラッグ終了
+        /// </summary>
+        void EndDrag()
+        {
+            if (_currentIsoDraggableView == null) return;
+
+            // グリッドにスナップして配置
+            var gridPos = _isoGridSystemView.WorldToFloorGrid(_currentIsoDraggableView.Position);
+            var newFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
+
+            Vector2Int finalFootprintPos;
+            // 配置可能かチェック
+            if (_isoGridSystemView.CanPlaceObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId))
+            {
+                // 新しい位置に配置
+                finalFootprintPos = newFootprintStartPos;
+            }
+            else
+            {
+                // 配置不可能なら元の位置に戻す
+                finalFootprintPos = _dragStartFootprintPos;
+            }
+
+            _currentIsoDraggableView.SetPosition(SnapToGrid(finalFootprintPos));
+            _isoGridSystemView.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId);
+            _currentIsoDraggableView.SetPlacedOnGrid(true);
+
+            // ソートオーダーを元に戻す
+            _currentIsoDraggableView.ResetSortingOrder();
+            _currentIsoDraggableView.SetDragging(false);
+        }
+
+        /// フットプリント開始位置からピボット位置のワールド座標を計算
+        Vector3 SnapToGrid(Vector2Int footprintStartPos)
+        {
+            var pivotGridPos = footprintStartPos + _currentIsoDraggableView.PivotGridPosition;
+            return _isoGridSystemView.GridToWorld(pivotGridPos);
         }
 
         /// <summary>
@@ -132,7 +137,7 @@ namespace Home.Service
         IsoDraggableView RaycastForDraggable(Vector3 worldPos)
         {
             // 2D Raycastで全てのヒットを取得
-            var hits = Physics2D.RaycastAll(worldPos, Vector2.zero, 0f, _draggableLayerMask);
+            var hits = Physics2D.RaycastAll(worldPos, Vector2.zero, 0f, -1);
 
             if (hits.Length == 0) return null;
 
@@ -142,6 +147,7 @@ namespace Home.Service
             // 最も手前(Yが小さい)Draggableを探す
             foreach (var hit in hits)
             {
+                Debug.Log(hit.collider.gameObject.name);
                 var draggable = hit.collider.GetComponent<IsoDraggableView>();
                 if (draggable == null) continue;
                 if (draggable.ViewPivotY > bestY) continue;
@@ -151,15 +157,6 @@ namespace Home.Service
             }
 
             return bestDraggable;
-        }
-
-        /// <summary>
-        /// スクリーン座標をワールド座標に変換
-        /// </summary>
-        Vector3 ScreenToWorldPosition(Vector2 screenPos)
-        {
-            var pos = new Vector3(screenPos.x, screenPos.y, -_mainCamera.transform.position.z);
-            return _mainCamera.ScreenToWorldPoint(pos);
         }
     }
 }

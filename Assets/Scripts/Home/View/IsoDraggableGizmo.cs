@@ -8,6 +8,7 @@ namespace Home.View
     public class IsoDraggableGizmo : MonoBehaviour
     {
         IsoDraggableView _draggable;
+        IsoGridSystemView _gridSystem;
 
         void Awake()
         {
@@ -17,28 +18,34 @@ namespace Home.View
 #if UNITY_EDITOR
         void OnDrawGizmos()
         {
-            if (_draggable == null || !_draggable.IsDragging || _draggable.GridSystem == null) return;
+            if (_draggable == null || !_draggable.IsDragging) return;
 
-            var gridSystem = _draggable.GridSystem;
+            // GridSystemをキャッシュ
+            if (_gridSystem == null)
+            {
+                _gridSystem = Object.FindFirstObjectByType<IsoGridSystemView>();
+            }
+            if (_gridSystem == null) return;
+
             var footprintSize = _draggable.FootprintSize;
             var pivotGridPosition = _draggable.PivotGridPosition;
             var objectId = _draggable.ObjectId;
 
             // スナップ先のグリッド座標を取得（pivotの位置）
-            var pivotGridPos = gridSystem.WorldToFloorGrid(transform.position);
+            var pivotGridPos = _gridSystem.WorldToFloorGrid(transform.position);
 
             // footprintの開始位置（左下）を計算
             var footprintStartPos = pivotGridPos - pivotGridPosition;
 
             // 軸ベクトルを計算
-            var angleRad = gridSystem.Angle * Mathf.Deg2Rad;
-            var cellSize = gridSystem.CellSize;
+            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
+            var cellSize = _gridSystem.CellSize;
             var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var origin = gridSystem.Origin;
+            var origin = _gridSystem.Origin;
 
             // 配置可能かチェック
-            var canPlace = gridSystem.CanPlaceObject(footprintStartPos, footprintSize, objectId);
+            var canPlace = _gridSystem.CanPlaceObject(footprintStartPos, footprintSize, objectId);
 
             // 配置可能なら緑、不可能なら赤
             var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);

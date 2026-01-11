@@ -11,7 +11,6 @@ namespace Home.Service
     {
         const int DragSortingOrderBoost = 100;
 
-        readonly IsoInputService _inputService;
         readonly IsoGridSystemView _isoGridSystemView;
 
         IsoDraggableView _currentIsoDraggableView;
@@ -23,12 +22,11 @@ namespace Home.Service
         [Inject]
         public IsoDragService(IsoInputService inputService, IsoGridSystemView isoGridSystemView)
         {
-            _inputService = inputService;
             _isoGridSystemView = isoGridSystemView;
 
-            _inputService.OnPointerDown.AddListener(HandlePointerDown);
-            _inputService.OnPointerDrag.AddListener(HandlePointerDrag);
-            _inputService.OnPointerUp.AddListener(HandlePointerUp);
+            inputService.OnPointerDown.AddListener(HandlePointerDown);
+            inputService.OnPointerDrag.AddListener(HandlePointerDrag);
+            inputService.OnPointerUp.AddListener(HandlePointerUp);
         }
 
         public void Start()
@@ -147,7 +145,6 @@ namespace Home.Service
             // 最も手前(Yが小さい)Draggableを探す
             foreach (var hit in hits)
             {
-                Debug.Log(hit.collider.gameObject.name);
                 var draggable = hit.collider.GetComponent<IsoDraggableView>();
                 if (draggable == null) continue;
                 if (draggable.ViewPivotY > bestY) continue;

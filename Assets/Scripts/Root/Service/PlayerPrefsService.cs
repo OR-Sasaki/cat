@@ -5,7 +5,7 @@ namespace Root.Service
     public enum PlayerPrefsKey
     {
         Outfit,
-        PlayerOutfit,
+        UserEquippedOutfit,
     }
 
     public class PlayerPrefsService

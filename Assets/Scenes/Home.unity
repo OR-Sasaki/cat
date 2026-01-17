@@ -367,6 +367,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects:
   - {fileID: 1444508578}
+  - {fileID: 1759482992}
   _characterView: {fileID: 8994825603251842679}
   _homeUiView: {fileID: 514082147}
   _closetUiView: {fileID: 902082513}
@@ -6824,7 +6825,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a1752e40454860ada1699adec94c19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoGridTest
-  _gridSystem: {fileID: 1759482995}
   _lineInterval: 1
   _showFloorGrid: 1
   _floorGridColor: {r: 0, g: 1, b: 0, a: 1}

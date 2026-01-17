@@ -16,8 +16,8 @@ namespace Home.Service
     {
         readonly CharacterView _characterView;
         readonly ClosetUiView _closetUiView;
-        readonly PlayerOutfitState _playerOutfitState;
-        readonly PlayerOutfitService _playerOutfitService;
+        readonly UserEquippedOutfitState _userEquippedOutfitState;
+        readonly UserEquippedOutfitService _userEquippedOutfitService;
         readonly MasterDataState _masterDataState;
         readonly OutfitAssetState _outfitAssetState;
         readonly UnityEvent<ClosetRowCellView> _cellSelectedEvent = new();
@@ -26,20 +26,17 @@ namespace Home.Service
         public ClosetScrollerService(
             CharacterView characterView,
             ClosetUiView closetUiView,
-            PlayerOutfitState playerOutfitState,
-            PlayerOutfitService playerOutfitService,
+            UserEquippedOutfitState UserEquippedOutfitState,
+            UserEquippedOutfitService userEquippedOutfitService,
             MasterDataState masterDataState,
             OutfitAssetState outfitAssetState)
         {
             _characterView = characterView;
             _closetUiView = closetUiView;
-            _playerOutfitState = playerOutfitState;
-            _playerOutfitService = playerOutfitService;
+            _userEquippedOutfitState = UserEquippedOutfitState;
+            _userEquippedOutfitService = userEquippedOutfitService;
             _masterDataState = masterDataState;
             _outfitAssetState = outfitAssetState;
-
-            _closetUiView.OnOpen.AddListener(Initialize);
-            _cellSelectedEvent.AddListener(OnCellViewSelected);
         }
 
         public void Start()
@@ -79,7 +76,7 @@ namespace Home.Service
                 return;
             }
 
-            var equippedOutfitIds = _playerOutfitState.GetAllEquippedOutfitIds();
+            var equippedOutfitIds = _userEquippedOutfitState.GetAllEquippedOutfitIds();
 
             foreach (var masterOutfit in _masterDataState.Outfits)
             {
@@ -126,8 +123,8 @@ namespace Home.Service
             var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == selectedData.Outfit.name);
             if (masterOutfit is not null)
             {
-                _playerOutfitService.Equip(selectedOutfitType, masterOutfit.Id);
-                _playerOutfitService.Save();
+                _userEquippedOutfitService.Equip(selectedOutfitType, masterOutfit.Id);
+                _userEquippedOutfitService.Save();
             }
         }
 

@@ -4,7 +4,7 @@ using Cat.Character;
 
 namespace Root.State
 {
-    public class PlayerOutfitState
+    public class UserEquippedOutfitState
     {
         readonly Dictionary<OutfitType, uint> _equippedOutfitIds = new();
 
@@ -27,19 +27,6 @@ namespace Root.State
         {
             _equippedOutfitIds.Remove(type);
         }
-    }
-
-    [Serializable]
-    public class PlayerOutfitData
-    {
-        public PlayerOutfit[] Outfits;
-    }
-
-    [Serializable]
-    public class PlayerOutfit
-    {
-        public OutfitType Type;
-        public uint OutfitId;
     }
 }
 

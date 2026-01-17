@@ -12,21 +12,21 @@ namespace Home.Starter
     public class HomeStarter : IStartable
     {
         readonly CharacterView _characterView;
-        readonly PlayerOutfitState _playerOutfitState;
-        readonly PlayerOutfitService _playerOutfitService;
+        readonly UserEquippedOutfitState _userEquippedOutfitState;
+        readonly UserEquippedOutfitService _userEquippedOutfitService;
         readonly MasterDataState _masterDataState;
         readonly OutfitAssetState _outfitAssetState;
 
         public HomeStarter(
             CharacterView characterView,
-            PlayerOutfitState playerOutfitState,
-            PlayerOutfitService playerOutfitService,
+            UserEquippedOutfitState userEquippedOutfitState,
+            UserEquippedOutfitService userEquippedOutfitService,
             MasterDataState masterDataState,
             OutfitAssetState outfitAssetState)
         {
             _characterView = characterView;
-            _playerOutfitState = playerOutfitState;
-            _playerOutfitService = playerOutfitService;
+            _userEquippedOutfitState = userEquippedOutfitState;
+            _userEquippedOutfitService = userEquippedOutfitService;
             _masterDataState = masterDataState;
             _outfitAssetState = outfitAssetState;
         }
@@ -77,22 +77,22 @@ namespace Home.Starter
                 var outfit = _outfitAssetState.Get(outfitName);
                 if (outfit is null) continue;
 
-                if (_playerOutfitState.GetEquippedOutfitId(outfit.OutfitType) is null)
+                if (_userEquippedOutfitState.GetEquippedOutfitId(outfit.OutfitType) is null)
                 {
-                    _playerOutfitService.Equip(outfit.OutfitType, masterOutfit.Id);
+                    _userEquippedOutfitService.Equip(outfit.OutfitType, masterOutfit.Id);
                     hasNewEquip = true;
                 }
             }
 
             if (hasNewEquip)
             {
-                _playerOutfitService.Save();
+                _userEquippedOutfitService.Save();
             }
         }
 
         void ApplyPlayerOutfits()
         {
-            var equippedOutfits = _playerOutfitState.GetAllEquippedOutfitIds();
+            var equippedOutfits = _userEquippedOutfitState.GetAllEquippedOutfitIds();
             if (equippedOutfits.Count == 0) return;
 
             foreach (var (_, outfitId) in equippedOutfits)

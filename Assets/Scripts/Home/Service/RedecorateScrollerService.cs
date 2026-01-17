@@ -1,3 +1,4 @@
+using System.Linq;
 using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using Home.State;
@@ -12,6 +13,7 @@ namespace Home.Service
     public class RedecorateScrollerService : IEnhancedScrollerDelegate, IStartable
     {
         readonly RedecorateUiView _redecorateUiView;
+        readonly UserState _userState;
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
@@ -21,10 +23,12 @@ namespace Home.Service
 
         public RedecorateScrollerService(
             RedecorateUiView redecorateUiView,
+            UserState userState,
             MasterDataState masterDataState,
             FurnitureAssetState furnitureAssetState)
         {
             _redecorateUiView = redecorateUiView;
+            _userState = userState;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
         }
@@ -61,14 +65,17 @@ namespace Home.Service
             _data.Clear();
             _selectedIndex = -1;
 
-            if (_masterDataState.Furnitures is null)
+            if (_userState.UserFurnitures is null)
             {
-                Debug.LogError("[RedecorateScrollerService] MasterDataState.Furnitures is null");
+                Debug.LogError("[RedecorateScrollerService] UserState.UserFurnitures is null");
                 return;
             }
 
-            foreach (var masterFurniture in _masterDataState.Furnitures)
+            foreach (var userFurniture in _userState.UserFurnitures)
             {
+                var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == userFurniture.FurnitureID);
+                if (masterFurniture is null) continue;
+
                 var furniture = _furnitureAssetState.Get(masterFurniture.Name);
                 if (furniture is null) continue;
 

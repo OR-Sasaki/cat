@@ -126,6 +126,6 @@ namespace Home.View
                 Gizmos.DrawLine(start, end);
             }
         }
-    }
 #endif
+    }
 }

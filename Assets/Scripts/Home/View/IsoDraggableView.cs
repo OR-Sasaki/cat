@@ -80,5 +80,11 @@ namespace Home.View
         {
             _isPlacedOnGrid = isPlaced;
         }
+
+        // UserFurnitureIdを設定
+        public void SetUserFurnitureId(int userFurnitureId)
+        {
+            _userFurnitureId = userFurnitureId;
+        }
     }
 }

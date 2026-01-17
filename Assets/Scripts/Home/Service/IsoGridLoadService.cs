@@ -96,6 +96,7 @@ namespace Home.Service
                 var worldPos = _isoGridService.GridToWorld(gridPos + pivotOffset);
                 instance.SetPosition(worldPos);
                 instance.SetPlacedOnGrid(true);
+                instance.SetUserFurnitureId(objectPosition.UserFurnitureId);
 
                 loadedCount++;
             }

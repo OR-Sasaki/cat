@@ -12,8 +12,7 @@ namespace Home.View
         IsoGridSettingsView _isoGridSettingsView;
         IsoGridService _isoGridService;
 
-        [Inject]
-        void Init(
+        public void Init(
             IsoGridSettingsView isoGridSettingsView,
             IsoGridService isoGridService)
         {

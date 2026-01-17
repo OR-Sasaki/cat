@@ -50,7 +50,7 @@ namespace Root.Service
             var csv = Resources.Load<TextAsset>("furnitures");
             if (csv is null)
             {
-                Debug.LogError("[MasterDataImportService] furniture.csv not found");
+                Debug.LogError("[MasterDataImportService] furnitures.csv not found");
                 return;
             }
 

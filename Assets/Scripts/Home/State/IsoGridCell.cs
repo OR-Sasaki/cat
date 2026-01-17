@@ -1,23 +1,15 @@
 namespace Home.State
 {
-    /// <summary>
-    /// IsoGrid上の1セルの情報
-    /// </summary>
+    // IsoGrid上の1セルの情報
     public struct IsoGridCell
     {
-        /// <summary>
-        /// 配置されているオブジェクトのID（0 = 何も配置されていない）
-        /// </summary>
+        // 配置されているオブジェクトのID（0 = 何も配置されていない）
         public int ObjectId;
 
-        /// <summary>
-        /// このセルが占有されているか
-        /// </summary>
+        // このセルが占有されているか
         public bool IsOccupied => ObjectId != 0;
 
-        /// <summary>
-        /// セル情報をクリア
-        /// </summary>
+        // セル情報をクリア
         public void Clear()
         {
             ObjectId = 0;

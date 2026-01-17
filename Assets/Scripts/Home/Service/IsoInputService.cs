@@ -2,6 +2,7 @@ using Home.State;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
 using VContainer;
 using VContainer.Unity;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
@@ -32,6 +33,7 @@ namespace Home.Service
         {
             _mainCamera = Camera.main;
             _homeState.OnStateChange.AddListener(OnStateChange);
+            EnhancedTouchSupport.Enable();
         }
 
         void OnStateChange(HomeState.State previous, HomeState.State current)

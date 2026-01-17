@@ -16,7 +16,6 @@ namespace Root.Service
 
         public void Initialize()
         {
-            Debug.Log("[UserDataImportService] Initialize");
             ImportUserOutfits();
             ImportUserFurnitures();
         }

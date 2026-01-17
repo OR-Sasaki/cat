@@ -11,7 +11,7 @@ namespace Home.Service
     {
         const int DragSortingOrderBoost = 100;
 
-        readonly IsoGridSystemView _isoGridSystemView;
+        readonly IsoGridService _isoGridService;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -20,9 +20,9 @@ namespace Home.Service
         Vector2Int _dragStartFootprintPos;
 
         [Inject]
-        public IsoDragService(IsoInputService inputService, IsoGridSystemView isoGridSystemView)
+        public IsoDragService(IsoInputService inputService, IsoGridService isoGridService)
         {
-            _isoGridSystemView = isoGridSystemView;
+            _isoGridService = isoGridService;
 
             inputService.OnPointerDown.AddListener(HandlePointerDown);
             inputService.OnPointerDrag.AddListener(HandlePointerDrag);
@@ -43,19 +43,14 @@ namespace Home.Service
             BeginDrag(worldPos);
         }
 
-        /// <summary>
         /// ポインタードラッグ中の処理
-        /// </summary>
         void HandlePointerDrag(Vector3 worldPos)
         {
             if (_currentIsoDraggableView == null) return;
-            // 位置更新
             _currentIsoDraggableView.SetPosition(worldPos + _dragOffset);
         }
 
-        /// <summary>
         /// ポインター離した時の処理
-        /// </summary>
         void HandlePointerUp()
         {
             if (_currentIsoDraggableView == null) return;
@@ -63,9 +58,7 @@ namespace Home.Service
             _currentIsoDraggableView = null;
         }
 
-        /// <summary>
         /// ドラッグ開始
-        /// </summary>
         void BeginDrag(Vector3 worldPos)
         {
             _currentIsoDraggableView.SetDragging(true);
@@ -74,14 +67,14 @@ namespace Home.Service
             _dragOffset = _currentIsoDraggableView.Position - worldPos;
 
             // 現在のグリッド位置を計算
-            var gridPos = _isoGridSystemView.WorldToFloorGrid(_currentIsoDraggableView.Position);
+            var gridPos = _isoGridService.WorldToFloorGrid(_currentIsoDraggableView.Position);
             var currentFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
             _dragStartFootprintPos = currentFootprintStartPos;
             if (_currentIsoDraggableView.IsPlacedOnGrid)
             {
-                _isoGridSystemView.RemoveObject(currentFootprintStartPos, _currentIsoDraggableView.FootprintSize);
+                _isoGridService.RemoveObject(currentFootprintStartPos, _currentIsoDraggableView.FootprintSize);
                 _currentIsoDraggableView.SetPlacedOnGrid(false);
             }
 
@@ -89,20 +82,18 @@ namespace Home.Service
             _currentIsoDraggableView.BoostSortingOrder(DragSortingOrderBoost);
         }
 
-        /// <summary>
         /// ドラッグ終了
-        /// </summary>
         void EndDrag()
         {
             if (_currentIsoDraggableView == null) return;
 
             // グリッドにスナップして配置
-            var gridPos = _isoGridSystemView.WorldToFloorGrid(_currentIsoDraggableView.Position);
+            var gridPos = _isoGridService.WorldToFloorGrid(_currentIsoDraggableView.Position);
             var newFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
 
             Vector2Int finalFootprintPos;
             // 配置可能かチェック
-            if (_isoGridSystemView.CanPlaceObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId))
+            if (_isoGridService.CanPlaceObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId))
             {
                 // 新しい位置に配置
                 finalFootprintPos = newFootprintStartPos;
@@ -114,7 +105,7 @@ namespace Home.Service
             }
 
             _currentIsoDraggableView.SetPosition(SnapToGrid(finalFootprintPos));
-            _isoGridSystemView.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId);
+            _isoGridService.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId);
             _currentIsoDraggableView.SetPlacedOnGrid(true);
 
             // ソートオーダーを元に戻す
@@ -126,12 +117,10 @@ namespace Home.Service
         Vector3 SnapToGrid(Vector2Int footprintStartPos)
         {
             var pivotGridPos = footprintStartPos + _currentIsoDraggableView.PivotGridPosition;
-            return _isoGridSystemView.GridToWorld(pivotGridPos);
+            return _isoGridService.GridToWorld(pivotGridPos);
         }
 
-        /// <summary>
         /// Raycastで最前面のIsoDraggableViewを検出
-        /// </summary>
         IsoDraggableView RaycastForDraggable(Vector3 worldPos)
         {
             // 2D Raycastで全てのヒットを取得

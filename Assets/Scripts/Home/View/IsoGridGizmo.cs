@@ -5,7 +5,7 @@ namespace Home.View
     public class IsoGridGizmo : MonoBehaviour
     {
         [Header("Grid Reference")]
-        [SerializeField] IsoGridSystemView _gridSystem;
+        [SerializeField] IsoGridSettingsView _gridSystem;
 
         [Header("Gizmo Settings")]
         [SerializeField, Range(1, 10)] int _lineInterval = 1;

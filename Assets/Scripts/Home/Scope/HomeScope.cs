@@ -17,7 +17,7 @@ namespace Home.Scope
         [SerializeField] ClosetUiView _closetUiView;
         [SerializeField] RedecorateUiView _redecorateUiView;
         [SerializeField] CameraView _cameraView;
-        [SerializeField] IsoGridSystemView _isoGridSystemView;
+        [SerializeField] IsoGridSettingsView _isoGridSettingsView;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -27,7 +27,7 @@ namespace Home.Scope
             builder.RegisterComponent(_closetUiView);
             builder.RegisterComponent(_redecorateUiView);
             builder.RegisterComponent(_cameraView);
-            builder.RegisterComponent(_isoGridSystemView);
+            builder.RegisterComponent(_isoGridSettingsView);
 
             // State
             builder.Register<HomeState>(Lifetime.Scoped);

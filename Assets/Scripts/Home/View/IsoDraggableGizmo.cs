@@ -2,13 +2,11 @@ using UnityEngine;
 
 namespace Home.View
 {
-    /// <summary>
     /// IsoDraggableViewのドラッグ中フットプリントをGizmoで表示するコンポーネント
-    /// </summary>
     public class IsoDraggableGizmo : MonoBehaviour
     {
         IsoDraggableView _draggable;
-        IsoGridSystemView _gridSystem;
+        IsoGridSettingsView _gridSettings;
 
         void Awake()
         {
@@ -20,32 +18,33 @@ namespace Home.View
         {
             if (_draggable == null || !_draggable.IsDragging) return;
 
-            // GridSystemをキャッシュ
-            if (_gridSystem == null)
+            // GridSettingsをキャッシュ
+            if (_gridSettings == null)
             {
-                _gridSystem = Object.FindFirstObjectByType<IsoGridSystemView>();
+                _gridSettings = Object.FindFirstObjectByType<IsoGridSettingsView>();
             }
-            if (_gridSystem == null) return;
+            if (_gridSettings == null) return;
 
             var footprintSize = _draggable.FootprintSize;
             var pivotGridPosition = _draggable.PivotGridPosition;
             var objectId = _draggable.ObjectId;
 
+            // 軸ベクトルを計算
+            var angleRad = _gridSettings.Angle * Mathf.Deg2Rad;
+            var cellSize = _gridSettings.CellSize;
+            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var origin = _gridSettings.Origin;
+
             // スナップ先のグリッド座標を取得（pivotの位置）
-            var pivotGridPos = _gridSystem.WorldToFloorGrid(transform.position);
+            var pivotGridPos = WorldToFloorGrid(transform.position, origin, xAxis, yAxis);
 
             // footprintの開始位置（左下）を計算
             var footprintStartPos = pivotGridPos - pivotGridPosition;
 
-            // 軸ベクトルを計算
-            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
-            var cellSize = _gridSystem.CellSize;
-            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var origin = _gridSystem.Origin;
-
             // 配置可能かチェック
-            var canPlace = _gridSystem.CanPlaceObject(footprintStartPos, footprintSize, objectId);
+            var service = _gridSettings.Service;
+            var canPlace = service != null && service.CanPlaceObject(footprintStartPos, footprintSize, objectId);
 
             // 配置可能なら緑、不可能なら赤
             var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
@@ -80,6 +79,15 @@ namespace Home.View
             Gizmos.DrawLine(outerCorner1, outerCorner2);
             Gizmos.DrawLine(outerCorner2, outerCorner3);
             Gizmos.DrawLine(outerCorner3, outerCorner0);
+        }
+
+        Vector2Int WorldToFloorGrid(Vector3 worldPos, Vector3 origin, Vector2 xAxis, Vector2 yAxis)
+        {
+            var determinant = xAxis.x * yAxis.y - xAxis.y * yAxis.x;
+            var offset = (Vector2)(worldPos - origin);
+            var gridX = (offset.x * yAxis.y - offset.y * yAxis.x) / determinant;
+            var gridY = (xAxis.x * offset.y - xAxis.y * offset.x) / determinant;
+            return new Vector2Int(Mathf.RoundToInt(gridX), Mathf.RoundToInt(gridY));
         }
 
         void DrawFilledQuad(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color color)

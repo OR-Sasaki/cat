@@ -372,7 +372,7 @@ MonoBehaviour:
   _closetUiView: {fileID: 902082513}
   _redecorateUiView: {fileID: 1839933463}
   _cameraView: {fileID: 760997518}
-  _isoGridSystemView: {fileID: 1759482995}
+  _isoGridSettingsView: {fileID: 1759482995}
 --- !u!4 &126049569
 Transform:
   m_ObjectHideFlags: 0
@@ -451,7 +451,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6.34
+  orthographic size: 5.8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -476,7 +476,7 @@ Transform:
   m_GameObject: {fileID: 140467738}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.6540001, y: 0.5979997, z: -10}
+  m_LocalPosition: {x: 0.654, y: -0.60200024, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3847,7 +3847,7 @@ MonoBehaviour:
   m_VoxelSize: 0.033333335
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
-  m_HideEditorLogs: 0
+  m_HideEditorLogs: 1
   m_NavMeshData: {fileID: 23800000, guid: 8190f8f18558645fca1f9df285135fe1, type: 2}
 --- !u!4 &868431864
 Transform:
@@ -6803,8 +6803,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1759482994}
-  - component: {fileID: 1759482995}
   - component: {fileID: 1759482993}
+  - component: {fileID: 1759482995}
   m_Layer: 0
   m_Name: IsoGrid
   m_TagString: Untagged
@@ -6856,9 +6856,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1759482992}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc09e69bfaf3d46b88619f87765e610f, type: 3}
+  m_Script: {fileID: 11500000, guid: 61cdcf09a75274530930809f4b1effeb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoGridSystem
+  m_EditorClassIdentifier: Assembly-CSharp::Home.View.IsoGridSettingsView
   _gridWidth: 32
   _gridHeight: 32
   _cellSize: 0.4885

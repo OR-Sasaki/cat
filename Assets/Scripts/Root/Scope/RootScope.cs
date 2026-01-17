@@ -13,13 +13,16 @@ namespace Root.Scope
             builder.Register<SceneLoaderState>(Lifetime.Singleton);
             builder.Register<MasterDataState>(Lifetime.Singleton);
             builder.Register<MasterDataImportService>(Lifetime.Singleton);
+            builder.Register<UserState>(Lifetime.Singleton);
             builder.Register<PlayerPrefsService>(Lifetime.Singleton);
-            builder.Register<PlayerOutfitState>(Lifetime.Singleton);
-            builder.Register<PlayerOutfitService>(Lifetime.Singleton);
+            builder.Register<UserEquippedOutfitState>(Lifetime.Singleton);
+            builder.Register<UserEquippedOutfitService>(Lifetime.Singleton);
 
             builder.Register<DialogState>(Lifetime.Singleton);
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DialogService>(Lifetime.Singleton).As<IDialogService>();
+
+            builder.RegisterEntryPoint<UserDataImportService>();
         }
     }
 }

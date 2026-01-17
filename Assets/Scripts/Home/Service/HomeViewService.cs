@@ -10,20 +10,23 @@ namespace Home.Service
         readonly HomeState _homeState;
         readonly HomeUiView _homeUiView;
         readonly ClosetUiView _closetUiView;
+        readonly RedecorateUiView _redecorateUiView;
         readonly CameraView _cameraView;
         readonly Dictionary<HomeState.State, UiView> _stateViewMap;
 
-        public HomeViewService(HomeState homeState, HomeUiView homeUiView, ClosetUiView closetUiView, CameraView cameraView)
+        public HomeViewService(HomeState homeState, HomeUiView homeUiView, ClosetUiView closetUiView, RedecorateUiView redecorateUiView, CameraView cameraView)
         {
             _homeState = homeState;
             _homeUiView = homeUiView;
             _closetUiView = closetUiView;
+            _redecorateUiView = redecorateUiView;
             _cameraView = cameraView;
 
             _stateViewMap = new Dictionary<HomeState.State, UiView>
             {
                 { HomeState.State.Home, _homeUiView },
-                { HomeState.State.Closet, _closetUiView }
+                { HomeState.State.Closet, _closetUiView },
+                { HomeState.State.Redecorate, _redecorateUiView }
             };
         }
 

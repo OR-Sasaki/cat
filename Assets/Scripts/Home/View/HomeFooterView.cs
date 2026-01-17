@@ -17,6 +17,7 @@ namespace Home.View
         [Inject]
         public void Init(HomeStateSetService homeStateSetService)
         {
+            _redecorateButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Redecorate));
             _closetButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Closet));
         }
     }

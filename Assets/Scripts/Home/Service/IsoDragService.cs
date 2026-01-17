@@ -68,13 +68,13 @@ namespace Home.Service
             _dragOffset = _currentIsoDraggableView.Position - worldPos;
 
             // Stateから現在のフットプリント開始位置を取得
-            var currentFootprintStartPos = _isoGridService.GetObjectFootprintStart(_currentIsoDraggableView.ObjectId);
+            var currentFootprintStartPos = _isoGridService.GetObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
             _dragStartFootprintPos = currentFootprintStartPos;
             if (_currentIsoDraggableView.IsPlacedOnGrid)
             {
-                _isoGridService.RemoveObject(_currentIsoDraggableView.ObjectId, _currentIsoDraggableView.FootprintSize);
+                _isoGridService.RemoveObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
                 _currentIsoDraggableView.SetPlacedOnGrid(false);
             }
 
@@ -93,7 +93,7 @@ namespace Home.Service
 
             Vector2Int finalFootprintPos;
             // 配置可能かチェック
-            if (_isoGridService.CanPlaceObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId))
+            if (_isoGridService.CanPlaceObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId))
             {
                 // 新しい位置に配置
                 finalFootprintPos = newFootprintStartPos;
@@ -105,7 +105,7 @@ namespace Home.Service
             }
 
             _currentIsoDraggableView.SetPosition(SnapToGrid(finalFootprintPos));
-            _isoGridService.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.ObjectId);
+            _isoGridService.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId);
             _currentIsoDraggableView.SetPlacedOnGrid(true);
 
             // ソートオーダーを元に戻す

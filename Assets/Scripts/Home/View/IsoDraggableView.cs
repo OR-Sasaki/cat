@@ -13,7 +13,7 @@ namespace Home.View
         [SerializeField] Transform _viewPivot;
 
         [Header("Object Settings")]
-        [SerializeField] int _objectId;
+        [SerializeField] int _userFurnitureId;
 
         SpriteRenderer _spriteRenderer;
         int _originalSortingOrder;
@@ -24,7 +24,7 @@ namespace Home.View
         public bool IsPlacedOnGrid => _isPlacedOnGrid;
         public Vector2Int FootprintSize => _footprintSize;
         public Vector2Int PivotGridPosition => _pivotGridPosition;
-        public int ObjectId => _objectId;
+        public int UserFurnitureId => _userFurnitureId;
         public float ViewPivotY => _viewPivot.position.y;
         public Vector3 Position => transform.position;
 

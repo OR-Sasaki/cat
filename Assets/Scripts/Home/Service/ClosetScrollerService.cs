@@ -42,6 +42,12 @@ namespace Home.Service
             _cellSelectedEvent.AddListener(OnCellViewSelected);
         }
 
+        public void Start()
+        {
+            _closetUiView.OnOpen.AddListener(Initialize);
+            _cellSelectedEvent.AddListener(OnCellViewSelected);
+        }
+
         void Initialize()
         {
             var scroller = _closetUiView.Scroller;
@@ -55,11 +61,6 @@ namespace Home.Service
             {
                 _outfitAssetState.OnLoaded += LoadData;
             }
-        }
-
-        public void Start()
-        {
-            // ClosetScrollerServiceはInjectされないため、IStartableをRegisterすることで強制的にインスタンスを作る
         }
 
         void LoadData()

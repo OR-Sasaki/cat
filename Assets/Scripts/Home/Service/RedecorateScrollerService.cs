@@ -27,7 +27,10 @@ namespace Home.Service
             _redecorateUiView = redecorateUiView;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
+        }
 
+        public void Start()
+        {
             _redecorateUiView.OnOpen.AddListener(Initialize);
             _cellSelectedEvent.AddListener(OnCellViewSelected);
         }
@@ -45,11 +48,6 @@ namespace Home.Service
             {
                 _furnitureAssetState.OnLoaded += LoadData;
             }
-        }
-
-        public void Start()
-        {
-            // RedecorateScrollerServiceはInjectされないため、IStartableをRegisterすることで強制的にインスタンスを作る
         }
 
         void LoadData()

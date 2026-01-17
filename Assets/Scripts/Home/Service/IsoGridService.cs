@@ -102,12 +102,17 @@ namespace Home.Service
                 }
             }
 
+            // オブジェクトのフットプリント開始位置を記録
+            _state.ObjectFootprintStartPositions[objectId] = footprintStart;
+
             OnObjectPlaced?.Invoke();
         }
 
         /// 指定範囲のセルからオブジェクトを削除
-        public void RemoveObject(Vector2Int footprintStart, Vector2Int footprintSize)
+        public void RemoveObject(int objectId, Vector2Int footprintSize)
         {
+            var footprintStart = _state.ObjectFootprintStartPositions[objectId];
+
             for (var x = 0; x < footprintSize.x; x++)
             {
                 for (var y = 0; y < footprintSize.y; y++)
@@ -118,6 +123,15 @@ namespace Home.Service
                     _state.FloorCells[cellPos.x, cellPos.y].Clear();
                 }
             }
+
+            // オブジェクトのフットプリント開始位置を削除
+            _state.ObjectFootprintStartPositions.Remove(objectId);
+        }
+
+        /// オブジェクトIDからフットプリント開始位置を取得
+        public Vector2Int GetObjectFootprintStart(int objectId)
+        {
+            return _state.ObjectFootprintStartPositions[objectId];
         }
 
         /// 指定範囲が配置可能かチェック（自分自身のIDは無視）

@@ -67,15 +67,14 @@ namespace Home.Service
             // マウス位置とオブジェクト位置の差分を記録
             _dragOffset = _currentIsoDraggableView.Position - worldPos;
 
-            // 現在のグリッド位置を計算
-            var gridPos = _isoGridService.WorldToFloorGrid(_currentIsoDraggableView.Position);
-            var currentFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
+            // Stateから現在のフットプリント開始位置を取得
+            var currentFootprintStartPos = _isoGridService.GetObjectFootprintStart(_currentIsoDraggableView.ObjectId);
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
             _dragStartFootprintPos = currentFootprintStartPos;
             if (_currentIsoDraggableView.IsPlacedOnGrid)
             {
-                _isoGridService.RemoveObject(currentFootprintStartPos, _currentIsoDraggableView.FootprintSize);
+                _isoGridService.RemoveObject(_currentIsoDraggableView.ObjectId, _currentIsoDraggableView.FootprintSize);
                 _currentIsoDraggableView.SetPlacedOnGrid(false);
             }
 

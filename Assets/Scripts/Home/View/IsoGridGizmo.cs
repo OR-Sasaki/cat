@@ -1,11 +1,13 @@
 using UnityEngine;
+using VContainer;
 
 namespace Home.View
 {
+    // IsoGridをGizmo上で表示する
+    // Editor内のみで動作する
     public class IsoGridGizmo : MonoBehaviour
     {
-        [Header("Grid Reference")]
-        [SerializeField] IsoGridSettingsView _gridSystem;
+        IsoGridSettingsView _isoGridSettingsView;
 
         [Header("Gizmo Settings")]
         [SerializeField, Range(1, 10)] int _lineInterval = 1;
@@ -20,9 +22,16 @@ namespace Home.View
         [SerializeField] Color _leftWallColor = Color.cyan;
         [SerializeField] Color _rightWallColor = Color.magenta;
 
+        [Inject]
+        void Init(IsoGridSettingsView isoGridSettingsView)
+        {
+            _isoGridSettingsView = isoGridSettingsView;
+        }
+
+#if UNITY_EDITOR
         void OnDrawGizmos()
         {
-            if (_gridSystem == null) return;
+            if (_isoGridSettingsView == null) return;
 
             if (_showFloorGrid)
             {
@@ -39,14 +48,14 @@ namespace Home.View
         {
             Gizmos.color = _floorGridColor;
 
-            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
-            var cellSize = _gridSystem.CellSize;
+            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = _isoGridSettingsView.CellSize;
             var xAxis = new Vector3(Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
             var yAxis = new Vector3(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
 
-            var origin = _gridSystem.Origin;
-            var gridWidth = _gridSystem.GridWidth;
-            var gridHeight = _gridSystem.GridHeight;
+            var origin = _isoGridSettingsView.Origin;
+            var gridWidth = _isoGridSettingsView.GridWidth;
+            var gridHeight = _isoGridSettingsView.GridHeight;
 
             // 縦線（右下方向）
             for (var x = 0; x <= gridWidth; x += _lineInterval)
@@ -67,15 +76,15 @@ namespace Home.View
 
         void DrawWallGrid()
         {
-            var angleRad = _gridSystem.Angle * Mathf.Deg2Rad;
-            var cellSize = _gridSystem.CellSize;
+            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = _isoGridSettingsView.CellSize;
             var xAxis = new Vector3(Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
             var yAxis = new Vector3(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
             var zAxis = Vector3.up * cellSize;
 
-            var origin = _gridSystem.Origin;
-            var gridWidth = _gridSystem.GridWidth;
-            var gridHeight = _gridSystem.GridHeight;
+            var origin = _isoGridSettingsView.Origin;
+            var gridWidth = _isoGridSettingsView.GridWidth;
+            var gridHeight = _isoGridSettingsView.GridHeight;
 
             // 左壁（yAxis方向に沿った壁、上に伸びる）
             Gizmos.color = _leftWallColor;
@@ -118,4 +127,5 @@ namespace Home.View
             }
         }
     }
+#endif
 }

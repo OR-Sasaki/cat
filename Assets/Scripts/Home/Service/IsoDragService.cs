@@ -12,6 +12,7 @@ namespace Home.Service
         const int DragSortingOrderBoost = 100;
 
         readonly IsoGridService _isoGridService;
+        readonly IsoInputService _isoInputService;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -20,17 +21,17 @@ namespace Home.Service
         Vector2Int _dragStartFootprintPos;
 
         [Inject]
-        public IsoDragService(IsoInputService inputService, IsoGridService isoGridService)
+        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService)
         {
+            _isoInputService = isoInputService;
             _isoGridService = isoGridService;
-
-            inputService.OnPointerDown.AddListener(HandlePointerDown);
-            inputService.OnPointerDrag.AddListener(HandlePointerDrag);
-            inputService.OnPointerUp.AddListener(HandlePointerUp);
         }
 
         public void Start()
         {
+            _isoInputService.OnPointerDown.AddListener(HandlePointerDown);
+            _isoInputService.OnPointerDrag.AddListener(HandlePointerDrag);
+            _isoInputService.OnPointerUp.AddListener(HandlePointerUp);
         }
 
         /// ポインター押下時の処理

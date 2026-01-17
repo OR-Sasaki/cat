@@ -1,40 +1,53 @@
+using Home.Service;
 using UnityEngine;
+using VContainer;
 
 namespace Home.View
 {
-    /// IsoDraggableViewのドラッグ中フットプリントをGizmoで表示するコンポーネント
+    // IsoDraggableViewのドラッグ中フットプリントをGizmoで表示するコンポーネント
+    // Editor内でのみ動作する
     public class IsoDraggableGizmo : MonoBehaviour
     {
-        IsoDraggableView _draggable;
-        IsoGridSettingsView _gridSettings;
+        IsoDraggableView _isoDraggableView;
+        IsoGridSettingsView _isoGridSettingsView;
+        IsoGridService _isoGridService;
 
-        void Awake()
+        [Inject]
+        void Init(
+            IsoGridSettingsView isoGridSettingsView,
+            IsoGridService isoGridService)
         {
-            _draggable = GetComponent<IsoDraggableView>();
+            _isoGridSettingsView = isoGridSettingsView;
+            _isoGridService = isoGridService;
+        }
+
+        public void SetIsoDraggableView(IsoDraggableView isoDraggableView)
+        {
+            _isoDraggableView = isoDraggableView;
         }
 
 #if UNITY_EDITOR
         void OnDrawGizmos()
         {
-            if (_draggable == null || !_draggable.IsDragging) return;
+            if (_isoDraggableView == null || !_isoDraggableView.IsDragging) return;
 
             // GridSettingsをキャッシュ
-            if (_gridSettings == null)
+            if (_isoGridSettingsView == null)
             {
-                _gridSettings = Object.FindFirstObjectByType<IsoGridSettingsView>();
+                _isoGridSettingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
             }
-            if (_gridSettings == null) return;
+            if (_isoGridSettingsView == null) return;
 
-            var footprintSize = _draggable.FootprintSize;
-            var pivotGridPosition = _draggable.PivotGridPosition;
-            var objectId = _draggable.ObjectId;
+            var footprintSize = _isoDraggableView.FootprintSize;
+            var pivotGridPosition = _isoDraggableView.PivotGridPosition;
+            var objectId = _isoDraggableView.ObjectId;
 
             // 軸ベクトルを計算
-            var angleRad = _gridSettings.Angle * Mathf.Deg2Rad;
-            var cellSize = _gridSettings.CellSize;
+            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = _isoGridSettingsView.CellSize;
             var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var origin = _gridSettings.Origin;
+            var origin = _isoGridSettingsView.Origin;
 
             // スナップ先のグリッド座標を取得（pivotの位置）
             var pivotGridPos = WorldToFloorGrid(transform.position, origin, xAxis, yAxis);
@@ -43,8 +56,7 @@ namespace Home.View
             var footprintStartPos = pivotGridPos - pivotGridPosition;
 
             // 配置可能かチェック
-            var service = _gridSettings.Service;
-            var canPlace = service != null && service.CanPlaceObject(footprintStartPos, footprintSize, objectId);
+            var canPlace = _isoGridService.CanPlaceObject(footprintStartPos, footprintSize, objectId);
 
             // 配置可能なら緑、不可能なら赤
             var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);

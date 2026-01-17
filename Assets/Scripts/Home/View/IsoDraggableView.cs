@@ -2,10 +2,8 @@ using UnityEngine;
 
 namespace Home.View
 {
-    /// <summary>
-    /// ドラッグ可能なアイソメトリックオブジェクト
-    /// Pivotはオブジェクトが床に接している面の中心に設定されている前提
-    /// </summary>
+    // ドラッグ可能なアイソメトリックオブジェクト
+    // Pivotはオブジェクトが床に接している面の中心に設定されている前提
     public class IsoDraggableView : MonoBehaviour
     {
         [Header("Footprint Settings")]
@@ -41,22 +39,19 @@ namespace Home.View
 #if UNITY_EDITOR
             if (GetComponent<IsoDraggableGizmo>() == null)
             {
-                gameObject.AddComponent<IsoDraggableGizmo>();
+                var c = gameObject.AddComponent<IsoDraggableGizmo>();
+                c.SetIsoDraggableView(this);
             }
 #endif
         }
 
-        /// <summary>
-        /// 位置を設定
-        /// </summary>
+        // 位置を設定
         public void SetPosition(Vector3 position)
         {
             transform.position = position;
         }
 
-        /// <summary>
-        /// ソートオーダーを上昇させる（ドラッグ中に前面表示）
-        /// </summary>
+        // ソートオーダーを上昇させる（ドラッグ中に前面表示）
         public void BoostSortingOrder(int boost)
         {
             if (_spriteRenderer != null)
@@ -65,9 +60,7 @@ namespace Home.View
             }
         }
 
-        /// <summary>
-        /// ソートオーダーを元に戻す
-        /// </summary>
+        // ソートオーダーを元に戻す
         public void ResetSortingOrder()
         {
             if (_spriteRenderer != null)
@@ -76,17 +69,13 @@ namespace Home.View
             }
         }
 
-        /// <summary>
-        /// ドラッグ状態を設定
-        /// </summary>
+        // ドラッグ状態を設定
         public void SetDragging(bool isDragging)
         {
             _isDragging = isDragging;
         }
 
-        /// <summary>
-        /// グリッド配置状態を設定
-        /// </summary>
+        // グリッド配置状態を設定
         public void SetPlacedOnGrid(bool isPlaced)
         {
             _isPlacedOnGrid = isPlaced;

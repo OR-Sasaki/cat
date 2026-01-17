@@ -6,7 +6,8 @@ using VContainer;
 
 namespace Home.View
 {
-    /// IsoGridの設定値を保持しServiceに提供するView
+    // IsoGridの設定をインスペクタから変更したいため、Viewとしてシーンに配置している
+    // IsoGridの設定は背景や家具の画像にかなり依存するため、実際に動かしながら設定したい
     public class IsoGridSettingsView : MonoBehaviour
     {
         [Header("Grid Settings")]
@@ -18,41 +19,11 @@ namespace Home.View
         [Header("NavMesh Settings")]
         [SerializeField] NavMeshSurface _surface2D;
 
-        IsoGridService _isoGridService;
-
         public int GridWidth => _gridWidth;
         public int GridHeight => _gridHeight;
         public float CellSize => _cellSize;
         public float Angle => _angle;
         public Vector3 Origin => transform.position;
-        public IsoGridService Service => _isoGridService;
-
-        [Inject]
-        public void Init(IsoGridService service)
-        {
-            _isoGridService = service;
-            _isoGridService.InitializeCells(_gridWidth, _gridHeight);
-            _isoGridService.InitializeGridSettings(transform.position, _cellSize, _angle);
-            _isoGridService.OnObjectPlaced += HandleObjectPlaced;
-        }
-
-        void OnDestroy()
-        {
-            if (_isoGridService != null)
-            {
-                _isoGridService.OnObjectPlaced -= HandleObjectPlaced;
-            }
-        }
-
-        void HandleObjectPlaced()
-        {
-            StartCoroutine(BuildNavMeshDelayed());
-        }
-
-        IEnumerator BuildNavMeshDelayed()
-        {
-            yield return null;
-            _surface2D.BuildNavMeshAsync();
-        }
+        public NavMeshSurface Surface2D => _surface2D;
     }
 }

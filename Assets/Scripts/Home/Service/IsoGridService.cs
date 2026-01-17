@@ -1,5 +1,6 @@
 using System;
 using Home.State;
+using Home.View;
 using UnityEngine;
 
 namespace Home.Service
@@ -8,49 +9,35 @@ namespace Home.Service
     public class IsoGridService
     {
         readonly IsoGridState _state;
+        readonly IsoGridSettingsView _isoGridSettingsView;
 
         // グリッド設定
-        Vector3 _origin;
-        float _cellSize;
-        float _angle;
+        readonly Vector3 _origin;
+        readonly float _cellSize;
+        readonly float _angle;
 
         // 座標変換用キャッシュ
-        Vector2 _xAxis;
-        Vector2 _yAxis;
-        float _determinant;
+        readonly Vector2 _xAxis;
+        readonly Vector2 _yAxis;
+        readonly float _determinant;
 
         // NavMesh再構築用イベント
         public event Action OnObjectPlaced;
 
-        public int GridWidth => _state.GridWidth;
-        public int GridHeight => _state.GridHeight;
-        public float CellSize => _cellSize;
-        public float Angle => _angle;
-        public Vector3 Origin => _origin;
-
-        public IsoGridService(IsoGridState state)
+        public IsoGridService(IsoGridState state, IsoGridSettingsView isoGridSettingsView)
         {
             _state = state;
-        }
+            _isoGridSettingsView = isoGridSettingsView;
 
-        /// セル配列を初期化
-        public void InitializeCells(int gridWidth, int gridHeight)
-        {
-            _state.Initialize(gridWidth, gridHeight);
-        }
+            // State初期化
+            _state.Initialize(_isoGridSettingsView.GridWidth, _isoGridSettingsView.GridHeight);
 
-        /// グリッド設定を初期化
-        public void InitializeGridSettings(Vector3 origin, float cellSize, float angle)
-        {
-            _origin = origin;
-            _cellSize = cellSize;
-            _angle = angle;
-            UpdateAxisVectors();
-        }
+            // グリッド設定を初期化
+            _origin = _isoGridSettingsView.Origin;
+            _cellSize = _isoGridSettingsView.CellSize;
+            _angle = _isoGridSettingsView.Angle;
 
-        /// グリッドの軸ベクトルと行列式を更新
-        void UpdateAxisVectors()
-        {
+            // 座標キャッシュ更新
             var angleRad = _angle * Mathf.Deg2Rad;
             _xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * _cellSize;
             _yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * _cellSize;
@@ -58,6 +45,9 @@ namespace Home.Service
 
             if (Mathf.Approximately(_determinant, 0f))
                 Debug.LogError($"[IsoGridService] Determinant is zero, cannot convert coordinates.");
+
+            // オブジェクトが置かれた時にNavMeshを再ビルドする
+            OnObjectPlaced += () => _isoGridSettingsView.Surface2D.BuildNavMesh();
         }
 
         /// グリッド座標をワールド座標に変換

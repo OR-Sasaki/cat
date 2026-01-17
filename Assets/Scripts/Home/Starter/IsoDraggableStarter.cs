@@ -19,7 +19,7 @@ namespace Home.Starter
 
         public void Start()
         {
-            var draggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
+            var draggables = Object.FindObjectsByType<IsoDraggableGizmo>(FindObjectsSortMode.None);
             foreach (var draggable in draggables)
             {
                 _resolver.Inject(draggable);

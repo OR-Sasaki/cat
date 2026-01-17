@@ -9,9 +9,7 @@ using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
 namespace Home.Service
 {
-    /// <summary>
-    /// マウス/タッチ入力を検出し、ポインターイベントを発行するService
-    /// </summary>
+    // マウス or タップのInputをイベントに変換するService
     public class IsoInputService : ITickable, IInitializable
     {
         readonly HomeState _homeState;

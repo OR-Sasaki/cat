@@ -55,6 +55,7 @@ namespace Root.Service
                 var columns = line.Split(',');
                 return new UserFurniture
                 {
+                    Id = int.Parse(columns[0].Trim()),
                     FurnitureID = uint.Parse(columns[1].Trim())
                 };
             }).ToArray();

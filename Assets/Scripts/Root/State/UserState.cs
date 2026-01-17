@@ -40,6 +40,7 @@ namespace Root.State
     [Serializable]
     public class UserFurniture
     {
+        public int Id;
         public uint FurnitureID;
     }
 }

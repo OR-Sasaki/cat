@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using Home.State;
 using Home.View;
 using UnityEngine;
@@ -47,7 +48,13 @@ namespace Home.Service
                 Debug.LogError($"[IsoGridService] Determinant is zero, cannot convert coordinates.");
 
             // オブジェクトが置かれた時にNavMeshを再ビルドする
-            OnObjectPlaced += () => _isoGridSettingsView.Surface2D.BuildNavMesh();
+            // BuildNavMeshは、シーン上に配置されたColliderによってビルドされるが、
+            // オブジェクトが動いた時に、それが反映されるまでに少しラグがあるため10フレーム待っている
+            OnObjectPlaced += async () =>
+            {
+                await UniTask.DelayFrame(10);
+                _isoGridSettingsView.Surface2D.BuildNavMesh();
+            };
         }
 
         /// グリッド座標をワールド座標に変換

@@ -8,6 +8,7 @@ namespace Home.State
     /// </summary>
     public class RedecorateFurnitureData
     {
+        public int UserFurnitureId { get; }
         public Furniture Furniture { get; }
         public readonly UnityEvent<bool> SelectedChanged = new();
 
@@ -24,8 +25,9 @@ namespace Home.State
             }
         }
 
-        public RedecorateFurnitureData(Furniture furniture)
+        public RedecorateFurnitureData(int userFurnitureId, Furniture furniture)
         {
+            UserFurnitureId = userFurnitureId;
             Furniture = furniture;
         }
     }

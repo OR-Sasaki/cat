@@ -16,21 +16,22 @@ namespace Home.Service
         readonly UserState _userState;
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
+        readonly IsoGridState _isoGridState;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
-
-        int _selectedIndex = -1;
 
         public RedecorateScrollerService(
             RedecorateUiView redecorateUiView,
             UserState userState,
             MasterDataState masterDataState,
-            FurnitureAssetState furnitureAssetState)
+            FurnitureAssetState furnitureAssetState,
+            IsoGridState isoGridState)
         {
             _redecorateUiView = redecorateUiView;
             _userState = userState;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
+            _isoGridState = isoGridState;
         }
 
         public void Start()
@@ -63,7 +64,6 @@ namespace Home.Service
             }
 
             _data.Clear();
-            _selectedIndex = -1;
 
             if (_userState.UserFurnitures is null)
             {
@@ -79,7 +79,9 @@ namespace Home.Service
                 var furniture = _furnitureAssetState.Get(masterFurniture.Name);
                 if (furniture is null) continue;
 
-                var furnitureData = new RedecorateFurnitureData(furniture);
+                var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
+                // ObjectFootprintStartPositionsに登録されていればSelectedをtrueにする
+                furnitureData.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(userFurniture.Id);
                 _data.Add(furnitureData);
             }
 
@@ -94,17 +96,18 @@ namespace Home.Service
             var selectedData = _data[selectedDataIndex];
             if (selectedData?.Furniture is null) return;
 
-            // 前の選択を解除
-            if (_selectedIndex >= 0 && _selectedIndex < _data.Count)
-            {
-                _data[_selectedIndex].Selected = false;
-            }
-
-            // 新しい選択
-            _selectedIndex = selectedDataIndex;
-            selectedData.Selected = true;
-
             // TODO: 選択されたFurnitureを配置する処理
+            // 配置処理がObjectFootprintStartPositionsを更新した後、UpdateSelectionStates()を呼ぶこと
+        }
+
+        /// ObjectFootprintStartPositionsに基づいて全データの選択状態を更新する
+        public void UpdateSelectionStates()
+        {
+            for (var i = 0; i < _data.Count; i++)
+            {
+                var data = _data[i];
+                data.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId);
+            }
         }
 
         #region IEnhancedScrollerDelegate

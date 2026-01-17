@@ -10,7 +10,7 @@ namespace Home.State
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
 
-        // オブジェクトIDからフットプリント開始位置へのマッピング
+        // UserFurnitureIDからフットプリント開始位置へのマッピング
         public Dictionary<int, Vector2Int> ObjectFootprintStartPositions { get; } = new();
 
         // セル配列を初期化

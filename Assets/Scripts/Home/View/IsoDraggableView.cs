@@ -15,8 +15,6 @@ namespace Home.View
         [Header("Object Settings")]
         [SerializeField] int _userFurnitureId;
 
-        SpriteRenderer _spriteRenderer;
-        int _originalSortingOrder;
         bool _isDragging;
         bool _isPlacedOnGrid;
 
@@ -30,12 +28,6 @@ namespace Home.View
 
         void Awake()
         {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
-            if (_spriteRenderer != null)
-            {
-                _originalSortingOrder = _spriteRenderer.sortingOrder;
-            }
-
 #if UNITY_EDITOR
             if (GetComponent<IsoDraggableGizmo>() == null)
             {
@@ -49,24 +41,6 @@ namespace Home.View
         public void SetPosition(Vector3 position)
         {
             transform.position = position;
-        }
-
-        // ソートオーダーを上昇させる（ドラッグ中に前面表示）
-        public void BoostSortingOrder(int boost)
-        {
-            if (_spriteRenderer != null)
-            {
-                _spriteRenderer.sortingOrder = _originalSortingOrder + boost;
-            }
-        }
-
-        // ソートオーダーを元に戻す
-        public void ResetSortingOrder()
-        {
-            if (_spriteRenderer != null)
-            {
-                _spriteRenderer.sortingOrder = _originalSortingOrder;
-            }
         }
 
         // ドラッグ状態を設定

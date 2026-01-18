@@ -50,7 +50,8 @@ MonoBehaviour:
   _footprintSize: {x: 1, y: 1}
   _pivotGridPosition: {x: 1, y: 1}
   _viewPivot: {fileID: 6747029884075364657}
-  _objectId: 3
+  _userFurnitureId: 0
+  _sortingGroup: {fileID: 3088880621213383574}
 --- !u!60 &386356709345769077
 PolygonCollider2D:
   m_ObjectHideFlags: 0

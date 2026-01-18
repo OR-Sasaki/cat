@@ -9,8 +9,6 @@ namespace Home.Service
     /// Raycastで最前面のIsoDraggableViewを検出し、グリッドへの配置を行う
     public class IsoDragService : IStartable
     {
-        const int DragSortingOrderBoost = 100;
-
         readonly IsoGridService _isoGridService;
         readonly IsoInputService _isoInputService;
 
@@ -77,9 +75,6 @@ namespace Home.Service
                 _isoGridService.RemoveObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
                 _currentIsoDraggableView.SetPlacedOnGrid(false);
             }
-
-            // ソートオーダーを一時的に上げる
-            _currentIsoDraggableView.BoostSortingOrder(DragSortingOrderBoost);
         }
 
         /// ドラッグ終了
@@ -104,12 +99,9 @@ namespace Home.Service
                 finalFootprintPos = _dragStartFootprintPos;
             }
 
-            _currentIsoDraggableView.SetPosition(SnapToGrid(finalFootprintPos));
             _isoGridService.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId);
+            _currentIsoDraggableView.SetPosition(SnapToGrid(finalFootprintPos));
             _currentIsoDraggableView.SetPlacedOnGrid(true);
-
-            // ソートオーダーを元に戻す
-            _currentIsoDraggableView.ResetSortingOrder();
             _currentIsoDraggableView.SetDragging(false);
         }
 

@@ -45,6 +45,9 @@ namespace Home.Service
 
         void Load()
         {
+            // イベント購読を解除（再実行防止・メモリリーク防止）
+            _furnitureAssetState.OnLoaded -= Load;
+
             // PlayerPrefsから読み込み
             var saveData = _playerPrefsService.Load<IsoGridSaveData>(PlayerPrefsKey.IsoGrid);
 

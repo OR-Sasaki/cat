@@ -1,6 +1,5 @@
 using System.Linq;
 using Home.State;
-using Home.View;
 using Root.Service;
 using Root.State;
 using UnityEngine;
@@ -11,20 +10,20 @@ namespace Home.Service
     /// PlayerPrefsからIsoGridの状態を読み込み、家具を復元するサービス
     public class IsoGridLoadService : IStartable
     {
-        readonly IsoGridService _isoGridService;
+        readonly FurniturePlacementService _furniturePlacementService;
         readonly UserState _userState;
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
         readonly PlayerPrefsService _playerPrefsService;
 
         public IsoGridLoadService(
-            IsoGridService isoGridService,
+            FurniturePlacementService furniturePlacementService,
             UserState userState,
             MasterDataState masterDataState,
             FurnitureAssetState furnitureAssetState,
             PlayerPrefsService playerPrefsService)
         {
-            _isoGridService = isoGridService;
+            _furniturePlacementService = furniturePlacementService;
             _userState = userState;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
@@ -87,20 +86,9 @@ namespace Home.Service
                     continue;
                 }
 
-                // プレハブをインスタンス化
-                var instance = Object.Instantiate(furnitureAsset.SceneObject);
+                // 指定位置に家具を配置
                 var gridPos = new Vector2Int(objectPosition.X, objectPosition.Y);
-
-                // グリッドにオブジェクトを配置
-                _isoGridService.PlaceObject(gridPos, instance.FootprintSize, objectPosition.UserFurnitureId);
-
-                // ワールド座標を計算してViewを移動
-                var pivotOffset = instance.PivotGridPosition;
-                var worldPos = _isoGridService.GridToWorld(gridPos + pivotOffset);
-                instance.SetPosition(worldPos);
-                instance.SetPlacedOnGrid(true);
-                instance.SetUserFurnitureId(objectPosition.UserFurnitureId);
-
+                _furniturePlacementService.PlaceFurnitureAt(objectPosition.UserFurnitureId, furnitureAsset, gridPos);
                 loadedCount++;
             }
 

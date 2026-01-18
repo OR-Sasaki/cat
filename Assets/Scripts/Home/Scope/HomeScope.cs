@@ -38,6 +38,7 @@ namespace Home.Scope
             // Service
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
             builder.Register<IsoGridService>(Lifetime.Scoped);
+            builder.Register<FurniturePlacementService>(Lifetime.Scoped);
             builder.Register<IsoInputService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
             // EntryPoint

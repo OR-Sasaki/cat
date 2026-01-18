@@ -42,6 +42,13 @@ namespace Home.Service
 
             var footprintSize = furniture.SceneObject.FootprintSize;
 
+            // 配置可能かどうかを検証
+            if (!_isoGridService.CanPlaceObject(gridPos, footprintSize))
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Cannot place furniture at {gridPos}: userFurnitureId={userFurnitureId}");
+                return;
+            }
+
             // プレハブをインスタンス化
             var instance = Object.Instantiate(furniture.SceneObject);
             instance.SetUserFurnitureId(userFurnitureId);

@@ -16,21 +16,25 @@ namespace Home.Service
         readonly UserState _userState;
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
+        readonly IsoGridState _isoGridState;
+        readonly IsoGridService _isoGridService;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
-
-        int _selectedIndex = -1;
 
         public RedecorateScrollerService(
             RedecorateUiView redecorateUiView,
             UserState userState,
             MasterDataState masterDataState,
-            FurnitureAssetState furnitureAssetState)
+            FurnitureAssetState furnitureAssetState,
+            IsoGridState isoGridState,
+            IsoGridService isoGridService)
         {
             _redecorateUiView = redecorateUiView;
             _userState = userState;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
+            _isoGridState = isoGridState;
+            _isoGridService = isoGridService;
         }
 
         public void Start()
@@ -63,7 +67,6 @@ namespace Home.Service
             }
 
             _data.Clear();
-            _selectedIndex = -1;
 
             if (_userState.UserFurnitures is null)
             {
@@ -79,7 +82,9 @@ namespace Home.Service
                 var furniture = _furnitureAssetState.Get(masterFurniture.Name);
                 if (furniture is null) continue;
 
-                var furnitureData = new RedecorateFurnitureData(furniture);
+                var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
+                // ObjectFootprintStartPositionsに登録されていればSelectedをtrueにする
+                furnitureData.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(userFurniture.Id);
                 _data.Add(furnitureData);
             }
 
@@ -94,17 +99,113 @@ namespace Home.Service
             var selectedData = _data[selectedDataIndex];
             if (selectedData?.Furniture is null) return;
 
-            // 前の選択を解除
-            if (_selectedIndex >= 0 && _selectedIndex < _data.Count)
+            var userFurnitureId = selectedData.UserFurnitureId;
+
+            if (selectedData.Selected)
             {
-                _data[_selectedIndex].Selected = false;
+                // 配置済みの場合：グリッドとシーンから削除
+                RemoveFurniture(userFurnitureId, selectedData.Furniture);
+            }
+            else
+            {
+                // 未配置の場合：空き位置を探して配置
+                PlaceFurniture(userFurnitureId, selectedData.Furniture);
             }
 
-            // 新しい選択
-            _selectedIndex = selectedDataIndex;
-            selectedData.Selected = true;
+            UpdateSelectionStates();
+        }
 
-            // TODO: 選択されたFurnitureを配置する処理
+        void PlaceFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
+        {
+            if (furniture.SceneObject == null) return;
+
+            var footprintSize = furniture.SceneObject.FootprintSize;
+            var availablePos = FindAvailablePosition(footprintSize);
+            if (availablePos == null)
+            {
+                Debug.LogWarning("[RedecorateScrollerService] No available position found");
+                return;
+            }
+
+            var gridPos = availablePos.Value;
+
+            // プレハブをインスタンス化
+            var instance = Object.Instantiate(furniture.SceneObject);
+            instance.SetUserFurnitureId(userFurnitureId);
+
+            // グリッドにオブジェクトを配置
+            _isoGridService.PlaceObject(gridPos, footprintSize, userFurnitureId);
+
+            // ワールド座標を計算してViewを移動
+            var pivotOffset = instance.PivotGridPosition;
+            var worldPos = _isoGridService.GridToWorld(gridPos + pivotOffset);
+            instance.SetPosition(worldPos);
+            instance.SetPlacedOnGrid(true);
+
+#if UNITY_EDITOR
+            var gizmo = instance.GetComponent<IsoDraggableGizmo>();
+            if (gizmo != null)
+            {
+                var settingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
+                gizmo.Init(settingsView, _isoGridService);
+            }
+#endif
+        }
+
+        void RemoveFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
+        {
+            if (furniture.SceneObject == null) return;
+
+            // シーン上からUserFurnitureIdが一致するIsoDraggableViewを探す
+            var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
+            IsoDraggableView targetView = null;
+            foreach (var draggable in allDraggables)
+            {
+                if (draggable.UserFurnitureId == userFurnitureId)
+                {
+                    targetView = draggable;
+                    break;
+                }
+            }
+
+            if (targetView == null)
+            {
+                Debug.LogWarning($"[RedecorateScrollerService] IsoDraggableView with UserFurnitureId {userFurnitureId} not found");
+                return;
+            }
+
+            // グリッドからオブジェクトを削除
+            _isoGridService.RemoveObject(userFurnitureId, targetView.FootprintSize);
+
+            // シーンからオブジェクトを削除
+            Object.Destroy(targetView.gameObject);
+        }
+
+        Vector2Int? FindAvailablePosition(Vector2Int footprintSize)
+        {
+            // グリッドをスキャンして空き位置を探す
+            for (var y = 0; y < _isoGridState.GridHeight - footprintSize.y + 1; y++)
+            {
+                for (var x = 0; x < _isoGridState.GridWidth - footprintSize.x + 1; x++)
+                {
+                    var pos = new Vector2Int(x, y);
+                    if (_isoGridService.CanPlaceObject(pos, footprintSize))
+                    {
+                        return pos;
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// ObjectFootprintStartPositionsに基づいて全データの選択状態を更新する
+        public void UpdateSelectionStates()
+        {
+            for (var i = 0; i < _data.Count; i++)
+            {
+                var data = _data[i];
+                data.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId);
+            }
         }
 
         #region IEnhancedScrollerDelegate

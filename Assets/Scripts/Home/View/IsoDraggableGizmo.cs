@@ -12,8 +12,7 @@ namespace Home.View
         IsoGridSettingsView _isoGridSettingsView;
         IsoGridService _isoGridService;
 
-        [Inject]
-        void Init(
+        public void Init(
             IsoGridSettingsView isoGridSettingsView,
             IsoGridService isoGridService)
         {
@@ -40,7 +39,7 @@ namespace Home.View
 
             var footprintSize = _isoDraggableView.FootprintSize;
             var pivotGridPosition = _isoDraggableView.PivotGridPosition;
-            var objectId = _isoDraggableView.ObjectId;
+            var userFurnitureId = _isoDraggableView.UserFurnitureId;
 
             // 軸ベクトルを計算
             var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
@@ -56,7 +55,7 @@ namespace Home.View
             var footprintStartPos = pivotGridPos - pivotGridPosition;
 
             // 配置可能かチェック
-            var canPlace = _isoGridService.CanPlaceObject(footprintStartPos, footprintSize, objectId);
+            var canPlace = _isoGridService.CanPlaceObject(footprintStartPos, footprintSize, userFurnitureId);
 
             // 配置可能なら緑、不可能なら赤
             var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);

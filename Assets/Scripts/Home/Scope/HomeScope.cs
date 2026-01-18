@@ -50,6 +50,8 @@ namespace Home.Scope
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();
             builder.RegisterEntryPoint<IsoDragService>();
+            builder.RegisterEntryPoint<IsoGridLoadService>();
+            builder.RegisterEntryPoint<IsoGridSaveService>();
         }
     }
 }

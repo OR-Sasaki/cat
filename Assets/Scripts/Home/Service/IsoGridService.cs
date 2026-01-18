@@ -81,15 +81,15 @@ namespace Home.Service
                 && gridPos.y >= 0 && gridPos.y < _state.GridHeight;
         }
 
-        /// 指定セルのObjectIdを取得
-        public int GetObjectId(Vector2Int gridPos)
+        /// 指定セルのUserFurnitureIdを取得
+        public int GetUserFurnitureId(Vector2Int gridPos)
         {
             if (!IsValidPosition(gridPos)) return 0;
-            return _state.FloorCells[gridPos.x, gridPos.y].ObjectId;
+            return _state.FloorCells[gridPos.x, gridPos.y].UserFurnitureId;
         }
 
         /// 指定範囲のセルにオブジェクトを配置
-        public void PlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int objectId)
+        public void PlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int userFurnitureId)
         {
             for (var x = 0; x < footprintSize.x; x++)
             {
@@ -98,16 +98,21 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidPosition(cellPos)) continue;
 
-                    _state.FloorCells[cellPos.x, cellPos.y].ObjectId = objectId;
+                    _state.FloorCells[cellPos.x, cellPos.y].UserFurnitureId = userFurnitureId;
                 }
             }
+
+            // オブジェクトのフットプリント開始位置を記録
+            _state.ObjectFootprintStartPositions[userFurnitureId] = footprintStart;
 
             OnObjectPlaced?.Invoke();
         }
 
         /// 指定範囲のセルからオブジェクトを削除
-        public void RemoveObject(Vector2Int footprintStart, Vector2Int footprintSize)
+        public void RemoveObject(int userFurnitureId, Vector2Int footprintSize)
         {
+            var footprintStart = _state.ObjectFootprintStartPositions[userFurnitureId];
+
             for (var x = 0; x < footprintSize.x; x++)
             {
                 for (var y = 0; y < footprintSize.y; y++)
@@ -118,10 +123,19 @@ namespace Home.Service
                     _state.FloorCells[cellPos.x, cellPos.y].Clear();
                 }
             }
+
+            // オブジェクトのフットプリント開始位置を削除
+            _state.ObjectFootprintStartPositions.Remove(userFurnitureId);
+        }
+
+        /// UserFurnitureIdからフットプリント開始位置を取得
+        public Vector2Int GetObjectFootprintStart(int userFurnitureId)
+        {
+            return _state.ObjectFootprintStartPositions[userFurnitureId];
         }
 
         /// 指定範囲が配置可能かチェック（自分自身のIDは無視）
-        public bool CanPlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int selfObjectId = 0)
+        public bool CanPlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int selfUserFurnitureId = 0)
         {
             for (var x = 0; x < footprintSize.x; x++)
             {
@@ -131,7 +145,7 @@ namespace Home.Service
                     if (!IsValidPosition(cellPos)) return false;
 
                     var cell = _state.FloorCells[cellPos.x, cellPos.y];
-                    if (cell.IsOccupied && cell.ObjectId != selfObjectId) return false;
+                    if (cell.IsOccupied && cell.UserFurnitureId != selfUserFurnitureId) return false;
                 }
             }
             return true;

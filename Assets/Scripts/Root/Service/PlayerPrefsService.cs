@@ -6,6 +6,7 @@ namespace Root.Service
     {
         Outfit,
         UserEquippedOutfit,
+        IsoGrid,
     }
 
     public class PlayerPrefsService

@@ -16,11 +16,18 @@ namespace Home.View
         [SerializeField] float _cellViewSize = 100f;
         [SerializeField] float _bottomPadding = 50f;
 
+        [Header("Tiny")]
+        [SerializeField] Animator _tinyAnimator;
+        [SerializeField] Button _tinyButton;
+
         public EnhancedScroller Scroller => _scroller;
         public EnhancedScrollerCellView CellViewPrefab => _cellViewPrefab;
         public int NumberOfCellsPerRow => _numberOfCellsPerRow;
         public float CellViewSize => _cellViewSize;
         public float BottomPadding => _bottomPadding;
+
+        public Animator TinyAnimator => _tinyAnimator;
+        public Button TinyButton => _tinyButton;
 
         [Inject]
         public void Init(HomeStateSetService homeStateSetService)

@@ -47,6 +47,7 @@ namespace Home.Scope
             builder.RegisterEntryPoint<IsoDraggableStarter>();
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<RedecorateScrollerService>();
+            builder.RegisterEntryPoint<RedecorateTinyService>();
             builder.RegisterEntryPoint<RedecorateCameraService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();

@@ -18,6 +18,8 @@ namespace Home.Service
         readonly FurnitureAssetState _furnitureAssetState;
         readonly IsoGridState _isoGridState;
         readonly FurniturePlacementService _furniturePlacementService;
+        readonly RedecorateTinyService _redecorateTinyService;
+        readonly RedecorateCameraService _redecorateCameraService;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
 
@@ -27,7 +29,9 @@ namespace Home.Service
             MasterDataState masterDataState,
             FurnitureAssetState furnitureAssetState,
             IsoGridState isoGridState,
-            FurniturePlacementService furniturePlacementService)
+            FurniturePlacementService furniturePlacementService,
+            RedecorateTinyService redecorateTinyService,
+            RedecorateCameraService redecorateCameraService)
         {
             _redecorateUiView = redecorateUiView;
             _userState = userState;
@@ -35,6 +39,8 @@ namespace Home.Service
             _furnitureAssetState = furnitureAssetState;
             _isoGridState = isoGridState;
             _furniturePlacementService = furniturePlacementService;
+            _redecorateTinyService = redecorateTinyService;
+            _redecorateCameraService = redecorateCameraService;
         }
 
         public void Start()
@@ -109,7 +115,12 @@ namespace Home.Service
             else
             {
                 // 未配置の場合：空き位置を探して配置
-                _furniturePlacementService.PlaceFurniture(userFurnitureId, selectedData.Furniture);
+                var placedPosition = _furniturePlacementService.PlaceFurniture(userFurnitureId, selectedData.Furniture);
+                if (placedPosition.HasValue)
+                {
+                    _redecorateCameraService.MoveTo(placedPosition.Value);
+                }
+                _redecorateTinyService.SetTiny(true);
             }
 
             UpdateSelectionStates();

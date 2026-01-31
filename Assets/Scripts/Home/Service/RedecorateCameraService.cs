@@ -29,6 +29,11 @@ namespace Home.Service
         Vector2 _previousTwoFingerCenter;
         bool _wasTwoFingerActive;
 
+        // カメラ移動
+        Vector3? _targetPosition;
+        Vector3 _velocity;
+        const float SmoothTime = 0.1f;
+
         public RedecorateCameraService(HomeState homeState, CameraView cameraView)
         {
             _homeState = homeState;
@@ -78,11 +83,27 @@ namespace Home.Service
 
             _isActive = false;
             _cinemachineCamera = null;
+            _targetPosition =  null;
         }
 
         public void Tick()
         {
             if (!_isActive || _cinemachineCamera == null) return;
+
+            // ターゲット位置への移動処理
+            if (_targetPosition.HasValue)
+            {
+                var currentPos = _cinemachineCamera.transform.position;
+                var newPos = Vector3.SmoothDamp(currentPos, _targetPosition.Value, ref _velocity, SmoothTime);
+                _cinemachineCamera.transform.position = newPos;
+
+                // 十分近づいたら完了
+                if (Vector3.Distance(newPos, _targetPosition.Value) < 0.01f)
+                {
+                    _cinemachineCamera.transform.position = _targetPosition.Value;
+                    _targetPosition = null;
+                }
+            }
 
             var touchscreen = Touchscreen.current;
             if (touchscreen == null) return;
@@ -143,6 +164,16 @@ namespace Home.Service
             );
 
             _cinemachineCamera.transform.position += worldPanDelta;
+        }
+
+        /// カメラを指定のワールド座標に滑らかに移動する
+        public void MoveTo(Vector3 worldPosition)
+        {
+            if (_cinemachineCamera == null) return;
+
+            var cameraPos = _cinemachineCamera.transform.position;
+            _targetPosition = new Vector3(worldPosition.x, worldPosition.y, cameraPos.z);
+            _velocity = Vector3.zero;
         }
     }
 }

@@ -20,25 +20,27 @@ namespace Home.Service
         }
 
         /// 家具を空き位置に配置する
-        public void PlaceFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
+        /// 戻り値: 配置したワールド座標（配置失敗時はnull）
+        public Vector3? PlaceFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
-            if (furniture.SceneObject == null) return;
+            if (furniture.SceneObject == null) return null;
 
             var footprintSize = furniture.SceneObject.FootprintSize;
             var availablePos = FindAvailablePosition(footprintSize);
             if (availablePos == null)
             {
                 Debug.LogWarning("[FurniturePlacementService] No available position found");
-                return;
+                return null;
             }
 
-            PlaceFurnitureAt(userFurnitureId, furniture, availablePos.Value);
+            return PlaceFurnitureAt(userFurnitureId, furniture, availablePos.Value);
         }
 
         /// 家具を指定位置に配置する
-        public void PlaceFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, Vector2Int gridPos)
+        /// 戻り値: 配置したワールド座標（配置失敗時はnull）
+        public Vector3? PlaceFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, Vector2Int gridPos)
         {
-            if (furniture.SceneObject == null) return;
+            if (furniture.SceneObject == null) return null;
 
             var footprintSize = furniture.SceneObject.FootprintSize;
 
@@ -46,7 +48,7 @@ namespace Home.Service
             if (!_isoGridService.CanPlaceObject(gridPos, footprintSize))
             {
                 Debug.LogWarning($"[FurniturePlacementService] Cannot place furniture at {gridPos}: userFurnitureId={userFurnitureId}");
-                return;
+                return null;
             }
 
             // プレハブをインスタンス化
@@ -70,6 +72,8 @@ namespace Home.Service
                 gizmo.Init(settingsView, _isoGridService);
             }
 #endif
+
+            return worldPos;
         }
 
         /// 家具をシーンとグリッドから削除する

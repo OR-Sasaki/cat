@@ -41,8 +41,12 @@ namespace Home.Scope
             builder.Register<FurniturePlacementService>(Lifetime.Scoped);
 
             // EntryPoint & Service
+            // 本来であれば、EntryPointとなるServiceは、他のServiceなどから参照されるべきではない
+            // Stateを通したデータの受け渡しであったり、中間Serviceを作るのが設計思想に合っている
+            // ただ、今回は実装速度優先で一旦許容しておく
             builder.Register<IsoInputService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
             builder.Register<RedecorateTinyService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+            builder.Register<RedecorateCameraService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
             // EntryPoint
             builder.RegisterEntryPoint<OutfitAssetStarter>();
@@ -50,7 +54,6 @@ namespace Home.Scope
             builder.RegisterEntryPoint<IsoDraggableStarter>();
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<RedecorateScrollerService>();
-            builder.RegisterEntryPoint<RedecorateCameraService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();
             builder.RegisterEntryPoint<IsoDragService>();

@@ -83,6 +83,7 @@ namespace Home.Service
 
             _isActive = false;
             _cinemachineCamera = null;
+            _targetPosition =  null;
         }
 
         public void Tick()

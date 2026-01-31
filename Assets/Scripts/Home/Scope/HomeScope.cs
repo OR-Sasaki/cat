@@ -39,7 +39,10 @@ namespace Home.Scope
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
             builder.Register<IsoGridService>(Lifetime.Scoped);
             builder.Register<FurniturePlacementService>(Lifetime.Scoped);
+
+            // EntryPoint & Service
             builder.Register<IsoInputService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
+            builder.Register<RedecorateTinyService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
             // EntryPoint
             builder.RegisterEntryPoint<OutfitAssetStarter>();
@@ -47,7 +50,6 @@ namespace Home.Scope
             builder.RegisterEntryPoint<IsoDraggableStarter>();
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<RedecorateScrollerService>();
-            builder.RegisterEntryPoint<RedecorateTinyService>();
             builder.RegisterEntryPoint<RedecorateCameraService>();
             builder.RegisterEntryPoint<HomeViewService>();
             builder.RegisterEntryPoint<HomeStarter>();

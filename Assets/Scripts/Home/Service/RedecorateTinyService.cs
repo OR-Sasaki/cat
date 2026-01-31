@@ -1,4 +1,5 @@
 using Home.View;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -8,6 +9,7 @@ namespace Home.Service
     {
         readonly RedecorateUiView _redecorateUiView;
 
+        [Inject]
         public RedecorateTinyService(RedecorateUiView redecorateUiView)
         {
             _redecorateUiView = redecorateUiView;

@@ -68,7 +68,7 @@ namespace Shop.Service
                 return;
 
             var data = _state.GachaList[index];
-            cell.Setup(index, data);
+            cell.Setup(index);
             UpdateGachaCellInteractable(cell, data);
         }
 

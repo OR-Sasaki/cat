@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0db7681ecc0974a1f85cf9f6dafb893f
+guid: c01ab882bc7640c44be44a786eaa09e1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2587307300917001025
-    second: util_btn_back_0
+      213: -7590638603020057717
+    second: shop_background_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,23 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: util_btn_back_0
+      name: shop_background_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 44
-        height: 70
+        width: 310
+        height: 230
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 60, y: 10, z: 60, w: 60}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 14bbee33846f7e320800000000000000
-      internalID: 2587307300917001025
+      spriteID: b834f905862a8a690800000000000000
+      internalID: -7590638603020057717
       vertices: []
       indices: 
       edges: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a48ea5fafd772c543a2201d166809344
+    spriteID: 11482454833a8cd4b821306b4d57d4df
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      util_btn_back_0: 2587307300917001025
+      shop_background_0: -7590638603020057717
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

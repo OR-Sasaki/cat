@@ -88,8 +88,8 @@ namespace Home.View
 
         void SetViewPivot(bool isRight)
         {
-            _rightViewPivot?.SetActive(isRight);
-            _leftViewPivot?.SetActive(!isRight);
+            if (_rightViewPivot) _rightViewPivot.SetActive(isRight);
+            if(_leftViewPivot) _leftViewPivot.SetActive(!isRight);
         }
     }
 }

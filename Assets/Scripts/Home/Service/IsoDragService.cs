@@ -82,7 +82,6 @@ namespace Home.Service
 
             // マウス位置とオブジェクト位置の差分を記録
             _dragOffset = _currentIsoDraggableView.Position - worldPos;
-            Debug.Log($"drag offset: {_dragOffset}");
 
             if (_currentIsoDraggableView.IsWallPlacement)
             {

@@ -28,6 +28,10 @@ namespace Shop.View
         [SerializeField] Image? _pointTabImage;
         [SerializeField] Sprite? _tabSelectedSprite;
         [SerializeField] Sprite? _tabUnselectedSprite;
+        [SerializeField] TMP_Text? _itemTabText;
+        [SerializeField] TMP_Text? _pointTabText;
+        [SerializeField] Color _tabSelectedTextColor = Color.white;
+        [SerializeField] Color _tabUnselectedTextColor = Color.gray;
 
         [Header("Yarn Balance Display")]
         [SerializeField] TMP_Text? _yarnBalanceText;
@@ -197,6 +201,11 @@ namespace Shop.View
                 _itemTabImage.sprite = isItemTab ? _tabSelectedSprite : _tabUnselectedSprite;
             if (_pointTabImage != null)
                 _pointTabImage.sprite = isItemTab ? _tabUnselectedSprite : _tabSelectedSprite;
+
+            if (_itemTabText != null)
+                _itemTabText.color = isItemTab ? _tabSelectedTextColor : _tabUnselectedTextColor;
+            if (_pointTabText != null)
+                _pointTabText.color = isItemTab ? _tabUnselectedTextColor : _tabSelectedTextColor;
         }
 
         void ShowContent(ShopTab tab)

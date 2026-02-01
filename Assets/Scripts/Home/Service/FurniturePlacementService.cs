@@ -26,7 +26,7 @@ namespace Home.Service
         /// 戻り値: 配置したワールド座標（配置失敗時はnull）
         public Vector3? PlaceFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
-            if (furniture.SceneObject == null) return null;
+            if (furniture.SceneObject is null) return null;
 
             if (furniture.PlacementType == PlacementType.Wall)
             {
@@ -39,7 +39,7 @@ namespace Home.Service
         /// 家具をシーンとグリッドから削除する
         public bool RemoveFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
-            if (furniture.SceneObject == null) return false;
+            if (furniture.SceneObject is null) return false;
 
             // シーン上からUserFurnitureIdが一致するIsoDraggableViewを探す
             var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
@@ -53,7 +53,7 @@ namespace Home.Service
                 }
             }
 
-            if (targetView == null)
+            if (targetView is null)
             {
                 Debug.LogWarning($"[FurniturePlacementService] IsoDraggableView with UserFurnitureId {userFurnitureId} not found");
                 return false;
@@ -84,7 +84,7 @@ namespace Home.Service
         {
             var footprintSize = furniture.SceneObject.FootprintSize;
             var availablePos = FindAvailableFloorPosition(footprintSize);
-            if (availablePos == null)
+            if (availablePos is null)
             {
                 Debug.LogWarning("[FurniturePlacementService] No available floor position found");
                 return null;
@@ -97,7 +97,7 @@ namespace Home.Service
         /// 戻り値: 配置したワールド座標（配置失敗時はnull）
         public Vector3? PlaceFloorFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, Vector2Int gridPos)
         {
-            if (furniture.SceneObject == null) return null;
+            if (furniture.SceneObject is null) return null;
 
             var footprintSize = furniture.SceneObject.FootprintSize;
 
@@ -181,7 +181,7 @@ namespace Home.Service
         /// 壁の指定位置に家具を配置する
         public Vector3? PlaceWallFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, WallSide side, Vector2Int gridPos)
         {
-            if (furniture.SceneObject == null) return null;
+            if (furniture.SceneObject is null) return null;
 
             var footprintSize = furniture.SceneObject.FootprintSize;
 

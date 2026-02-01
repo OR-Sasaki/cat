@@ -43,7 +43,7 @@ namespace Cat.Character
 
         void ValidatePartOrder()
         {
-            if (_partOrder == null)
+            if (_partOrder is null)
             {
                 Debug.LogError($"[OutfitPartOrderSetting] PartOrder配列がnullです。");
                 return;

@@ -27,7 +27,7 @@ namespace Cat.Character
 
         public void SetOutfit(Outfit outfit)
         {
-            if (outfit == null)
+            if (outfit is null)
             {
                 return;
             }

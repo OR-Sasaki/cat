@@ -29,14 +29,11 @@ namespace Home.View
 #if UNITY_EDITOR
         void OnDrawGizmos()
         {
-            if (_isoDraggableView == null || !_isoDraggableView.IsDragging) return;
+            if (_isoDraggableView is not { IsDragging: true }) return;
 
             // GridSettingsをキャッシュ
-            if (_isoGridSettingsView == null)
-            {
-                _isoGridSettingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
-            }
-            if (_isoGridSettingsView == null) return;
+            _isoGridSettingsView ??= FindFirstObjectByType<IsoGridSettingsView>();
+            if (_isoGridSettingsView is null) return;
 
             if (_isoDraggableView.IsWallPlacement)
             {

@@ -67,7 +67,7 @@ namespace Home.Service
 
         int LoadFloorObjects(IsoGridSaveData saveData)
         {
-            if (saveData.ObjectPositions == null || saveData.ObjectPositions.Length == 0)
+            if (saveData.ObjectPositions is null or { Length: 0 })
             {
                 return 0;
             }
@@ -76,7 +76,7 @@ namespace Home.Service
             foreach (var objectPosition in saveData.ObjectPositions)
             {
                 var furnitureAsset = GetFurnitureAsset(objectPosition.UserFurnitureId);
-                if (furnitureAsset == null) continue;
+                if (furnitureAsset is null) continue;
 
                 // 指定位置に床家具を配置
                 var gridPos = new Vector2Int(objectPosition.X, objectPosition.Y);
@@ -89,7 +89,7 @@ namespace Home.Service
 
         int LoadWallObjects(IsoGridSaveData saveData)
         {
-            if (saveData.WallObjectPositions == null || saveData.WallObjectPositions.Length == 0)
+            if (saveData.WallObjectPositions is null or { Length: 0 })
             {
                 return 0;
             }
@@ -98,7 +98,7 @@ namespace Home.Service
             foreach (var wallObjectPosition in saveData.WallObjectPositions)
             {
                 var furnitureAsset = GetFurnitureAsset(wallObjectPosition.UserFurnitureId);
-                if (furnitureAsset == null) continue;
+                if (furnitureAsset is null) continue;
 
                 // 指定位置に壁家具を配置
                 var side = (WallSide)wallObjectPosition.Side;
@@ -114,7 +114,7 @@ namespace Home.Service
         {
             // UserFurnitureIdからUserFurnitureを取得
             var userFurniture = _userState.UserFurnitures?.FirstOrDefault(f => f.Id == userFurnitureId);
-            if (userFurniture == null)
+            if (userFurniture is null)
             {
                 Debug.LogWarning($"IsoGridLoadService: UserFurniture with Id {userFurnitureId} not found");
                 return null;
@@ -122,7 +122,7 @@ namespace Home.Service
 
             // FurnitureIDからマスタデータを取得
             var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == userFurniture.FurnitureID);
-            if (masterFurniture == null)
+            if (masterFurniture is null)
             {
                 Debug.LogWarning($"IsoGridLoadService: MasterFurniture with Id {userFurniture.FurnitureID} not found");
                 return null;
@@ -130,7 +130,7 @@ namespace Home.Service
 
             // FurnitureAssetStateから家具アセットを取得
             var furnitureAsset = _furnitureAssetState.Get(masterFurniture.Name);
-            if (furnitureAsset?.SceneObject == null)
+            if (furnitureAsset?.SceneObject is null)
             {
                 Debug.LogWarning($"IsoGridLoadService: Furniture asset '{masterFurniture.Name}' not found");
                 return null;

@@ -14,7 +14,7 @@ namespace Cat.Character
 
         public void Initialize(Outfit outfit)
         {
-            if (outfit == null)
+            if (outfit is null)
             {
                 return;
             }

@@ -40,7 +40,7 @@ namespace Home.View
         void Awake()
         {
 #if UNITY_EDITOR
-            if (GetComponent<IsoDraggableGizmo>() == null)
+            if (GetComponent<IsoDraggableGizmo>() is null)
             {
                 var c = gameObject.AddComponent<IsoDraggableGizmo>();
                 c.SetIsoDraggableView(this);

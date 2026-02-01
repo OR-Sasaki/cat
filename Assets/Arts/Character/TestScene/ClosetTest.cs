@@ -12,7 +12,7 @@ namespace Cat.Character
 
         public void Start()
         {
-            if (_outfitSetting == null || _outfitSetting.Outfits == null)
+            if (_outfitSetting?.Outfits is null)
             {
                 return;
             }

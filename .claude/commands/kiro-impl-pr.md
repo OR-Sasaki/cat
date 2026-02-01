@@ -23,6 +23,7 @@ cc-sddタスクを実装し、GitHubにPRを作成するワークフロー。
 - **Read first**: Load all context before implementation
 - **Test first**: Write tests before code (when applicable)
 - Use **WebSearch/WebFetch** for library documentation when needed
+- **Unity scripts**: See "Unity Script Workflow" section in Step 4
 
 ---
 
@@ -131,6 +132,21 @@ Examples:
 - **Design Alignment**: Implementation must follow design.md specifications
 - **No Over-engineering**: Avoid adding features beyond requirements
 - **TDD When Applicable**: Tests recommended but not mandatory (especially for Unity)
+
+### Unity Script Workflow
+
+When creating or modifying C# scripts in Unity projects:
+
+**If UnityMCP is available:**
+1. Use UnityMCP tools (`create_script`, `manage_script`, `script_apply_edits`, etc.) to create/update scripts
+2. After script changes, use `read_console` to check for compilation errors
+3. Wait for `editor_state.isCompiling` to become false before proceeding
+
+**If UnityMCP is not available or specific tools don't exist:**
+1. Create/update scripts directly using Write/Edit tools
+2. Check Unity Editor console manually or wait for user confirmation that compilation succeeded
+
+**Note**: UnityMCP is a third-party tool and implementations may vary. Some operations may not be available depending on the specific UnityMCP version installed. If a tool call fails, fall back to direct file operations.
 
 ## Step 5: Update tasks.md
 

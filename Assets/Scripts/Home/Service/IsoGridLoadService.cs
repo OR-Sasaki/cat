@@ -76,7 +76,7 @@ namespace Home.Service
             foreach (var objectPosition in saveData.ObjectPositions)
             {
                 var furnitureAsset = GetFurnitureAsset(objectPosition.UserFurnitureId);
-                if (furnitureAsset is null) continue;
+                if (furnitureAsset == null) continue;
 
                 // 指定位置に床家具を配置
                 var gridPos = new Vector2Int(objectPosition.X, objectPosition.Y);
@@ -98,7 +98,7 @@ namespace Home.Service
             foreach (var wallObjectPosition in saveData.WallObjectPositions)
             {
                 var furnitureAsset = GetFurnitureAsset(wallObjectPosition.UserFurnitureId);
-                if (furnitureAsset is null) continue;
+                if (furnitureAsset == null) continue;
 
                 // 指定位置に壁家具を配置
                 var side = (WallSide)wallObjectPosition.Side;

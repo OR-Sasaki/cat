@@ -1,5 +1,7 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using Shop.Service;
 using Shop.State;
 using TMPro;
 using UnityEngine;
@@ -30,24 +32,35 @@ namespace Shop.View
         [Header("Yarn Balance Display")]
         [SerializeField] TMP_Text? _yarnBalanceText;
 
-        // セルリストはタスク4以降で追加
+        [Header("Gacha Cells")]
+        [SerializeField] List<GachaCellView> _gachaCells = new();
+
+        [Header("Item Cells")]
+        [SerializeField] List<ProductCellView> _itemCells = new();
+
+        [Header("Point Cells")]
+        [SerializeField] List<ProductCellView> _pointCells = new();
 
         public event Action? OnBackButtonClicked;
         public event Action<ShopTab>? OnTabSelected;
 
         ShopState? _state;
+        ShopService? _shopService;
 
         [Inject]
-        public void Construct(ShopState state)
+        public void Construct(ShopState state, ShopService shopService)
         {
             _state = state;
+            _shopService = shopService;
         }
 
         void Start()
         {
             SetupTabButtons();
             SetupBackButton();
+            SetupCells();
             SubscribeToStateEvents();
+            SubscribeToCellEvents();
 
             // デフォルトでアイテムタブを選択
             UpdateTabVisuals(ShopTab.Item);
@@ -57,6 +70,7 @@ namespace Shop.View
         void OnDestroy()
         {
             UnsubscribeFromStateEvents();
+            UnsubscribeFromCellEvents();
         }
 
         void SetupTabButtons()
@@ -71,6 +85,32 @@ namespace Shop.View
         {
             if (_backButton != null)
                 _backButton.onClick.AddListener(() => OnBackButtonClicked?.Invoke());
+        }
+
+        void SetupCells()
+        {
+            if (_shopService == null) return;
+
+            // ガチャセルをセットアップ
+            for (var i = 0; i < _gachaCells.Count; i++)
+            {
+                _shopService.SetupGachaCell(_gachaCells[i], i);
+            }
+
+            // アイテムセルをセットアップ
+            if (_state != null)
+            {
+                for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
+                {
+                    _shopService.SetupProductCell(_itemCells[i], _state.ItemProductList[i]);
+                }
+
+                // 毛糸パックセルをセットアップ
+                for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+                {
+                    _shopService.SetupProductCell(_pointCells[i], _state.PointProductList[i]);
+                }
+            }
         }
 
         void SubscribeToStateEvents()
@@ -90,6 +130,57 @@ namespace Shop.View
 
             _state.OnTabChanged -= OnTabChanged;
             _state.OnYarnBalanceChanged -= UpdateYarnBalanceDisplay;
+        }
+
+        void SubscribeToCellEvents()
+        {
+            foreach (var cell in _gachaCells)
+            {
+                cell.OnGachaTapped += OnGachaCellTapped;
+            }
+
+            foreach (var cell in _itemCells)
+            {
+                cell.OnTapped += OnItemCellTapped;
+            }
+
+            foreach (var cell in _pointCells)
+            {
+                cell.OnTapped += OnPointCellTapped;
+            }
+        }
+
+        void UnsubscribeFromCellEvents()
+        {
+            foreach (var cell in _gachaCells)
+            {
+                cell.OnGachaTapped -= OnGachaCellTapped;
+            }
+
+            foreach (var cell in _itemCells)
+            {
+                cell.OnTapped -= OnItemCellTapped;
+            }
+
+            foreach (var cell in _pointCells)
+            {
+                cell.OnTapped -= OnPointCellTapped;
+            }
+        }
+
+        void OnGachaCellTapped(int index, int count)
+        {
+            // タスク8で実装予定: _shopService?.OnGachaTappedAsync(index, count, destroyCancellationToken);
+        }
+
+        void OnItemCellTapped(ProductData data)
+        {
+            // タスク8で実装予定: _shopService?.OnProductCellTappedAsync(data, destroyCancellationToken);
+        }
+
+        void OnPointCellTapped(ProductData data)
+        {
+            // タスク8で実装予定: _shopService?.OnProductCellTappedAsync(data, destroyCancellationToken);
         }
 
         void OnTabChanged(ShopTab tab)

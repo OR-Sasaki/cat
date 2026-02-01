@@ -25,18 +25,14 @@ namespace Shop.Service
 
         void InitializeMockData()
         {
-            // ガチャデータ
+            // ガチャデータ（表示用テキスト・画像はシーン上に固定配置）
             _state.GachaList.Clear();
             _state.GachaList.Add(new GachaData(
-                Name: "家具ガチャ Vol.1",
-                ThumbnailPath: "Textures/Shop/gacha_furniture_01",
                 SinglePrice: 300,
                 TenPrice: 2700,
                 RewardFurnitureIds: new List<string> { "chair_01", "table_01", "lamp_01", "sofa_01", "carpet_01" }
             ));
             _state.GachaList.Add(new GachaData(
-                Name: "家具ガチャ Vol.2",
-                ThumbnailPath: "Textures/Shop/gacha_furniture_02",
                 SinglePrice: 500,
                 TenPrice: 4500,
                 RewardFurnitureIds: new List<string> { "bed_01", "desk_01", "shelf_01", "plant_01", "mirror_01" }

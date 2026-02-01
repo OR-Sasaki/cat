@@ -341,9 +341,8 @@ namespace Shop.State
         public void AddYarn(int amount);
     }
 
+    /// ガチャデータ（価格と排出情報のみ。表示用のテキスト・画像はシーン上に固定配置）
     public record GachaData(
-        string Name,
-        string ThumbnailPath,
         int SinglePrice,
         int TenPrice,
         List<string> RewardFurnitureIds
@@ -540,8 +539,6 @@ classDiagram
     }
 
     class GachaData {
-        +string Name
-        +string ThumbnailPath
         +int SinglePrice
         +int TenPrice
         +List~string~ RewardFurnitureIds

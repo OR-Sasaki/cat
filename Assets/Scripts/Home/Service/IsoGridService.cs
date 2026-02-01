@@ -182,28 +182,21 @@ namespace Home.Service
         {
             // 壁面上の2D座標オフセット
             var offset = (Vector2)(worldPos - _origin);
+            var wallAxis = side == WallSide.Left ? _yAxis : _xAxis;
 
-            // Z軸方向（高さ）のグリッド座標
-            var zGrid = Mathf.RoundToInt(offset.y / _cellSize);
+            // 壁の座標系での逆変換（2x2行列の逆行列を使用）
+            // [wallAxis.x, 0        ] [wallGrid]   [offset.x]
+            // [wallAxis.y, _cellSize] [zGrid   ] = [offset.y]
+            // determinant = wallAxis.x * _cellSize
+            var determinant = wallAxis.x * _cellSize;
 
-            // 壁面方向の軸への射影でグリッド座標を計算
-            // dot / |axis|² = dot / _cellSize² でスカラー倍率を求める
-            var cellSizeSq = _cellSize * _cellSize;
-            int wallGrid;
-            if (side == WallSide.Left)
-            {
-                // 左壁は_yAxis方向に沿って配置
-                var dot = Vector2.Dot(offset, _yAxis);
-                wallGrid = Mathf.RoundToInt(dot / cellSizeSq);
-            }
-            else
-            {
-                // 右壁は_xAxis方向に沿って配置
-                var dot = Vector2.Dot(offset, _xAxis);
-                wallGrid = Mathf.RoundToInt(dot / cellSizeSq);
-            }
+            // 壁面方向のグリッド座標
+            var wallGrid = offset.x * _cellSize / determinant;
 
-            return new Vector2Int(wallGrid, zGrid);
+            // 高さ方向のグリッド座標（壁軸のY成分の寄与を除去）
+            var zGrid = (wallAxis.x * offset.y - wallAxis.y * offset.x) / determinant;
+
+            return new Vector2Int(Mathf.RoundToInt(wallGrid), Mathf.RoundToInt(zGrid));
         }
 
         /// 壁グリッド座標が有効範囲内かチェック

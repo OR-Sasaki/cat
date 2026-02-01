@@ -32,11 +32,6 @@ namespace Shop.Service
                 TenPrice: 2700,
                 RewardFurnitureIds: new List<string> { "chair_01", "table_01", "lamp_01", "sofa_01", "carpet_01" }
             ));
-            _state.GachaList.Add(new GachaData(
-                SinglePrice: 500,
-                TenPrice: 4500,
-                RewardFurnitureIds: new List<string> { "bed_01", "desk_01", "shelf_01", "plant_01", "mirror_01" }
-            ));
 
             // アイテムデータ（アイテムタブ用）
             _state.ItemProductList.Clear();

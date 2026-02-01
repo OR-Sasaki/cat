@@ -80,15 +80,27 @@ namespace Shop.View
         void SetupTabButtons()
         {
             if (_itemTabButton != null)
-                _itemTabButton.onClick.AddListener(() => OnTabSelected?.Invoke(ShopTab.Item));
+                _itemTabButton.onClick.AddListener(() =>
+                {
+                    _shopService?.SetCurrentTab(ShopTab.Item);
+                    OnTabSelected?.Invoke(ShopTab.Item);
+                });
             if (_pointTabButton != null)
-                _pointTabButton.onClick.AddListener(() => OnTabSelected?.Invoke(ShopTab.Point));
+                _pointTabButton.onClick.AddListener(() =>
+                {
+                    _shopService?.SetCurrentTab(ShopTab.Point);
+                    OnTabSelected?.Invoke(ShopTab.Point);
+                });
         }
 
         void SetupBackButton()
         {
             if (_backButton != null)
-                _backButton.onClick.AddListener(() => OnBackButtonClicked?.Invoke());
+                _backButton.onClick.AddListener(() =>
+                {
+                    _shopService?.GoBack();
+                    OnBackButtonClicked?.Invoke();
+                });
         }
 
         void SetupCells()

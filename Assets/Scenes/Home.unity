@@ -516,7 +516,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.8
+  orthographic size: 6.34
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -541,7 +541,7 @@ Transform:
   m_GameObject: {fileID: 140467738}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.654, y: -0.60200024, z: -10}
+  m_LocalPosition: {x: 0.6540002, y: 0.5979997, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6901,6 +6901,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a1752e40454860ada1699adec94c19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoGridTest
+  _isoGridSettingsView: {fileID: 1759482995}
   _lineInterval: 1
   _showFloorGrid: 1
   _floorGridColor: {r: 0, g: 1, b: 0, a: 1}
@@ -6939,6 +6940,7 @@ MonoBehaviour:
   _gridHeight: 32
   _cellSize: 0.4885
   _angle: 15.5
+  _wallHeight: 10
   _surface2D: {fileID: 868431863}
 --- !u!1 &1838396421
 GameObject:

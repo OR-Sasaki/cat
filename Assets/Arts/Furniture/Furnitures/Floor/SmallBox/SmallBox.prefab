@@ -51,7 +51,6 @@ MonoBehaviour:
   _pivotGridPosition: {x: 1, y: 1}
   _viewPivot: {fileID: 6747029884075364657}
   _userFurnitureId: 0
-  _sortingGroup: {fileID: 3088880621213383574}
 --- !u!60 &386356709345769077
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -329,7 +328,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -8829076095670358118, guid: edb4a83073a4a4d7c87961f58a086bd3, type: 3}
+  m_Sprite: {fileID: -8829076095670358118, guid: bb42d162cef9a4ca5bb8963d5c20ece0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

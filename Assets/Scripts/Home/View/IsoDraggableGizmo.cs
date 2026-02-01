@@ -1,6 +1,7 @@
+using Cat.Furniture;
 using Home.Service;
+using Home.State;
 using UnityEngine;
-using VContainer;
 
 namespace Home.View
 {
@@ -37,6 +38,18 @@ namespace Home.View
             }
             if (_isoGridSettingsView == null) return;
 
+            if (_isoDraggableView.IsWallPlacement)
+            {
+                DrawWallGizmo();
+            }
+            else
+            {
+                DrawFloorGizmo();
+            }
+        }
+
+        void DrawFloorGizmo()
+        {
             var footprintSize = _isoDraggableView.FootprintSize;
             var pivotGridPosition = _isoDraggableView.PivotGridPosition;
             var userFurnitureId = _isoDraggableView.UserFurnitureId;
@@ -49,13 +62,13 @@ namespace Home.View
             var origin = _isoGridSettingsView.Origin;
 
             // スナップ先のグリッド座標を取得（pivotの位置）
-            var pivotGridPos = WorldToFloorGrid(transform.position, origin, xAxis, yAxis);
+            var pivotGridPos = _isoGridService.WorldToFloorGrid(transform.position);
 
             // footprintの開始位置（左下）を計算
             var footprintStartPos = pivotGridPos - pivotGridPosition;
 
             // 配置可能かチェック
-            var canPlace = _isoGridService.CanPlaceObject(footprintStartPos, footprintSize, userFurnitureId);
+            var canPlace = _isoGridService.CanPlaceFloorObject(footprintStartPos, footprintSize, userFurnitureId);
 
             // 配置可能なら緑、不可能なら赤
             var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
@@ -92,13 +105,66 @@ namespace Home.View
             Gizmos.DrawLine(outerCorner3, outerCorner0);
         }
 
-        Vector2Int WorldToFloorGrid(Vector3 worldPos, Vector3 origin, Vector2 xAxis, Vector2 yAxis)
+        void DrawWallGizmo()
         {
-            var determinant = xAxis.x * yAxis.y - xAxis.y * yAxis.x;
-            var offset = (Vector2)(worldPos - origin);
-            var gridX = (offset.x * yAxis.y - offset.y * yAxis.x) / determinant;
-            var gridY = (xAxis.x * offset.y - xAxis.y * offset.x) / determinant;
-            return new Vector2Int(Mathf.RoundToInt(gridX), Mathf.RoundToInt(gridY));
+            var footprintSize = _isoDraggableView.FootprintSize;
+            var pivotGridPosition = _isoDraggableView.PivotGridPosition;
+            var userFurnitureId = _isoDraggableView.UserFurnitureId;
+            var wallSide = _isoDraggableView.WallSide;
+
+            // 軸ベクトルを計算
+            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = _isoGridSettingsView.CellSize;
+            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
+            var zAxis = Vector3.up * cellSize;
+            var origin = _isoGridSettingsView.Origin;
+
+            // ワールド座標から壁グリッド座標を計算
+            var pivotGridPos = _isoGridService.WorldToWallGrid(wallSide, transform.position);
+
+            // footprintの開始位置を計算
+            var footprintStartPos = pivotGridPos - pivotGridPosition;
+
+            // 配置可能かチェック
+            var canPlace = _isoGridService.CanPlaceWallObject(wallSide, footprintStartPos, footprintSize, userFurnitureId);
+
+            // 配置可能なら緑、不可能なら赤
+            var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
+            Gizmos.color = color;
+
+            // 壁の軸を決定
+            var wallAxis = wallSide == WallSide.Left ? yAxis : xAxis;
+
+            // footprintSize分のセルを描画
+            for (var w = 0; w < footprintSize.x; w++)
+            {
+                for (var h = 0; h < footprintSize.y; h++)
+                {
+                    var cellOrigin = origin + (Vector3)((footprintStartPos.x + w) * wallAxis) + zAxis * (footprintStartPos.y + h);
+
+                    var corner0 = cellOrigin;
+                    var corner1 = cellOrigin + (Vector3)wallAxis;
+                    var corner2 = cellOrigin + (Vector3)wallAxis + zAxis;
+                    var corner3 = cellOrigin + zAxis;
+
+                    // 塗りつぶし
+                    DrawFilledQuad(corner0, corner1, corner2, corner3, color);
+                }
+            }
+
+            // 外周のアウトラインを描画
+            var footprintOrigin = origin + (Vector3)(footprintStartPos.x * wallAxis) + zAxis * footprintStartPos.y;
+            var outerCorner0 = footprintOrigin;
+            var outerCorner1 = footprintOrigin + (Vector3)(wallAxis * footprintSize.x);
+            var outerCorner2 = footprintOrigin + (Vector3)(wallAxis * footprintSize.x) + zAxis * footprintSize.y;
+            var outerCorner3 = footprintOrigin + zAxis * footprintSize.y;
+
+            Gizmos.color = canPlace ? Color.green : Color.red;
+            Gizmos.DrawLine(outerCorner0, outerCorner1);
+            Gizmos.DrawLine(outerCorner1, outerCorner2);
+            Gizmos.DrawLine(outerCorner2, outerCorner3);
+            Gizmos.DrawLine(outerCorner3, outerCorner0);
         }
 
         void DrawFilledQuad(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Color color)

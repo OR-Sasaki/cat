@@ -1,3 +1,4 @@
+using Cat.Furniture;
 using Home.State;
 using Home.View;
 using UnityEngine;
@@ -19,61 +20,20 @@ namespace Home.Service
             _isoGridService = isoGridService;
         }
 
-        /// 家具を空き位置に配置する
+        #region 共通
+
+        /// 家具を空き位置に配置する（PlacementTypeに基づいて床/壁を自動判定）
         /// 戻り値: 配置したワールド座標（配置失敗時はnull）
         public Vector3? PlaceFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
             if (furniture.SceneObject == null) return null;
 
-            var footprintSize = furniture.SceneObject.FootprintSize;
-            var availablePos = FindAvailablePosition(footprintSize);
-            if (availablePos == null)
+            if (furniture.PlacementType == PlacementType.Wall)
             {
-                Debug.LogWarning("[FurniturePlacementService] No available position found");
-                return null;
+                return PlaceWallFurniture(userFurnitureId, furniture);
             }
 
-            return PlaceFurnitureAt(userFurnitureId, furniture, availablePos.Value);
-        }
-
-        /// 家具を指定位置に配置する
-        /// 戻り値: 配置したワールド座標（配置失敗時はnull）
-        public Vector3? PlaceFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, Vector2Int gridPos)
-        {
-            if (furniture.SceneObject == null) return null;
-
-            var footprintSize = furniture.SceneObject.FootprintSize;
-
-            // 配置可能かどうかを検証
-            if (!_isoGridService.CanPlaceObject(gridPos, footprintSize))
-            {
-                Debug.LogWarning($"[FurniturePlacementService] Cannot place furniture at {gridPos}: userFurnitureId={userFurnitureId}");
-                return null;
-            }
-
-            // プレハブをインスタンス化
-            var instance = Object.Instantiate(furniture.SceneObject);
-            instance.SetUserFurnitureId(userFurnitureId);
-
-            // グリッドにオブジェクトを配置
-            _isoGridService.PlaceObject(gridPos, footprintSize, userFurnitureId);
-
-            // ワールド座標を計算してViewを移動
-            var pivotOffset = instance.PivotGridPosition;
-            var worldPos = _isoGridService.GridToWorld(gridPos + pivotOffset);
-            instance.SetPosition(worldPos);
-            instance.SetPlacedOnGrid(true);
-
-#if UNITY_EDITOR
-            var gizmo = instance.GetComponent<IsoDraggableGizmo>();
-            if (gizmo != null)
-            {
-                var settingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
-                gizmo.Init(settingsView, _isoGridService);
-            }
-#endif
-
-            return worldPos;
+            return PlaceFloorFurniture(userFurnitureId, furniture);
         }
 
         /// 家具をシーンとグリッドから削除する
@@ -99,8 +59,15 @@ namespace Home.Service
                 return false;
             }
 
-            // グリッドからオブジェクトを削除
-            _isoGridService.RemoveObject(userFurnitureId, targetView.FootprintSize);
+            // PlacementTypeに基づいてグリッドから削除
+            if (furniture.PlacementType == PlacementType.Wall)
+            {
+                _isoGridService.RemoveWallObject(userFurnitureId, targetView.FootprintSize);
+            }
+            else
+            {
+                _isoGridService.RemoveFloorObject(userFurnitureId, targetView.FootprintSize);
+            }
 
             // シーンからオブジェクトを削除
             Object.Destroy(targetView.gameObject);
@@ -108,16 +75,74 @@ namespace Home.Service
             return true;
         }
 
-        /// 指定サイズの家具を配置できる空き位置を探す
-        Vector2Int? FindAvailablePosition(Vector2Int footprintSize)
+        #endregion
+
+        #region 床配置
+
+        /// 床家具を空き位置に配置する
+        Vector3? PlaceFloorFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
-            // グリッドをスキャンして空き位置を探す
+            var footprintSize = furniture.SceneObject.FootprintSize;
+            var availablePos = FindAvailableFloorPosition(footprintSize);
+            if (availablePos == null)
+            {
+                Debug.LogWarning("[FurniturePlacementService] No available floor position found");
+                return null;
+            }
+
+            return PlaceFloorFurnitureAt(userFurnitureId, furniture, availablePos.Value);
+        }
+
+        /// 床家具を指定位置に配置する
+        /// 戻り値: 配置したワールド座標（配置失敗時はnull）
+        public Vector3? PlaceFloorFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, Vector2Int gridPos)
+        {
+            if (furniture.SceneObject == null) return null;
+
+            var footprintSize = furniture.SceneObject.FootprintSize;
+
+            // 配置可能かどうかを検証
+            if (!_isoGridService.CanPlaceFloorObject(gridPos, footprintSize))
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Cannot place floor furniture at {gridPos}: userFurnitureId={userFurnitureId}");
+                return null;
+            }
+
+            // プレハブをインスタンス化
+            var instance = Object.Instantiate(furniture.SceneObject);
+            instance.SetUserFurnitureId(userFurnitureId);
+            instance.SetPlacementType(PlacementType.Floor);
+
+            // グリッドにオブジェクトを配置
+            _isoGridService.PlaceFloorObject(gridPos, footprintSize, userFurnitureId);
+
+            // ワールド座標を計算してViewを移動
+            var pivotOffset = instance.PivotGridPosition;
+            var worldPos = _isoGridService.FloorGridToWorld(gridPos + pivotOffset);
+            instance.SetPosition(worldPos);
+            instance.SetPlacedOnGrid(true);
+
+#if UNITY_EDITOR
+            var gizmo = instance.GetComponent<IsoDraggableGizmo>();
+            if (gizmo != null)
+            {
+                var settingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
+                gizmo.Init(settingsView, _isoGridService);
+            }
+#endif
+
+            return worldPos;
+        }
+
+        /// 指定サイズの床家具を配置できる空き位置を探す
+        Vector2Int? FindAvailableFloorPosition(Vector2Int footprintSize)
+        {
             for (var y = 0; y < _isoGridState.GridHeight - footprintSize.y + 1; y++)
             {
                 for (var x = 0; x < _isoGridState.GridWidth - footprintSize.x + 1; x++)
                 {
                     var pos = new Vector2Int(x, y);
-                    if (_isoGridService.CanPlaceObject(pos, footprintSize))
+                    if (_isoGridService.CanPlaceFloorObject(pos, footprintSize))
                     {
                         return pos;
                     }
@@ -125,5 +150,95 @@ namespace Home.Service
             }
             return null;
         }
+
+        #endregion
+
+        #region 壁配置
+
+        /// 壁家具を空き位置に配置する（左壁→右壁の順で探索）
+        Vector3? PlaceWallFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
+        {
+            var footprintSize = furniture.SceneObject.FootprintSize;
+
+            // 左壁で空き位置を探す
+            var leftPos = FindAvailableWallPosition(WallSide.Left, footprintSize);
+            if (leftPos != null)
+            {
+                return PlaceWallFurnitureAt(userFurnitureId, furniture, WallSide.Left, leftPos.Value);
+            }
+
+            // 右壁で空き位置を探す
+            var rightPos = FindAvailableWallPosition(WallSide.Right, footprintSize);
+            if (rightPos != null)
+            {
+                return PlaceWallFurnitureAt(userFurnitureId, furniture, WallSide.Right, rightPos.Value);
+            }
+
+            Debug.LogWarning("[FurniturePlacementService] No available wall position found");
+            return null;
+        }
+
+        /// 壁の指定位置に家具を配置する
+        public Vector3? PlaceWallFurnitureAt(int userFurnitureId, Cat.Furniture.Furniture furniture, WallSide side, Vector2Int gridPos)
+        {
+            if (furniture.SceneObject == null) return null;
+
+            var footprintSize = furniture.SceneObject.FootprintSize;
+
+            // 配置可能かどうかを検証
+            if (!_isoGridService.CanPlaceWallObject(side, gridPos, footprintSize))
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Cannot place wall furniture at {side}:{gridPos}");
+                return null;
+            }
+
+            // プレハブをインスタンス化
+            var instance = Object.Instantiate(furniture.SceneObject);
+            instance.SetUserFurnitureId(userFurnitureId);
+            instance.SetPlacementType(PlacementType.Wall);
+            instance.SetWallSide(side);
+
+            // グリッドにオブジェクトを配置
+            _isoGridService.PlaceWallObject(side, gridPos, footprintSize, userFurnitureId);
+
+            // ワールド座標を計算してViewを移動
+            var pivotOffset = instance.PivotGridPosition;
+            var worldPos = _isoGridService.WallGridToWorld(side, gridPos + pivotOffset);
+            instance.SetPosition(worldPos);
+            instance.SetPlacedOnGrid(true);
+
+#if UNITY_EDITOR
+            var gizmo = instance.GetComponent<IsoDraggableGizmo>();
+            if (gizmo != null)
+            {
+                var settingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
+                gizmo.Init(settingsView, _isoGridService);
+            }
+#endif
+
+            return worldPos;
+        }
+
+        /// 壁の空き位置を探す
+        Vector2Int? FindAvailableWallPosition(WallSide side, Vector2Int footprintSize)
+        {
+            var maxWidth = side == WallSide.Left ? _isoGridState.GridHeight : _isoGridState.GridWidth;
+            var maxHeight = _isoGridState.WallHeight;
+
+            for (var z = 0; z < maxHeight - footprintSize.y + 1; z++)
+            {
+                for (var pos = 0; pos < maxWidth - footprintSize.x + 1; pos++)
+                {
+                    var gridPos = new Vector2Int(pos, z);
+                    if (_isoGridService.CanPlaceWallObject(side, gridPos, footprintSize))
+                    {
+                        return gridPos;
+                    }
+                }
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

@@ -31,7 +31,11 @@ namespace Home.Service
             _isoGridSettingsView = isoGridSettingsView;
 
             // State初期化
-            _state.Initialize(_isoGridSettingsView.GridWidth, _isoGridSettingsView.GridHeight);
+            _state.Initialize(
+                _isoGridSettingsView.GridWidth,
+                _isoGridSettingsView.GridHeight,
+                _isoGridSettingsView.WallHeight
+            );
 
             // グリッド設定を初期化
             _origin = _isoGridSettingsView.Origin;
@@ -57,8 +61,10 @@ namespace Home.Service
             };
         }
 
-        /// グリッド座標をワールド座標に変換
-        public Vector3 GridToWorld(Vector2Int gridPos)
+        #region 床グリッド操作
+
+        /// 床グリッド座標をワールド座標に変換
+        public Vector3 FloorGridToWorld(Vector2Int gridPos)
         {
             var worldOffset = gridPos.x * _xAxis + gridPos.y * _yAxis;
             return _origin + (Vector3)worldOffset;
@@ -74,29 +80,29 @@ namespace Home.Service
             return new Vector2Int(Mathf.RoundToInt(gridX), Mathf.RoundToInt(gridY));
         }
 
-        /// グリッド座標が有効範囲内かチェック
-        public bool IsValidPosition(Vector2Int gridPos)
+        /// 床グリッド座標が有効範囲内かチェック
+        public bool IsValidFloorPosition(Vector2Int gridPos)
         {
             return gridPos.x >= 0 && gridPos.x < _state.GridWidth
                 && gridPos.y >= 0 && gridPos.y < _state.GridHeight;
         }
 
-        /// 指定セルのUserFurnitureIdを取得
-        public int GetUserFurnitureId(Vector2Int gridPos)
+        /// 床の指定セルのUserFurnitureIdを取得
+        public int GetFloorUserFurnitureId(Vector2Int gridPos)
         {
-            if (!IsValidPosition(gridPos)) return 0;
+            if (!IsValidFloorPosition(gridPos)) return 0;
             return _state.FloorCells[gridPos.x, gridPos.y].UserFurnitureId;
         }
 
-        /// 指定範囲のセルにオブジェクトを配置
-        public void PlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int userFurnitureId)
+        /// 床の指定範囲のセルにオブジェクトを配置
+        public void PlaceFloorObject(Vector2Int footprintStart, Vector2Int footprintSize, int userFurnitureId)
         {
             for (var x = 0; x < footprintSize.x; x++)
             {
                 for (var y = 0; y < footprintSize.y; y++)
                 {
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
-                    if (!IsValidPosition(cellPos)) continue;
+                    if (!IsValidFloorPosition(cellPos)) continue;
 
                     _state.FloorCells[cellPos.x, cellPos.y].UserFurnitureId = userFurnitureId;
                 }
@@ -108,8 +114,8 @@ namespace Home.Service
             OnObjectPlaced?.Invoke();
         }
 
-        /// 指定範囲のセルからオブジェクトを削除
-        public void RemoveObject(int userFurnitureId, Vector2Int footprintSize)
+        /// 床の指定範囲のセルからオブジェクトを削除
+        public void RemoveFloorObject(int userFurnitureId, Vector2Int footprintSize)
         {
             var footprintStart = _state.ObjectFootprintStartPositions[userFurnitureId];
 
@@ -118,7 +124,7 @@ namespace Home.Service
                 for (var y = 0; y < footprintSize.y; y++)
                 {
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
-                    if (!IsValidPosition(cellPos)) continue;
+                    if (!IsValidFloorPosition(cellPos)) continue;
 
                     _state.FloorCells[cellPos.x, cellPos.y].Clear();
                 }
@@ -128,21 +134,21 @@ namespace Home.Service
             _state.ObjectFootprintStartPositions.Remove(userFurnitureId);
         }
 
-        /// UserFurnitureIdからフットプリント開始位置を取得
-        public Vector2Int GetObjectFootprintStart(int userFurnitureId)
+        /// 床のUserFurnitureIdからフットプリント開始位置を取得
+        public Vector2Int GetFloorObjectFootprintStart(int userFurnitureId)
         {
             return _state.ObjectFootprintStartPositions[userFurnitureId];
         }
 
-        /// 指定範囲が配置可能かチェック（自分自身のIDは無視）
-        public bool CanPlaceObject(Vector2Int footprintStart, Vector2Int footprintSize, int selfUserFurnitureId = 0)
+        /// 床の指定範囲が配置可能かチェック（自分自身のIDは無視）
+        public bool CanPlaceFloorObject(Vector2Int footprintStart, Vector2Int footprintSize, int selfUserFurnitureId = 0)
         {
             for (var x = 0; x < footprintSize.x; x++)
             {
                 for (var y = 0; y < footprintSize.y; y++)
                 {
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
-                    if (!IsValidPosition(cellPos)) return false;
+                    if (!IsValidFloorPosition(cellPos)) return false;
 
                     var cell = _state.FloorCells[cellPos.x, cellPos.y];
                     if (cell.IsOccupied && cell.UserFurnitureId != selfUserFurnitureId) return false;
@@ -150,5 +156,148 @@ namespace Home.Service
             }
             return true;
         }
+
+        #endregion
+
+        #region 壁グリッド操作
+
+        /// 壁グリッド座標をワールド座標に変換
+        public Vector3 WallGridToWorld(WallSide side, Vector2Int gridPos)
+        {
+            var zOffset = Vector3.up * gridPos.y * _cellSize;
+            if (side == WallSide.Left)
+            {
+                var worldOffset = gridPos.x * _yAxis;
+                return _origin + (Vector3)worldOffset + zOffset;
+            }
+            else
+            {
+                var worldOffset = gridPos.x * _xAxis;
+                return _origin + (Vector3)worldOffset + zOffset;
+            }
+        }
+
+        /// ワールド座標を壁グリッド座標に変換
+        public Vector2Int WorldToWallGrid(WallSide side, Vector3 worldPos)
+        {
+            // 壁面上の2D座標オフセット
+            var offset = (Vector2)(worldPos - _origin);
+
+            // Z軸方向（高さ）のグリッド座標
+            var zGrid = Mathf.RoundToInt(offset.y / _cellSize);
+
+            // 壁面方向の軸への射影でグリッド座標を計算
+            // dot / |axis|² = dot / _cellSize² でスカラー倍率を求める
+            var cellSizeSq = _cellSize * _cellSize;
+            int wallGrid;
+            if (side == WallSide.Left)
+            {
+                // 左壁は_yAxis方向に沿って配置
+                var dot = Vector2.Dot(offset, _yAxis);
+                wallGrid = Mathf.RoundToInt(dot / cellSizeSq);
+            }
+            else
+            {
+                // 右壁は_xAxis方向に沿って配置
+                var dot = Vector2.Dot(offset, _xAxis);
+                wallGrid = Mathf.RoundToInt(dot / cellSizeSq);
+            }
+
+            return new Vector2Int(wallGrid, zGrid);
+        }
+
+        /// 壁グリッド座標が有効範囲内かチェック
+        public bool IsValidWallPosition(WallSide side, Vector2Int gridPos)
+        {
+            var maxWidth = side == WallSide.Left ? _state.GridHeight : _state.GridWidth;
+            return gridPos.x >= 0 && gridPos.x < maxWidth
+                && gridPos.y >= 0 && gridPos.y < _state.WallHeight;
+        }
+
+        /// 壁の指定セルのUserFurnitureIdを取得
+        public int GetWallUserFurnitureId(WallSide side, Vector2Int gridPos)
+        {
+            if (!IsValidWallPosition(side, gridPos)) return 0;
+            var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+            return cells[gridPos.x, gridPos.y].UserFurnitureId;
+        }
+
+        /// 壁への配置可能チェック（自分自身のIDは無視）
+        public bool CanPlaceWallObject(WallSide side, Vector2Int footprintStart, Vector2Int footprintSize, int selfUserFurnitureId = 0)
+        {
+            var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+
+            for (var x = 0; x < footprintSize.x; x++)
+            {
+                for (var y = 0; y < footprintSize.y; y++)
+                {
+                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
+                    if (!IsValidWallPosition(side, cellPos)) return false;
+
+                    var cell = cells[cellPos.x, cellPos.y];
+                    if (cell.IsOccupied && cell.UserFurnitureId != selfUserFurnitureId) return false;
+                }
+            }
+            return true;
+        }
+
+        /// 壁にオブジェクトを配置
+        public void PlaceWallObject(WallSide side, Vector2Int footprintStart, Vector2Int footprintSize, int userFurnitureId)
+        {
+            var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+
+            for (var x = 0; x < footprintSize.x; x++)
+            {
+                for (var y = 0; y < footprintSize.y; y++)
+                {
+                    var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
+                    if (!IsValidWallPosition(side, cellPos)) continue;
+
+                    cells[cellPos.x, cellPos.y].UserFurnitureId = userFurnitureId;
+                }
+            }
+
+            // 壁オブジェクトの位置を記録
+            _state.WallObjectFootprintStartPositions[userFurnitureId] = new WallObjectPosition
+            {
+                Side = side,
+                Position = footprintStart
+            };
+
+            OnObjectPlaced?.Invoke();
+        }
+
+        /// 壁からオブジェクトを削除
+        public void RemoveWallObject(int userFurnitureId, Vector2Int footprintSize)
+        {
+            if (!_state.WallObjectFootprintStartPositions.TryGetValue(userFurnitureId, out var wallPos))
+            {
+                Debug.LogWarning($"[IsoGridService] WallObject {userFurnitureId} not found");
+                return;
+            }
+
+            var cells = wallPos.Side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+
+            for (var x = 0; x < footprintSize.x; x++)
+            {
+                for (var y = 0; y < footprintSize.y; y++)
+                {
+                    var cellPos = new Vector2Int(wallPos.Position.x + x, wallPos.Position.y + y);
+                    if (!IsValidWallPosition(wallPos.Side, cellPos)) continue;
+
+                    cells[cellPos.x, cellPos.y].Clear();
+                }
+            }
+
+            _state.WallObjectFootprintStartPositions.Remove(userFurnitureId);
+        }
+
+        /// 壁のUserFurnitureIdからフットプリント開始位置を取得
+        public WallObjectPosition GetWallObjectFootprintStart(int userFurnitureId)
+        {
+            return _state.WallObjectFootprintStartPositions[userFurnitureId];
+        }
+
+        #endregion
     }
 }

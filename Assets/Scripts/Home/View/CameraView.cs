@@ -27,10 +27,10 @@ namespace Home.View
             }
 
             var context = contexts.FirstOrDefault(c => c.state == state);
-            if (context is null) return null;
+            if (context == null) return null;
 
             var cinemachineCamera = context.gameObject.GetComponentInChildren<CinemachineCamera>();
-            if (cinemachineCamera is not null)
+            if (cinemachineCamera != null)
             {
                 _cinemachineCameraCache[state] = cinemachineCamera;
             }

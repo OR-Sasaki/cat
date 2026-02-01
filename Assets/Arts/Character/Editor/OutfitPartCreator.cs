@@ -66,7 +66,7 @@ namespace Cat.Character
                     }
                 }
 
-                if (sprite is null)
+                if (sprite == null)
                 {
                     Debug.LogWarning($"Spriteが見つかりませんでした: {textureTargetPath}");
                     continue;

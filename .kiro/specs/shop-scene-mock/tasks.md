@@ -13,16 +13,16 @@
 
 ### Branch: `feature/shop-scene-mock-ui`
 
-- [ ] 1. ショップシーンの基盤構造を構築する
-  - [ ] 1.1 シーン定数とファイル構造を準備する
+- [x] 1. ショップシーンの基盤構造を構築する
+  - [x] 1.1 シーン定数とファイル構造を準備する
     - シーン名定数 `Const.SceneName.Shop` を定義する
     - `Assets/Scripts/Shop/` 配下に標準フォルダ構造（Manager/, Scope/, Service/, Starter/, State/, View/）を作成する
     - `Assets/Scenes/Shop.unity` シーンファイルを確認・準備する
-  - [ ] 1.2 VContainer DIコンテナを設定する
+  - [x] 1.2 VContainer DIコンテナを設定する
     - ShopScope クラスを作成し、SceneScope を継承する
     - RootScope を親スコープとして設定する
     - SerializeField で ShopView をバインドする
-  - [ ] 1.3 エントリーポイントを設定する
+  - [x] 1.3 エントリーポイントを設定する
     - ShopStarter クラスを作成し、IStartable を実装する
     - ShopService の Initialize メソッドを呼び出す初期化処理を実装する
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
@@ -148,7 +148,7 @@
 
 | Requirement | Task | Status |
 |-------------|------|--------|
-| 1.1-1.5 シーン構造 | 1 | ⬜ |
+| 1.1-1.5 シーン構造 | 1 | ✅ |
 | 2.1-2.6 タブ切り替え | 3 | ⬜ |
 | 3.1-3.4 カテゴリ表示 | 6 | ⬜ |
 | 4.1-4.9 ガチャカテゴリ | 4, 5, 6, 8 | ⬜ |

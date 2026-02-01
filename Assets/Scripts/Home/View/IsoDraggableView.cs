@@ -1,3 +1,5 @@
+using Cat.Furniture;
+using Home.State;
 using UnityEngine;
 
 namespace Home.View
@@ -15,8 +17,14 @@ namespace Home.View
         [Header("Object Settings")]
         [SerializeField] int _userFurnitureId;
 
+        [Header("左右のPivot(床の場合は設定しなくてOK)")]
+        [SerializeField] GameObject _rightViewPivot;
+        [SerializeField] GameObject _leftViewPivot;
+
         bool _isDragging;
         bool _isPlacedOnGrid;
+        PlacementType _placementType;
+        WallSide _wallSide;
 
         public bool IsDragging => _isDragging;
         public bool IsPlacedOnGrid => _isPlacedOnGrid;
@@ -25,11 +33,14 @@ namespace Home.View
         public int UserFurnitureId => _userFurnitureId;
         public float ViewPivotY => _viewPivot.position.y;
         public Vector3 Position => transform.position;
+        public PlacementType PlacementType => _placementType;
+        public WallSide WallSide => _wallSide;
+        public bool IsWallPlacement => _placementType == PlacementType.Wall;
 
         void Awake()
         {
 #if UNITY_EDITOR
-            if (GetComponent<IsoDraggableGizmo>() == null)
+            if (GetComponent<IsoDraggableGizmo>() is null)
             {
                 var c = gameObject.AddComponent<IsoDraggableGizmo>();
                 c.SetIsoDraggableView(this);
@@ -59,6 +70,26 @@ namespace Home.View
         public void SetUserFurnitureId(int userFurnitureId)
         {
             _userFurnitureId = userFurnitureId;
+        }
+
+        // PlacementTypeを設定
+        public void SetPlacementType(PlacementType placementType)
+        {
+            _placementType = placementType;
+            SetViewPivot(true); // 初期は右壁に沿わす
+        }
+
+        // WallSideを設定
+        public void SetWallSide(WallSide wallSide)
+        {
+            _wallSide = wallSide;
+            SetViewPivot(wallSide == WallSide.Right);
+        }
+
+        void SetViewPivot(bool isRight)
+        {
+            if (_rightViewPivot) _rightViewPivot.SetActive(isRight);
+            if(_leftViewPivot) _leftViewPivot.SetActive(!isRight);
         }
     }
 }

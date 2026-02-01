@@ -7,7 +7,7 @@ namespace Home.View
     // Editor内のみで動作する
     public class IsoGridGizmo : MonoBehaviour
     {
-        IsoGridSettingsView _isoGridSettingsView;
+        [SerializeField] IsoGridSettingsView _isoGridSettingsView;
 
         [Header("Gizmo Settings")]
         [SerializeField, Range(1, 10)] int _lineInterval = 1;
@@ -21,12 +21,6 @@ namespace Home.View
         [SerializeField] int _wallHeight = 10;
         [SerializeField] Color _leftWallColor = Color.cyan;
         [SerializeField] Color _rightWallColor = Color.magenta;
-
-        [Inject]
-        void Init(IsoGridSettingsView isoGridSettingsView)
-        {
-            _isoGridSettingsView = isoGridSettingsView;
-        }
 
 #if UNITY_EDITOR
         void OnDrawGizmos()

@@ -42,7 +42,7 @@ namespace Home.Service
 
         void Save()
         {
-            // ObjectFootprintStartPositionsを配列に変換
+            // 床オブジェクトを配列に変換
             var objectPositions = _isoGridState.ObjectFootprintStartPositions
                 .Select(kvp => new IsoGridObjectPosition
                 {
@@ -52,9 +52,21 @@ namespace Home.Service
                 })
                 .ToArray();
 
+            // 壁オブジェクトを配列に変換
+            var wallObjectPositions = _isoGridState.WallObjectFootprintStartPositions
+                .Select(kvp => new IsoGridWallObjectPosition
+                {
+                    UserFurnitureId = kvp.Key,
+                    Side = (int)kvp.Value.Side,
+                    X = kvp.Value.Position.x,
+                    Z = kvp.Value.Position.y
+                })
+                .ToArray();
+
             var saveData = new IsoGridSaveData
             {
-                ObjectPositions = objectPositions
+                ObjectPositions = objectPositions,
+                WallObjectPositions = wallObjectPositions
             };
 
             // UserStateに保存
@@ -63,7 +75,7 @@ namespace Home.Service
             // PlayerPrefsに保存
             _playerPrefsService.Save(PlayerPrefsKey.IsoGrid, saveData);
 
-            Debug.Log($"IsoGridSaveService: Saved {objectPositions.Length} objects to IsoGrid");
+            Debug.Log($"IsoGridSaveService: Saved {objectPositions.Length} floor objects and {wallObjectPositions.Length} wall objects to IsoGrid");
         }
     }
 }

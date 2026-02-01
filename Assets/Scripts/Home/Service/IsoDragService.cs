@@ -1,3 +1,5 @@
+using Cat.Furniture;
+using Home.State;
 using Home.View;
 using UnityEngine;
 using VContainer;
@@ -17,6 +19,7 @@ namespace Home.Service
         // ドラッグ状態
         Vector3 _dragOffset;
         Vector2Int _dragStartFootprintPos;
+        WallSide _dragStartWallSide;
 
         [Inject]
         public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService)
@@ -46,7 +49,22 @@ namespace Home.Service
         void HandlePointerDrag(Vector3 worldPos)
         {
             if (_currentIsoDraggableView == null) return;
-            _currentIsoDraggableView.SetPosition(worldPos + _dragOffset);
+
+            var newPos = worldPos + _dragOffset;
+            _currentIsoDraggableView.SetPosition(newPos);
+
+            // 壁オブジェクトの場合、IsoGrid座標のX座標がマイナスになったらWallSideを切り替える
+            if (_currentIsoDraggableView.IsWallPlacement)
+            {
+                var currentWallSide = _currentIsoDraggableView.WallSide;
+                var gridPos = _isoGridService.WorldToWallGridNotRound(currentWallSide, newPos);
+
+                if (gridPos.x < 0)
+                {
+                    var newWallSide = currentWallSide == WallSide.Left ? WallSide.Right : WallSide.Left;
+                    _currentIsoDraggableView.SetWallSide(newWallSide);
+                }
+            }
         }
 
         /// ポインター離した時の処理
@@ -65,14 +83,41 @@ namespace Home.Service
             // マウス位置とオブジェクト位置の差分を記録
             _dragOffset = _currentIsoDraggableView.Position - worldPos;
 
+            if (_currentIsoDraggableView.IsWallPlacement)
+            {
+                BeginWallDrag();
+            }
+            else
+            {
+                BeginFloorDrag();
+            }
+        }
+
+        void BeginFloorDrag()
+        {
             // Stateから現在のフットプリント開始位置を取得
-            var currentFootprintStartPos = _isoGridService.GetObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
+            var currentFootprintStartPos = _isoGridService.GetFloorObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
             _dragStartFootprintPos = currentFootprintStartPos;
             if (_currentIsoDraggableView.IsPlacedOnGrid)
             {
-                _isoGridService.RemoveObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
+                _isoGridService.RemoveFloorObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
+                _currentIsoDraggableView.SetPlacedOnGrid(false);
+            }
+        }
+
+        void BeginWallDrag()
+        {
+            // Stateから現在のフットプリント開始位置を取得
+            var wallObjectPos = _isoGridService.GetWallObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
+
+            // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
+            _dragStartFootprintPos = wallObjectPos.Position;
+            _dragStartWallSide = wallObjectPos.Side;
+            if (_currentIsoDraggableView.IsPlacedOnGrid)
+            {
+                _isoGridService.RemoveWallObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
                 _currentIsoDraggableView.SetPlacedOnGrid(false);
             }
         }
@@ -82,13 +127,25 @@ namespace Home.Service
         {
             if (_currentIsoDraggableView == null) return;
 
+            if (_currentIsoDraggableView.IsWallPlacement)
+            {
+                EndWallDrag();
+            }
+            else
+            {
+                EndFloorDrag();
+            }
+        }
+
+        void EndFloorDrag()
+        {
             // グリッドにスナップして配置
             var gridPos = _isoGridService.WorldToFloorGrid(_currentIsoDraggableView.Position);
             var newFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
 
             Vector2Int finalFootprintPos;
             // 配置可能かチェック
-            if (_isoGridService.CanPlaceObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId))
+            if (_isoGridService.CanPlaceFloorObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId))
             {
                 // 新しい位置に配置
                 finalFootprintPos = newFootprintStartPos;
@@ -99,17 +156,55 @@ namespace Home.Service
                 finalFootprintPos = _dragStartFootprintPos;
             }
 
-            _isoGridService.PlaceObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId);
-            _currentIsoDraggableView.SetPosition(SnapToGrid(finalFootprintPos));
+            _isoGridService.PlaceFloorObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId);
+            _currentIsoDraggableView.SetPosition(SnapToFloorGrid(finalFootprintPos));
             _currentIsoDraggableView.SetPlacedOnGrid(true);
             _currentIsoDraggableView.SetDragging(false);
         }
 
-        /// フットプリント開始位置からピボット位置のワールド座標を計算
-        Vector3 SnapToGrid(Vector2Int footprintStartPos)
+        void EndWallDrag()
+        {
+            var wallSide = _currentIsoDraggableView.WallSide;
+            var footprintSize = _currentIsoDraggableView.FootprintSize;
+
+            // 壁グリッド上での新しい位置を計算
+            var newFootprintStartPos = _isoGridService.WorldToWallGrid(wallSide, _currentIsoDraggableView.Position) - _currentIsoDraggableView.PivotGridPosition;
+
+            Vector2Int finalFootprintPos;
+            WallSide finalWallSide;
+
+            // 同じ壁面で配置可能かチェック
+            if (_isoGridService.CanPlaceWallObject(wallSide, newFootprintStartPos, footprintSize, _currentIsoDraggableView.UserFurnitureId))
+            {
+                finalFootprintPos = newFootprintStartPos;
+                finalWallSide = wallSide;
+            }
+            else
+            {
+                // 配置不可能なら元の位置に戻す
+                finalFootprintPos = _dragStartFootprintPos;
+                finalWallSide = _dragStartWallSide;
+            }
+
+            _isoGridService.PlaceWallObject(finalWallSide, finalFootprintPos, footprintSize, _currentIsoDraggableView.UserFurnitureId);
+            _currentIsoDraggableView.SetPosition(SnapToWallGrid(finalWallSide, finalFootprintPos));
+            _currentIsoDraggableView.SetWallSide(finalWallSide);
+            _currentIsoDraggableView.SetPlacedOnGrid(true);
+            _currentIsoDraggableView.SetDragging(false);
+        }
+
+        /// 床のフットプリント開始位置からピボット位置のワールド座標を計算
+        Vector3 SnapToFloorGrid(Vector2Int footprintStartPos)
         {
             var pivotGridPos = footprintStartPos + _currentIsoDraggableView.PivotGridPosition;
-            return _isoGridService.GridToWorld(pivotGridPos);
+            return _isoGridService.FloorGridToWorld(pivotGridPos);
+        }
+
+        /// 壁のフットプリント開始位置からピボット位置のワールド座標を計算
+        Vector3 SnapToWallGrid(WallSide side, Vector2Int footprintStartPos)
+        {
+            var pivotGridPos = footprintStartPos + _currentIsoDraggableView.PivotGridPosition;
+            return _isoGridService.WallGridToWorld(side, pivotGridPos);
         }
 
         /// Raycastで最前面のIsoDraggableViewを検出
@@ -126,7 +221,7 @@ namespace Home.Service
             // 最も手前(Yが小さい)Draggableを探す
             foreach (var hit in hits)
             {
-                var draggable = hit.collider.GetComponent<IsoDraggableView>();
+                var draggable = hit.collider.GetComponentInParent<IsoDraggableView>();
                 if (draggable == null) continue;
                 if (draggable.ViewPivotY > bestY) continue;
 

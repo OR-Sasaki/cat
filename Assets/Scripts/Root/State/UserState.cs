@@ -15,6 +15,7 @@ namespace Root.State
     public class IsoGridSaveData
     {
         public IsoGridObjectPosition[] ObjectPositions;
+        public IsoGridWallObjectPosition[] WallObjectPositions;
     }
 
     [Serializable]
@@ -23,6 +24,15 @@ namespace Root.State
         public int UserFurnitureId;
         public int X;
         public int Y;
+    }
+
+    [Serializable]
+    public class IsoGridWallObjectPosition
+    {
+        public int UserFurnitureId;
+        public int Side; // 0=Left, 1=Right
+        public int X;
+        public int Z;
     }
 
     [Serializable]

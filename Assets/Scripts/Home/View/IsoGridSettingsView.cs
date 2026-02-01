@@ -16,6 +16,9 @@ namespace Home.View
         [SerializeField] float _cellSize = 1f;
         [SerializeField, Range(0f, 90f)] float _angle = 30f;
 
+        [Header("Wall Settings")]
+        [SerializeField] int _wallHeight = 10;
+
         [Header("NavMesh Settings")]
         [SerializeField] NavMeshSurface _surface2D;
 
@@ -23,6 +26,7 @@ namespace Home.View
         public int GridHeight => _gridHeight;
         public float CellSize => _cellSize;
         public float Angle => _angle;
+        public int WallHeight => _wallHeight;
         public Vector3 Origin => transform.position;
         public NavMeshSurface Surface2D => _surface2D;
     }

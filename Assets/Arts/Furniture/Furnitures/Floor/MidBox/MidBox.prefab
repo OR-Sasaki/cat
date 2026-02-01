@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -8829076095670358118, guid: edb4a83073a4a4d7c87961f58a086bd3, type: 3}
+  m_Sprite: {fileID: -8829076095670358118, guid: ea48567c2b804433ebf1cf834a297be6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -141,7 +141,6 @@ MonoBehaviour:
   _pivotGridPosition: {x: 2, y: 2}
   _viewPivot: {fileID: 4244933040269976172}
   _userFurnitureId: 0
-  _sortingGroup: {fileID: 2638656251736117611}
 --- !u!60 &3787002667282665991
 PolygonCollider2D:
   m_ObjectHideFlags: 0

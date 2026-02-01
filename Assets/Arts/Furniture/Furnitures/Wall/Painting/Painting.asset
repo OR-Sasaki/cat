@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df40d07f8a30246cfa3ad0a872187009, type: 3}
+  m_Name: Painting
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Furniture.Furniture
+  FurnitureType: 3
+  PlacementType: 1
+  Thumbnail: {fileID: 1295955565587498720, guid: af5cef096cc634bc59f985942de12ef0, type: 3}
+  SceneObject: {fileID: 620936053747591544, guid: 3d38d910b0f1a480f8058fa006659cfd, type: 3}

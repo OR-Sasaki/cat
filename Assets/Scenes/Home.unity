@@ -6901,6 +6901,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a1752e40454860ada1699adec94c19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoGridTest
+  _isoGridSettingsView: {fileID: 1759482995}
   _lineInterval: 1
   _showFloorGrid: 1
   _floorGridColor: {r: 0, g: 1, b: 0, a: 1}
@@ -6939,6 +6940,7 @@ MonoBehaviour:
   _gridHeight: 32
   _cellSize: 0.4885
   _angle: 15.5
+  _wallHeight: 10
   _surface2D: {fileID: 868431863}
 --- !u!1 &1838396421
 GameObject:

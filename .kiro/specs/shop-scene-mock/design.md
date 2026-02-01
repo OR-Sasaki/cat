@@ -383,11 +383,31 @@ namespace Shop.View
 {
     public class ShopView : MonoBehaviour
     {
+        [Header("Tab Buttons")]
         [SerializeField] Button _itemTabButton;
         [SerializeField] Button _pointTabButton;
+
+        [Header("Tab Content")]
         [SerializeField] GameObject _itemContent;
         [SerializeField] GameObject _pointContent;
+
+        [Header("Navigation")]
         [SerializeField] Button _backButton;
+
+        [Header("Tab Visual")]
+        [SerializeField] Image _itemTabImage;
+        [SerializeField] Image _pointTabImage;
+        [SerializeField] Sprite _tabSelectedSprite;
+        [SerializeField] Sprite _tabUnselectedSprite;
+        [SerializeField] TMP_Text _itemTabText;
+        [SerializeField] TMP_Text _pointTabText;
+        [SerializeField] Color _tabSelectedTextColor;
+        [SerializeField] Color _tabUnselectedTextColor;
+
+        [Header("Yarn Balance Display")]
+        [SerializeField] TMP_Text _yarnBalanceText;
+
+        [Header("Cells")]
         [SerializeField] List<GachaCellView> _gachaCells;
         [SerializeField] List<ProductCellView> _itemCells;
         [SerializeField] List<ProductCellView> _pointCells;
@@ -395,11 +415,11 @@ namespace Shop.View
         ShopService _shopService;
 
         [Inject]
-        public void Construct(ShopService shopService);
+        public void Construct(ShopState state, ShopService shopService);
 
         void SetupTabButtons();
         void OnTabChanged(ShopTab tab);
-        void UpdateTabVisuals(ShopTab tab);
+        void UpdateTabVisuals(ShopTab tab); // Sprite切り替え + テキスト色切り替え
     }
 }
 ```
@@ -408,25 +428,23 @@ namespace Shop.View
 
 | Field | Detail |
 |-------|--------|
-| Intent | ガチャセルの表示 |
+| Intent | ガチャセルのボタンイベント処理（画像・テキストはシーン上で固定） |
 | Requirements | 4.1-4.6 |
 
 ```csharp
 namespace Shop.View
 {
+    /// ガチャセルの表示（1連/10連ボタンのイベント処理のみ）
+    /// 画像・テキストはシーン上に固定配置し、コードからの設定は行わない
     public class GachaCellView : MonoBehaviour
     {
-        [SerializeField] Image _thumbnail;
-        [SerializeField] TMP_Text _nameText;
         [SerializeField] Button _singleButton;
         [SerializeField] Button _tenButton;
-        [SerializeField] TMP_Text _singlePriceText;
-        [SerializeField] TMP_Text _tenPriceText;
 
         public int Index { get; private set; }
         public event Action<int, int>? OnGachaTapped; // index, count
 
-        public void Setup(int index, GachaData data);
+        public void Setup(int index);
         public void SetButtonsInteractable(bool canAffordSingle, bool canAffordTen);
     }
 }

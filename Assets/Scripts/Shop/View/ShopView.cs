@@ -26,8 +26,8 @@ namespace Shop.View
         [Header("Tab Visual")]
         [SerializeField] Image? _itemTabImage;
         [SerializeField] Image? _pointTabImage;
-        [SerializeField] Color _selectedTabColor = Color.white;
-        [SerializeField] Color _unselectedTabColor = Color.gray;
+        [SerializeField] Sprite? _tabSelectedSprite;
+        [SerializeField] Sprite? _tabUnselectedSprite;
 
         [Header("Yarn Balance Display")]
         [SerializeField] TMP_Text? _yarnBalanceText;
@@ -192,10 +192,11 @@ namespace Shop.View
         void UpdateTabVisuals(ShopTab tab)
         {
             var isItemTab = tab == ShopTab.Item;
+
             if (_itemTabImage != null)
-                _itemTabImage.color = isItemTab ? _selectedTabColor : _unselectedTabColor;
+                _itemTabImage.sprite = isItemTab ? _tabSelectedSprite : _tabUnselectedSprite;
             if (_pointTabImage != null)
-                _pointTabImage.color = isItemTab ? _unselectedTabColor : _selectedTabColor;
+                _pointTabImage.sprite = isItemTab ? _tabUnselectedSprite : _tabSelectedSprite;
         }
 
         void ShowContent(ShopTab tab)

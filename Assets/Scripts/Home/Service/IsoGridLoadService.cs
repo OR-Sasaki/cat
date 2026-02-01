@@ -50,7 +50,7 @@ namespace Home.Service
             // PlayerPrefsから読み込み
             var saveData = _playerPrefsService.Load<IsoGridSaveData>(PlayerPrefsKey.IsoGrid);
 
-            if (saveData == null)
+            if (saveData is null)
             {
                 Debug.Log("IsoGridLoadService: No saved data found");
                 return;

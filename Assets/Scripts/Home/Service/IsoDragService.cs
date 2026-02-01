@@ -49,7 +49,22 @@ namespace Home.Service
         void HandlePointerDrag(Vector3 worldPos)
         {
             if (_currentIsoDraggableView == null) return;
-            _currentIsoDraggableView.SetPosition(worldPos + _dragOffset);
+
+            var newPos = worldPos + _dragOffset;
+            _currentIsoDraggableView.SetPosition(newPos);
+
+            // 壁オブジェクトの場合、IsoGrid座標のX座標がマイナスになったらWallSideを切り替える
+            if (_currentIsoDraggableView.IsWallPlacement)
+            {
+                var currentWallSide = _currentIsoDraggableView.WallSide;
+                var gridPos = _isoGridService.WorldToWallGridNotRound(currentWallSide, newPos);
+
+                if (gridPos.x < 0)
+                {
+                    var newWallSide = currentWallSide == WallSide.Left ? WallSide.Right : WallSide.Left;
+                    _currentIsoDraggableView.SetWallSide(newWallSide);
+                }
+            }
         }
 
         /// ポインター離した時の処理
@@ -207,7 +222,7 @@ namespace Home.Service
             // 最も手前(Yが小さい)Draggableを探す
             foreach (var hit in hits)
             {
-                var draggable = hit.collider.GetComponent<IsoDraggableView>();
+                var draggable = hit.collider.GetComponentInParent<IsoDraggableView>();
                 if (draggable == null) continue;
                 if (draggable.ViewPivotY > bestY) continue;
 

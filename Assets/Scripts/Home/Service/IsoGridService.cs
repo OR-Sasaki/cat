@@ -177,8 +177,8 @@ namespace Home.Service
             }
         }
 
-        /// ワールド座標を壁グリッド座標に変換
-        public Vector2Int WorldToWallGrid(WallSide side, Vector3 worldPos)
+        /// ワールド座標を壁グリッド座標に変換(値を丸めない)
+        public Vector2 WorldToWallGridNotRound(WallSide side, Vector3 worldPos)
         {
             // 壁面上の2D座標オフセット
             var offset = (Vector2)(worldPos - _origin);
@@ -196,7 +196,14 @@ namespace Home.Service
             // 高さ方向のグリッド座標（壁軸のY成分の寄与を除去）
             var zGrid = (wallAxis.x * offset.y - wallAxis.y * offset.x) / determinant;
 
-            return new Vector2Int(Mathf.RoundToInt(wallGrid), Mathf.RoundToInt(zGrid));
+            return new Vector2(wallGrid, zGrid);
+        }
+
+        /// ワールド座標を壁グリッド座標に変換
+        public Vector2Int WorldToWallGrid(WallSide side, Vector3 worldPos)
+        {
+            var gridNotRound = WorldToWallGridNotRound(side, worldPos);
+            return new Vector2Int(Mathf.RoundToInt(gridNotRound.x), Mathf.RoundToInt(gridNotRound.y));
         }
 
         /// 壁グリッド座標が有効範囲内かチェック

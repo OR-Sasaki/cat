@@ -172,7 +172,8 @@ namespace Home.View
             var mesh = new Mesh();
             mesh.vertices = new[] { p0, p1, p2, p3 };
             mesh.normals = new[] { Vector3.back, Vector3.back, Vector3.back, Vector3.back };
-            mesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
+            // 両面を描画（表と裏の両方を描画するのは少し無駄だが、左右の壁の向きが違うことに対応するよりさっさと両面描画しちゃう）
+            mesh.triangles = new[] { 0, 1, 2, 0, 2, 3, 0, 2, 1, 0, 3, 2 };
 
             Gizmos.color = color;
             Gizmos.DrawMesh(mesh);

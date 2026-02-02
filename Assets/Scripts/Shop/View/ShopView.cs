@@ -222,6 +222,14 @@ namespace Shop.View
             {
                 await _shopService.OnGachaTappedAsync(index, count, destroyCancellationToken);
             }
+            catch (OperationCanceledException)
+            {
+                // オブジェクト破棄時のキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
+            }
             finally
             {
                 _isProcessing = false;
@@ -236,6 +244,14 @@ namespace Shop.View
             {
                 await _shopService.OnProductCellTappedAsync(data, destroyCancellationToken);
             }
+            catch (OperationCanceledException)
+            {
+                // オブジェクト破棄時のキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
+            }
             finally
             {
                 _isProcessing = false;
@@ -249,6 +265,14 @@ namespace Shop.View
             try
             {
                 await _shopService.OnProductCellTappedAsync(data, destroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // オブジェクト破棄時のキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
             }
             finally
             {

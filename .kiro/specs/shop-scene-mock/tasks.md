@@ -106,15 +106,15 @@
 
 ### Branch: `feature/shop-scene-mock-logic`
 
-- [ ] 7. 汎用確認ダイアログを実装する
-  - [ ] 7.1 ダイアログ引数クラスを作成する
+- [x] 7. 汎用確認ダイアログを実装する
+  - [x] 7.1 ダイアログ引数クラスを作成する
     - CommonConfirmDialogArgs レコードを作成し、IDialogArgs を実装する
     - タイトル、メッセージ、確認ボタンテキスト、キャンセルボタンテキストをカスタマイズ可能にする
-  - [ ] 7.2 ダイアログビューを作成する
+  - [x] 7.2 ダイアログビューを作成する
     - CommonConfirmDialog クラスを作成し、BaseDialogView<CommonConfirmDialogArgs> を継承する
     - タイトル、メッセージ、確認ボタン、キャンセルボタンの UI 要素をバインドする
     - OnInitialize で引数からテキストを設定する
-  - [ ] 7.3 プレファブとAddressables設定を行う
+  - [x] 7.3 プレファブとAddressables設定を行う
     - ダイアログプレファブを作成し、Addressables に登録する（Dialogs/CommonConfirmDialog.prefab）
     - モーダル表示（背景タップで閉じない）設定を適用する
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7_

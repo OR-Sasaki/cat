@@ -1,3 +1,5 @@
+#nullable enable
+
 using Shop.Service;
 using VContainer.Unity;
 

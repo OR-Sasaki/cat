@@ -1,3 +1,5 @@
+#nullable enable
+
 using Root.Scope;
 using Shop.Service;
 using Shop.Starter;
@@ -11,12 +13,15 @@ namespace Shop.Scope
 {
     public class ShopScope : SceneScope
     {
-        [SerializeField] ShopView _shopView;
+        [SerializeField] ShopView? _shopView;
 
         protected override void Configure(IContainerBuilder builder)
         {
             // View
-            builder.RegisterComponent(_shopView);
+            if (_shopView != null)
+            {
+                builder.RegisterComponent(_shopView);
+            }
 
             // State
             builder.Register<ShopState>(Lifetime.Scoped);
@@ -29,4 +34,3 @@ namespace Shop.Scope
         }
     }
 }
-

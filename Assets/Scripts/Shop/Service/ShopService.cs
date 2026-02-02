@@ -40,17 +40,17 @@ namespace Shop.Service
 
             // アイテムデータ（アイテムタブ用）
             _state.ItemProductList.Clear();
-            _state.ItemProductList.Add(new ProductData("経験値ブースト", "Textures/Shop/item_exp_boost", 100, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("時間短縮チケット", "Textures/Shop/item_time_ticket", 150, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("レアドロップUP", "Textures/Shop/item_rare_drop", 200, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("スタミナ回復薬", "Textures/Shop/item_stamina", 80, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("ゴールドブースト", "Textures/Shop/item_gold_boost", 120, CurrencyType.Yarn, ProductType.Item));
+            _state.ItemProductList.Add(new ProductData("経験値ブースト", "ShopProducts/shop_Possession_Paid.png", 100, CurrencyType.Yarn, ProductType.Item));
+            _state.ItemProductList.Add(new ProductData("時間短縮チケット", "ShopProducts/shop_Possession_Paid.png", 150, CurrencyType.Yarn, ProductType.Item));
+            _state.ItemProductList.Add(new ProductData("レアドロップUP", "ShopProducts/shop_Possession_Paid.png", 200, CurrencyType.Yarn, ProductType.Item));
+            _state.ItemProductList.Add(new ProductData("スタミナ回復薬", "ShopProducts/shop_Possession_Paid.png", 80, CurrencyType.Yarn, ProductType.Item));
+            _state.ItemProductList.Add(new ProductData("ゴールドブースト", "ShopProducts/shop_Possession_Paid.png", 120, CurrencyType.Yarn, ProductType.Item));
 
             // 毛糸パックデータ（ポイントタブ用）
             _state.PointProductList.Clear();
-            _state.PointProductList.Add(new ProductData("毛糸パック S", "Textures/Shop/yarn_pack_s", 120, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 100));
-            _state.PointProductList.Add(new ProductData("毛糸パック M", "Textures/Shop/yarn_pack_m", 480, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 500));
-            _state.PointProductList.Add(new ProductData("毛糸パック L", "Textures/Shop/yarn_pack_l", 960, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 1200));
+            _state.PointProductList.Add(new ProductData("毛糸パック S", "ShopProducts/shop_Possession_Paid.png", 120, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 100));
+            _state.PointProductList.Add(new ProductData("毛糸パック M", "ShopProducts/shop_Possession_Paid.png", 480, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 500));
+            _state.PointProductList.Add(new ProductData("毛糸パック L", "ShopProducts/shop_Possession_Paid.png", 960, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 1200));
         }
 
         public void SetCurrentTab(ShopTab tab)

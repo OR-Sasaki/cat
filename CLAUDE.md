@@ -39,8 +39,15 @@ Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life
 - Keep steering current and verify alignment with `/kiro:spec-status`
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
+## Unity Development
+- When UnityMCP is available, use it for Unity access and operations
+- Use UnityMCP for C# script creation (creates .meta files automatically)
+- Use UnityMCP for reading scene and prefab structures (more token-efficient)
+
 ## Coding Style
 - Do not use `/// <summary>` for comments. Use `/// comment` directly
+- Add `#nullable enable` at the top of C# scripts when using nullable reference types
+- UniTask async methods must accept a CancellationToken as the final parameter to allow external cancellation of async operations
 
 ## Steering Configuration
 - Load entire `.kiro/steering/` as project memory

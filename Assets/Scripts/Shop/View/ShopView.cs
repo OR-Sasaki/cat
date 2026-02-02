@@ -181,37 +181,25 @@ namespace Shop.View
         void SubscribeToCellEvents()
         {
             foreach (var cell in _gachaCells)
-            {
                 cell.OnGachaTapped += OnGachaCellTapped;
-            }
 
             foreach (var cell in _itemCells)
-            {
-                cell.OnTapped += OnItemCellTapped;
-            }
+                cell.OnTapped += OnProductCellTapped;
 
             foreach (var cell in _pointCells)
-            {
-                cell.OnTapped += OnPointCellTapped;
-            }
+                cell.OnTapped += OnProductCellTapped;
         }
 
         void UnsubscribeFromCellEvents()
         {
             foreach (var cell in _gachaCells)
-            {
                 cell.OnGachaTapped -= OnGachaCellTapped;
-            }
 
             foreach (var cell in _itemCells)
-            {
-                cell.OnTapped -= OnItemCellTapped;
-            }
+                cell.OnTapped -= OnProductCellTapped;
 
             foreach (var cell in _pointCells)
-            {
-                cell.OnTapped -= OnPointCellTapped;
-            }
+                cell.OnTapped -= OnProductCellTapped;
         }
 
         async void OnGachaCellTapped(int index, int count)
@@ -236,29 +224,7 @@ namespace Shop.View
             }
         }
 
-        async void OnItemCellTapped(ProductData data)
-        {
-            if (_isProcessing || _shopService == null) return;
-            _isProcessing = true;
-            try
-            {
-                await _shopService.OnProductCellTappedAsync(data, destroyCancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                // オブジェクト破棄時のキャンセルは正常動作
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
-            }
-            finally
-            {
-                _isProcessing = false;
-            }
-        }
-
-        async void OnPointCellTapped(ProductData data)
+        async void OnProductCellTapped(ProductData data)
         {
             if (_isProcessing || _shopService == null) return;
             _isProcessing = true;

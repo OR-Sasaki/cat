@@ -50,6 +50,7 @@ namespace Shop.View
 
         ShopState? _state;
         ShopService? _shopService;
+        bool _isProcessing;
 
         [Inject]
         public void Construct(ShopState state, ShopService shopService)
@@ -134,7 +135,7 @@ namespace Shop.View
             if (_state == null) return;
 
             _state.OnTabChanged += OnTabChanged;
-            _state.OnYarnBalanceChanged += UpdateYarnBalanceDisplay;
+            _state.OnYarnBalanceChanged += OnYarnBalanceChanged;
 
             // 初期残高を表示
             UpdateYarnBalanceDisplay(_state.YarnBalance);
@@ -145,7 +146,36 @@ namespace Shop.View
             if (_state == null) return;
 
             _state.OnTabChanged -= OnTabChanged;
-            _state.OnYarnBalanceChanged -= UpdateYarnBalanceDisplay;
+            _state.OnYarnBalanceChanged -= OnYarnBalanceChanged;
+        }
+
+        void OnYarnBalanceChanged(int balance)
+        {
+            UpdateYarnBalanceDisplay(balance);
+            UpdateAllCellsInteractable();
+        }
+
+        void UpdateAllCellsInteractable()
+        {
+            if (_shopService == null || _state == null) return;
+
+            // ガチャセルを再セットアップ（interactable状態を更新）
+            for (var i = 0; i < _gachaCells.Count; i++)
+            {
+                _shopService.SetupGachaCell(_gachaCells[i], i);
+            }
+
+            // アイテムセルを再セットアップ
+            for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
+            {
+                _shopService.SetupProductCell(_itemCells[i], _state.ItemProductList[i]);
+            }
+
+            // 毛糸パックセルを再セットアップ
+            for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+            {
+                _shopService.SetupProductCell(_pointCells[i], _state.PointProductList[i]);
+            }
         }
 
         void SubscribeToCellEvents()
@@ -184,19 +214,70 @@ namespace Shop.View
             }
         }
 
-        void OnGachaCellTapped(int index, int count)
+        async void OnGachaCellTapped(int index, int count)
         {
-            // タスク8で実装予定: _shopService?.OnGachaTappedAsync(index, count, destroyCancellationToken);
+            if (_isProcessing || _shopService == null) return;
+            _isProcessing = true;
+            try
+            {
+                await _shopService.OnGachaTappedAsync(index, count, destroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // オブジェクト破棄時のキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
+            }
+            finally
+            {
+                _isProcessing = false;
+            }
         }
 
-        void OnItemCellTapped(ProductData data)
+        async void OnItemCellTapped(ProductData data)
         {
-            // タスク8で実装予定: _shopService?.OnProductCellTappedAsync(data, destroyCancellationToken);
+            if (_isProcessing || _shopService == null) return;
+            _isProcessing = true;
+            try
+            {
+                await _shopService.OnProductCellTappedAsync(data, destroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // オブジェクト破棄時のキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
+            }
+            finally
+            {
+                _isProcessing = false;
+            }
         }
 
-        void OnPointCellTapped(ProductData data)
+        async void OnPointCellTapped(ProductData data)
         {
-            // タスク8で実装予定: _shopService?.OnProductCellTappedAsync(data, destroyCancellationToken);
+            if (_isProcessing || _shopService == null) return;
+            _isProcessing = true;
+            try
+            {
+                await _shopService.OnProductCellTappedAsync(data, destroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // オブジェクト破棄時のキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ShopView] {e.Message}\n{e.StackTrace}");
+            }
+            finally
+            {
+                _isProcessing = false;
+            }
         }
 
         void OnTabChanged(ShopTab tab)

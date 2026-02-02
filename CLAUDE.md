@@ -48,6 +48,7 @@ Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life
 - Do not use `/// <summary>` for comments. Use `/// comment` directly
 - Add `#nullable enable` at the top of C# scripts when using nullable reference types
 - UniTask async methods must accept a CancellationToken as the final parameter to allow external cancellation of async operations
+- Add `[Inject]` attribute to constructors receiving VContainer injection (IL2CPP may strip unreferenced constructors)
 
 ## Steering Configuration
 - Load entire `.kiro/steering/` as project memory

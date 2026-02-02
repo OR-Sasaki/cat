@@ -3,6 +3,8 @@ using System;
 using Shop.State;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 namespace Shop.View
@@ -20,6 +22,8 @@ namespace Shop.View
         /// セルがタップされた時のイベント
         public event Action<ProductData>? OnTapped;
 
+        AsyncOperationHandle<Sprite>? _iconHandle;
+
         void Start()
         {
             if (_button != null)
@@ -30,6 +34,8 @@ namespace Shop.View
         {
             if (_button != null)
                 _button.onClick.RemoveListener(OnButtonClicked);
+
+            ReleaseIconAsset();
         }
 
         public void Setup(ProductData data)
@@ -45,7 +51,7 @@ namespace Shop.View
                 _priceText.text = $"{currencySymbol} {data.Price:N0}";
             }
 
-            // アイコンはプレースホルダーとして設定済み（Addressablesでの読み込みは後続タスク）
+            LoadIconAsync(data.IconPath);
         }
 
         public void SetInteractable(bool interactable)
@@ -58,6 +64,39 @@ namespace Shop.View
         {
             if (Data != null)
                 OnTapped?.Invoke(Data);
+        }
+
+        void LoadIconAsync(string iconPath)
+        {
+            if (string.IsNullOrEmpty(iconPath) || _icon == null)
+                return;
+
+            ReleaseIconAsset();
+
+            var handle = Addressables.LoadAssetAsync<Sprite>(iconPath);
+            _iconHandle = handle;
+
+            handle.Completed += h =>
+            {
+                if (h.Status == AsyncOperationStatus.Succeeded && h.Result != null)
+                {
+                    if (_icon != null)
+                        _icon.sprite = h.Result;
+                }
+                else
+                {
+                    Debug.LogError($"[ProductCellView] Failed to load icon: {iconPath}");
+                }
+            };
+        }
+
+        void ReleaseIconAsset()
+        {
+            if (_iconHandle.HasValue && _iconHandle.Value.IsValid())
+            {
+                Addressables.Release(_iconHandle.Value);
+                _iconHandle = null;
+            }
         }
     }
 }

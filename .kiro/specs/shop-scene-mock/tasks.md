@@ -145,11 +145,11 @@
   - _Requirements: 10.1, 10.3_
 
 - [ ] 10. セル画像のAddressables読み込みを実装する
-  - [ ] 10.1 ProductCellViewに画像読み込み処理を追加する
+  - [x] 10.1 ProductCellViewに画像読み込み処理を追加する
     - Addressables.LoadAssetAsync<Sprite> で IconPath から画像を読み込む
     - 読み込み完了後に _icon.sprite に設定する
     - 読み込み失敗時のエラーハンドリングを実装する
-  - [ ] 10.2 画像リソースの解放処理を実装する
+  - [x] 10.2 画像リソースの解放処理を実装する
     - OnDestroy で読み込んだ画像リソースを解放する
     - Addressables.Release を使用する
   - [ ] 10.3 モック用画像アセットを準備する

@@ -76,32 +76,45 @@ namespace Shop.View
         {
             UnsubscribeFromStateEvents();
             UnsubscribeFromCellEvents();
+
+            if (_itemTabButton != null)
+                _itemTabButton.onClick.RemoveListener(OnItemTabClicked);
+            if (_pointTabButton != null)
+                _pointTabButton.onClick.RemoveListener(OnPointTabClicked);
+            if (_backButton != null)
+                _backButton.onClick.RemoveListener(OnBackClicked);
         }
 
         void SetupTabButtons()
         {
             if (_itemTabButton != null)
-                _itemTabButton.onClick.AddListener(() =>
-                {
-                    _shopService?.SetCurrentTab(ShopTab.Item);
-                    OnTabSelected?.Invoke(ShopTab.Item);
-                });
+                _itemTabButton.onClick.AddListener(OnItemTabClicked);
             if (_pointTabButton != null)
-                _pointTabButton.onClick.AddListener(() =>
-                {
-                    _shopService?.SetCurrentTab(ShopTab.Point);
-                    OnTabSelected?.Invoke(ShopTab.Point);
-                });
+                _pointTabButton.onClick.AddListener(OnPointTabClicked);
         }
 
         void SetupBackButton()
         {
             if (_backButton != null)
-                _backButton.onClick.AddListener(() =>
-                {
-                    _shopService?.GoBack();
-                    OnBackButtonClicked?.Invoke();
-                });
+                _backButton.onClick.AddListener(OnBackClicked);
+        }
+
+        void OnItemTabClicked()
+        {
+            _shopService?.SetCurrentTab(ShopTab.Item);
+            OnTabSelected?.Invoke(ShopTab.Item);
+        }
+
+        void OnPointTabClicked()
+        {
+            _shopService?.SetCurrentTab(ShopTab.Point);
+            OnTabSelected?.Invoke(ShopTab.Point);
+        }
+
+        void OnBackClicked()
+        {
+            _shopService?.GoBack();
+            OnBackButtonClicked?.Invoke();
         }
 
         void SetupCells()

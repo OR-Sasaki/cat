@@ -83,6 +83,10 @@ namespace Shop.View
                     if (_icon != null)
                         _icon.sprite = h.Result;
                 }
+                else if (h.OperationException is Exception e)
+                {
+                    Debug.LogError($"[ProductCellView] {e.Message}\n{e.StackTrace}");
+                }
                 else
                 {
                     Debug.LogError($"[ProductCellView] Failed to load icon: {iconPath}");

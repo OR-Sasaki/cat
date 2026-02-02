@@ -1,6 +1,7 @@
 #nullable enable
 
 using Shop.Service;
+using VContainer;
 using VContainer.Unity;
 
 namespace Shop.Starter
@@ -9,6 +10,7 @@ namespace Shop.Starter
     {
         readonly ShopService _shopService;
 
+        [Inject]
         public ShopStarter(ShopService shopService)
         {
             _shopService = shopService;

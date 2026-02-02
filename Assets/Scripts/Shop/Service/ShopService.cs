@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -8,7 +7,7 @@ using Root.Service;
 using Root.View;
 using Shop.View;
 using Shop.State;
-using UnityEngine;
+using VContainer;
 
 namespace Shop.Service
 {
@@ -18,6 +17,7 @@ namespace Shop.Service
         readonly IDialogService _dialogService;
         readonly SceneLoader _sceneLoader;
 
+        [Inject]
         public ShopService(ShopState state, IDialogService dialogService, SceneLoader sceneLoader)
         {
             _state = state;

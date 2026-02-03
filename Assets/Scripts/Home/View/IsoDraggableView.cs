@@ -25,6 +25,7 @@ namespace Home.View
         bool _isPlacedOnGrid;
         PlacementType _placementType;
         WallSide _wallSide;
+        FragmentedIsoGrid _currentFragmentedGrid;
 
         public bool IsDragging => _isDragging;
         public bool IsPlacedOnGrid => _isPlacedOnGrid;
@@ -36,6 +37,7 @@ namespace Home.View
         public PlacementType PlacementType => _placementType;
         public WallSide WallSide => _wallSide;
         public bool IsWallPlacement => _placementType == PlacementType.Wall;
+        public FragmentedIsoGrid CurrentFragmentedGrid => _currentFragmentedGrid;
 
         void Awake()
         {
@@ -64,6 +66,12 @@ namespace Home.View
         public void SetPlacedOnGrid(bool isPlaced)
         {
             _isPlacedOnGrid = isPlaced;
+        }
+
+        // 現在所属しているFragmentedIsoGridを設定
+        public void SetCurrentFragmentedGrid(FragmentedIsoGrid grid)
+        {
+            _currentFragmentedGrid = grid;
         }
 
         // UserFurnitureIdを設定

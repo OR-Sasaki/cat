@@ -21,6 +21,10 @@ namespace Home.Service
         Vector2Int _dragStartFootprintPos;
         WallSide _dragStartWallSide;
 
+        // FragmentedIsoGrid用ドラッグ状態
+        FragmentedIsoGrid _dragStartFragmentedGrid;
+        Vector2Int _dragStartLocalGridPos;
+
         [Inject]
         public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService)
         {
@@ -95,6 +99,25 @@ namespace Home.Service
 
         void BeginFloorDrag()
         {
+            // FragmentedIsoGrid上にあるかチェック
+            var fragmentedGrid = _currentIsoDraggableView.CurrentFragmentedGrid;
+            if (fragmentedGrid != null)
+            {
+                // FragmentedIsoGrid上からドラッグ開始
+                _dragStartFragmentedGrid = fragmentedGrid;
+                _dragStartLocalGridPos = fragmentedGrid.GetObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
+                _dragStartFootprintPos = Vector2Int.zero; // 床には配置されていない
+
+                // 位置取得後にRemove
+                fragmentedGrid.RemoveObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
+                _currentIsoDraggableView.SetPlacedOnGrid(false);
+                _currentIsoDraggableView.SetCurrentFragmentedGrid(null);
+                return;
+            }
+
+            // 床からドラッグ開始
+            _dragStartFragmentedGrid = null;
+
             // Stateから現在のフットプリント開始位置を取得
             var currentFootprintStartPos = _isoGridService.GetFloorObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
 
@@ -139,13 +162,39 @@ namespace Home.Service
 
         void EndFloorDrag()
         {
-            // グリッドにスナップして配置
+            var userFurnitureId = _currentIsoDraggableView.UserFurnitureId;
+            var footprintSize = _currentIsoDraggableView.FootprintSize;
+            var pivotGridPosition = _currentIsoDraggableView.PivotGridPosition;
+            var isWallPlacement = _currentIsoDraggableView.IsWallPlacement;
+
+            // FragmentedIsoGridへの配置を試行
+            var fragmentedGrid = RaycastForFragmentedGrid(_currentIsoDraggableView.Position);
+            if (fragmentedGrid != null)
+            {
+                var localGridPos = fragmentedGrid.WorldToLocalGrid(_currentIsoDraggableView.Position);
+                var newLocalFootprintStart = localGridPos - pivotGridPosition;
+
+                if (fragmentedGrid.CanPlace(newLocalFootprintStart, footprintSize, isWallPlacement, userFurnitureId))
+                {
+                    // FragmentedIsoGridに配置（子オブジェクトとして設定）
+                    fragmentedGrid.PlaceObject(newLocalFootprintStart, footprintSize, userFurnitureId);
+                    _currentIsoDraggableView.transform.SetParent(fragmentedGrid.transform);
+                    var snapPos = fragmentedGrid.LocalGridToWorld(newLocalFootprintStart + pivotGridPosition);
+                    _currentIsoDraggableView.SetPosition(snapPos);
+                    _currentIsoDraggableView.SetPlacedOnGrid(true);
+                    _currentIsoDraggableView.SetCurrentFragmentedGrid(fragmentedGrid);
+                    _currentIsoDraggableView.SetDragging(false);
+                    return;
+                }
+            }
+
+            // 床への配置を試行
             var gridPos = _isoGridService.WorldToFloorGrid(_currentIsoDraggableView.Position);
-            var newFootprintStartPos = gridPos - _currentIsoDraggableView.PivotGridPosition;
+            var newFootprintStartPos = gridPos - pivotGridPosition;
 
             Vector2Int finalFootprintPos;
             // 配置可能かチェック
-            if (_isoGridService.CanPlaceFloorObject(newFootprintStartPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId))
+            if (_isoGridService.CanPlaceFloorObject(newFootprintStartPos, footprintSize, userFurnitureId))
             {
                 // 新しい位置に配置
                 finalFootprintPos = newFootprintStartPos;
@@ -153,13 +202,48 @@ namespace Home.Service
             else
             {
                 // 配置不可能なら元の位置に戻す
+                if (_dragStartFragmentedGrid != null)
+                {
+                    // 元のFragmentedIsoGridに戻す（子オブジェクトとして設定）
+                    _dragStartFragmentedGrid.PlaceObject(_dragStartLocalGridPos, footprintSize, userFurnitureId);
+                    _currentIsoDraggableView.transform.SetParent(_dragStartFragmentedGrid.transform);
+                    var snapPos = _dragStartFragmentedGrid.LocalGridToWorld(_dragStartLocalGridPos + pivotGridPosition);
+                    _currentIsoDraggableView.SetPosition(snapPos);
+                    _currentIsoDraggableView.SetPlacedOnGrid(true);
+                    _currentIsoDraggableView.SetCurrentFragmentedGrid(_dragStartFragmentedGrid);
+                    _currentIsoDraggableView.SetDragging(false);
+                    return;
+                }
+
                 finalFootprintPos = _dragStartFootprintPos;
             }
 
-            _isoGridService.PlaceFloorObject(finalFootprintPos, _currentIsoDraggableView.FootprintSize, _currentIsoDraggableView.UserFurnitureId);
+            // 床に配置（親子関係を解除）
+            _currentIsoDraggableView.transform.SetParent(null);
+            _isoGridService.PlaceFloorObject(finalFootprintPos, footprintSize, userFurnitureId);
             _currentIsoDraggableView.SetPosition(SnapToFloorGrid(finalFootprintPos));
             _currentIsoDraggableView.SetPlacedOnGrid(true);
             _currentIsoDraggableView.SetDragging(false);
+        }
+
+        /// RayCastでFragmentedIsoGridを検出（自身のColliderは除外）
+        FragmentedIsoGrid RaycastForFragmentedGrid(Vector3 worldPos)
+        {
+            var hits = Physics2D.RaycastAll(worldPos, Vector2.zero, 0f, -1);
+
+            foreach (var hit in hits)
+            {
+                var fragmentedGrid = hit.collider.GetComponent<FragmentedIsoGrid>();
+                if (fragmentedGrid == null) continue;
+
+                // 自身のColliderに属するFragmentedIsoGridは除外
+                var draggableInParent = hit.collider.GetComponentInParent<IsoDraggableView>();
+                if (draggableInParent == _currentIsoDraggableView) continue;
+
+                return fragmentedGrid;
+            }
+
+            return null;
         }
 
         void EndWallDrag()
@@ -217,19 +301,46 @@ namespace Home.Service
 
             IsoDraggableView bestDraggable = null;
             float bestY = float.MaxValue;
+            int bestDepth = -1;
 
             // 最も手前(Yが小さい)Draggableを探す
+            // CurrentFragmentedGridが設定されている場合は、再帰的に最も親のIsoDraggableViewを探索して、そのYを採用する
+            // また、最も深い位置にあるオブジェクトが優先される
             foreach (var hit in hits)
             {
                 var draggable = hit.collider.GetComponentInParent<IsoDraggableView>();
                 if (draggable == null) continue;
-                if (draggable.ViewPivotY > bestY) continue;
+
+                // 比較用Yは最も親のIsoDraggableViewのViewPivotYを使用
+                var (rootDraggable, depth) = GetRootIsoDraggableViewAndDepth(draggable);
+                var compareY = rootDraggable.ViewPivotY;
+
+                // Yが小さい方が優先、同じYなら深い方が優先
+                const float epsilon = 0.001f;
+                if (compareY > bestY + epsilon) continue;
+                if (Mathf.Abs(compareY - bestY) < epsilon && depth <= bestDepth) continue;
 
                 bestDraggable = draggable;
-                bestY = draggable.ViewPivotY;
+                bestY = compareY;
+                bestDepth = depth;
             }
 
             return bestDraggable;
+        }
+
+        /// 再帰的に最も親のIsoDraggableViewと階層の深さを取得
+        (IsoDraggableView Root, int Depth) GetRootIsoDraggableViewAndDepth(IsoDraggableView draggable)
+        {
+            var depth = 0;
+            var current = draggable;
+            while (current.CurrentFragmentedGrid != null)
+            {
+                var parentDraggable = current.CurrentFragmentedGrid.IsoDraggableView;
+                if (parentDraggable == null) break;
+                current = parentDraggable;
+                depth++;
+            }
+            return (current, depth);
         }
     }
 }

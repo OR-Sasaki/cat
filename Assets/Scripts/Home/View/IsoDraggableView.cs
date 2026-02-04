@@ -1,6 +1,7 @@
 using Cat.Furniture;
 using Home.State;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Home.View
 {
@@ -20,6 +21,9 @@ namespace Home.View
         [Header("左右のPivot(床の場合は設定しなくてOK)")]
         [SerializeField] GameObject _rightViewPivot;
         [SerializeField] GameObject _leftViewPivot;
+
+        [Header("Sorting")]
+        [SerializeField] SortingGroup _sortingGroup;
 
         bool _isDragging;
         bool _isPlacedOnGrid;
@@ -98,6 +102,15 @@ namespace Home.View
         {
             if (_rightViewPivot) _rightViewPivot.SetActive(isRight);
             if(_leftViewPivot) _leftViewPivot.SetActive(!isRight);
+        }
+
+        /// SortingGroupのSortingOrderを設定
+        public void SetSortingOrder(int order)
+        {
+            if (_sortingGroup != null)
+            {
+                _sortingGroup.sortingOrder = order;
+            }
         }
     }
 }

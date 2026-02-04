@@ -68,7 +68,45 @@ namespace Home.Service
                     var newWallSide = currentWallSide == WallSide.Left ? WallSide.Right : WallSide.Left;
                     _currentIsoDraggableView.SetWallSide(newWallSide);
                 }
+
+                // 壁配置の場合はSortingOrder 0
+                _currentIsoDraggableView.SetSortingOrder(0);
             }
+            else
+            {
+                // 床配置の場合、FragmentedIsoGridへの配置可能性をチェック
+                UpdateDragSortingOrder(newPos);
+            }
+        }
+
+        /// ドラッグ中のSortingOrderと親子関係を更新
+        void UpdateDragSortingOrder(Vector3 worldPos)
+        {
+            var fragmentedGrid = RaycastForFragmentedGrid(worldPos);
+            if (fragmentedGrid != null)
+            {
+                var localGridPos = fragmentedGrid.WorldToLocalGrid(worldPos);
+                var footprintStart = localGridPos - _currentIsoDraggableView.PivotGridPosition;
+
+                if (fragmentedGrid.CanPlace(
+                    footprintStart,
+                    _currentIsoDraggableView.FootprintSize,
+                    _currentIsoDraggableView.IsWallPlacement,
+                    _currentIsoDraggableView.UserFurnitureId))
+                {
+                    // 配置可能な場合、FragmentedIsoGridの子に移動
+                    _currentIsoDraggableView.transform.SetParent(fragmentedGrid.transform);
+
+                    // ローカルグリッド座標のx + yをSortingOrderに設定
+                    var sortingOrder = footprintStart.x + footprintStart.y;
+                    _currentIsoDraggableView.SetSortingOrder(sortingOrder);
+                    return;
+                }
+            }
+
+            // 配置不可能またはFragmentedIsoGrid外の場合はRootに移動してSortingOrder 0
+            _currentIsoDraggableView.transform.SetParent(null);
+            _currentIsoDraggableView.SetSortingOrder(0);
         }
 
         /// ポインター離した時の処理
@@ -183,6 +221,7 @@ namespace Home.Service
                     _currentIsoDraggableView.SetPosition(snapPos);
                     _currentIsoDraggableView.SetPlacedOnGrid(true);
                     _currentIsoDraggableView.SetCurrentFragmentedGrid(fragmentedGrid);
+                    _currentIsoDraggableView.SetSortingOrder(0);
                     _currentIsoDraggableView.SetDragging(false);
                     return;
                 }
@@ -211,6 +250,7 @@ namespace Home.Service
                     _currentIsoDraggableView.SetPosition(snapPos);
                     _currentIsoDraggableView.SetPlacedOnGrid(true);
                     _currentIsoDraggableView.SetCurrentFragmentedGrid(_dragStartFragmentedGrid);
+                    _currentIsoDraggableView.SetSortingOrder(0);
                     _currentIsoDraggableView.SetDragging(false);
                     return;
                 }
@@ -223,6 +263,7 @@ namespace Home.Service
             _isoGridService.PlaceFloorObject(finalFootprintPos, footprintSize, userFurnitureId);
             _currentIsoDraggableView.SetPosition(SnapToFloorGrid(finalFootprintPos));
             _currentIsoDraggableView.SetPlacedOnGrid(true);
+            _currentIsoDraggableView.SetSortingOrder(0);
             _currentIsoDraggableView.SetDragging(false);
         }
 
@@ -274,6 +315,7 @@ namespace Home.Service
             _currentIsoDraggableView.SetPosition(SnapToWallGrid(finalWallSide, finalFootprintPos));
             _currentIsoDraggableView.SetWallSide(finalWallSide);
             _currentIsoDraggableView.SetPlacedOnGrid(true);
+            _currentIsoDraggableView.SetSortingOrder(0);
             _currentIsoDraggableView.SetDragging(false);
         }
 

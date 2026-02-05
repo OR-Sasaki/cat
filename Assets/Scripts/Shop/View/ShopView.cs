@@ -46,7 +46,6 @@ namespace Shop.View
         [SerializeField] List<ProductCellView> _pointCells = new();
 
         public event Action? OnBackButtonClicked;
-        public event Action<ShopTab>? OnTabSelected;
 
         ShopState? _state;
         ShopService? _shopService;
@@ -102,13 +101,11 @@ namespace Shop.View
         void OnItemTabClicked()
         {
             _shopService?.SetCurrentTab(ShopTab.Item);
-            OnTabSelected?.Invoke(ShopTab.Item);
         }
 
         void OnPointTabClicked()
         {
             _shopService?.SetCurrentTab(ShopTab.Point);
-            OnTabSelected?.Invoke(ShopTab.Point);
         }
 
         void OnBackClicked()

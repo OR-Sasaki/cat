@@ -283,5 +283,48 @@ namespace Home.Service
         }
 
         #endregion
+
+        #region FragmentedIsoGrid操作
+
+        /// FragmentedIsoGrid上にオブジェクトを配置したことをStateに記録
+        public void PlaceFragmentedObject(int parentUserFurnitureId, int userFurnitureId, Vector2Int localGridPos, int depth)
+        {
+            if (!_state.FragmentedGridObjectPositions.TryGetValue(parentUserFurnitureId, out var childPositions))
+            {
+                childPositions = new System.Collections.Generic.Dictionary<int, FragmentedObjectData>();
+                _state.FragmentedGridObjectPositions[parentUserFurnitureId] = childPositions;
+            }
+
+            childPositions[userFurnitureId] = new FragmentedObjectData
+            {
+                Position = localGridPos,
+                Depth = depth
+            };
+        }
+
+        /// FragmentedIsoGrid上からオブジェクトを削除したことをStateに記録
+        public void RemoveFragmentedObject(int parentUserFurnitureId, int userFurnitureId)
+        {
+            if (!_state.FragmentedGridObjectPositions.TryGetValue(parentUserFurnitureId, out var childPositions))
+            {
+                return;
+            }
+
+            childPositions.Remove(userFurnitureId);
+
+            // 子が空になったら親のエントリも削除
+            if (childPositions.Count == 0)
+            {
+                _state.FragmentedGridObjectPositions.Remove(parentUserFurnitureId);
+            }
+        }
+
+        /// FragmentedIsoGrid用のStateを取得
+        public System.Collections.Generic.IReadOnlyDictionary<int, System.Collections.Generic.Dictionary<int, FragmentedObjectData>> GetFragmentedGridObjectPositions()
+        {
+            return _state.FragmentedGridObjectPositions;
+        }
+
+        #endregion
     }
 }

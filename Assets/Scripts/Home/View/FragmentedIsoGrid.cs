@@ -24,7 +24,7 @@ namespace Home.View
         public IsoDraggableView IsoDraggableView => _isoDraggableView;
         public float CellSize => IsoGridSettingsView.CellSize;
 
-        void Start()
+        void Awake()
         {
             _converter = new IsoCoordinateConverterService(
                 IsoGridSettingsView.CellSize,
@@ -32,7 +32,10 @@ namespace Home.View
             );
             _cells = new int[_size.x, _size.y];
             _placedObjectPositions = new Dictionary<int, Vector2Int>();
+        }
 
+        void Start()
+        {
 #if UNITY_EDITOR
             AttachGizmo();
 #endif
@@ -148,6 +151,18 @@ namespace Home.View
         public bool HasObject(int userFurnitureId)
         {
             return _placedObjectPositions.ContainsKey(userFurnitureId);
+        }
+
+        /// 配置されているオブジェクトの位置一覧を取得
+        public IReadOnlyDictionary<int, Vector2Int> GetPlacedObjectPositions()
+        {
+            return _placedObjectPositions;
+        }
+
+        /// 親家具のUserFurnitureIdを取得
+        public int GetParentUserFurnitureId()
+        {
+            return _isoDraggableView != null ? _isoDraggableView.UserFurnitureId : 0;
         }
 
         #endregion

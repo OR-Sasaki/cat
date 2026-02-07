@@ -148,6 +148,14 @@ namespace Home.Service
 
                 // 位置取得後にRemove
                 fragmentedGrid.RemoveObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
+
+                // Stateからも削除
+                var parentId = fragmentedGrid.GetParentUserFurnitureId();
+                if (parentId != 0)
+                {
+                    _isoGridService.RemoveFragmentedObject(parentId, _currentIsoDraggableView.UserFurnitureId);
+                }
+
                 _currentIsoDraggableView.SetPlacedOnGrid(false);
                 _currentIsoDraggableView.SetCurrentFragmentedGrid(null);
                 return;
@@ -216,6 +224,15 @@ namespace Home.Service
                 {
                     // FragmentedIsoGridに配置（子オブジェクトとして設定）
                     fragmentedGrid.PlaceObject(newLocalFootprintStart, footprintSize, userFurnitureId);
+
+                    // Stateにも記録
+                    var parentId = fragmentedGrid.GetParentUserFurnitureId();
+                    if (parentId != 0)
+                    {
+                        var depth = CalculateFragmentedGridDepth(fragmentedGrid);
+                        _isoGridService.PlaceFragmentedObject(parentId, userFurnitureId, newLocalFootprintStart, depth);
+                    }
+
                     _currentIsoDraggableView.transform.SetParent(fragmentedGrid.transform);
                     var snapPos = fragmentedGrid.LocalGridToWorld(newLocalFootprintStart + pivotGridPosition);
                     _currentIsoDraggableView.SetPosition(snapPos);
@@ -245,6 +262,15 @@ namespace Home.Service
                 {
                     // 元のFragmentedIsoGridに戻す（子オブジェクトとして設定）
                     _dragStartFragmentedGrid.PlaceObject(_dragStartLocalGridPos, footprintSize, userFurnitureId);
+
+                    // Stateにも記録
+                    var parentId = _dragStartFragmentedGrid.GetParentUserFurnitureId();
+                    if (parentId != 0)
+                    {
+                        var depth = CalculateFragmentedGridDepth(_dragStartFragmentedGrid);
+                        _isoGridService.PlaceFragmentedObject(parentId, userFurnitureId, _dragStartLocalGridPos, depth);
+                    }
+
                     _currentIsoDraggableView.transform.SetParent(_dragStartFragmentedGrid.transform);
                     var snapPos = _dragStartFragmentedGrid.LocalGridToWorld(_dragStartLocalGridPos + pivotGridPosition);
                     _currentIsoDraggableView.SetPosition(snapPos);
@@ -383,6 +409,27 @@ namespace Home.Service
                 depth++;
             }
             return (current, depth);
+        }
+
+        /// FragmentedIsoGridの入れ子の深さを計算
+        int CalculateFragmentedGridDepth(FragmentedIsoGrid grid)
+        {
+            var depth = 1;
+            var currentGrid = grid;
+
+            while (currentGrid != null)
+            {
+                var parentView = currentGrid.IsoDraggableView;
+                if (parentView == null) break;
+
+                var parentGrid = parentView.CurrentFragmentedGrid;
+                if (parentGrid == null) break;
+
+                depth++;
+                currentGrid = parentGrid;
+            }
+
+            return depth;
         }
     }
 }

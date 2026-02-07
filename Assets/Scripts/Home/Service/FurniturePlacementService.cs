@@ -240,5 +240,111 @@ namespace Home.Service
         }
 
         #endregion
+
+        #region FragmentedIsoGrid配置
+
+        /// FragmentedIsoGrid上に家具を配置する
+        /// 親家具のUserFurnitureIdと配置するローカル座標を指定
+        public Vector3? PlaceFragmentedFurnitureAt(
+            int parentUserFurnitureId,
+            int userFurnitureId,
+            Cat.Furniture.Furniture furniture,
+            Vector2Int localGridPos)
+        {
+            if (furniture.SceneObject is null) return null;
+
+            // 親家具のIsoDraggableViewを探す
+            var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
+            IsoDraggableView parentView = null;
+            foreach (var draggable in allDraggables)
+            {
+                if (draggable.UserFurnitureId == parentUserFurnitureId)
+                {
+                    parentView = draggable;
+                    break;
+                }
+            }
+
+            if (parentView is null)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Parent furniture {parentUserFurnitureId} not found");
+                return null;
+            }
+
+            // FragmentedIsoGridを取得
+            var fragmentedGrid = parentView.GetComponentInChildren<FragmentedIsoGrid>();
+            if (fragmentedGrid is null)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] FragmentedIsoGrid not found on parent furniture {parentUserFurnitureId}");
+                return null;
+            }
+
+            var footprintSize = furniture.SceneObject.FootprintSize;
+
+            // 配置可能かチェック
+            if (!fragmentedGrid.CanPlace(localGridPos, footprintSize, false, userFurnitureId))
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Cannot place fragmented furniture at {localGridPos}: parentId={parentUserFurnitureId}, userFurnitureId={userFurnitureId}");
+                return null;
+            }
+
+            // プレハブをインスタンス化
+            var instance = Object.Instantiate(furniture.SceneObject);
+            instance.SetUserFurnitureId(userFurnitureId);
+            instance.SetPlacementType(PlacementType.Floor);
+
+            // FragmentedIsoGridにオブジェクトを配置
+            fragmentedGrid.PlaceObject(localGridPos, footprintSize, userFurnitureId);
+
+            // Depthを計算（親のFragmentedIsoGridの入れ子の深さ）
+            var depth = CalculateFragmentedGridDepth(fragmentedGrid);
+
+            // Stateにも記録
+            _isoGridService.PlaceFragmentedObject(parentUserFurnitureId, userFurnitureId, localGridPos, depth);
+
+            // 親子関係を設定し、ワールド座標を計算
+            instance.transform.SetParent(fragmentedGrid.transform);
+            var pivotOffset = instance.PivotGridPosition;
+            var worldPos = fragmentedGrid.LocalGridToWorld(localGridPos + pivotOffset);
+            instance.SetPosition(worldPos);
+            instance.SetPlacedOnGrid(true);
+            instance.SetCurrentFragmentedGrid(fragmentedGrid);
+
+#if UNITY_EDITOR
+            var gizmo = instance.GetComponent<IsoDraggableGizmo>();
+            if (gizmo != null)
+            {
+                var settingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
+                gizmo.Init(settingsView, _isoGridService);
+            }
+#endif
+
+            return worldPos;
+        }
+
+        /// FragmentedIsoGridの入れ子の深さを計算
+        /// 床に直接配置された家具上のFragmentedIsoGrid = 1
+        /// その上に配置された家具上のFragmentedIsoGrid = 2 ...
+        int CalculateFragmentedGridDepth(FragmentedIsoGrid grid)
+        {
+            var depth = 1;
+            var currentGrid = grid;
+
+            while (currentGrid != null)
+            {
+                var parentView = currentGrid.IsoDraggableView;
+                if (parentView == null) break;
+
+                var parentGrid = parentView.CurrentFragmentedGrid;
+                if (parentGrid == null) break;
+
+                depth++;
+                currentGrid = parentGrid;
+            }
+
+            return depth;
+        }
+
+        #endregion
     }
 }

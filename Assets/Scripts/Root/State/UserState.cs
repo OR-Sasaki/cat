@@ -16,6 +16,17 @@ namespace Root.State
     {
         public IsoGridObjectPosition[] ObjectPositions;
         public IsoGridWallObjectPosition[] WallObjectPositions;
+        public IsoGridFragmentedObjectPosition[] FragmentedObjectPositions;
+    }
+
+    [Serializable]
+    public class IsoGridFragmentedObjectPosition
+    {
+        public int ParentUserFurnitureId; // FragmentedIsoGridを持つ親家具のID
+        public int UserFurnitureId; // 配置された子家具のID
+        public int X; // FragmentedIsoGrid内のローカルX座標
+        public int Y; // FragmentedIsoGrid内のローカルY座標
+        public int Depth; // 親家具の深度（ソート用）
     }
 
     [Serializable]

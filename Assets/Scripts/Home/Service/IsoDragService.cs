@@ -229,7 +229,7 @@ namespace Home.Service
                     var parentId = fragmentedGrid.GetParentUserFurnitureId();
                     if (parentId != 0)
                     {
-                        var depth = CalculateFragmentedGridDepth(fragmentedGrid);
+                        var depth = _isoGridService.CalculateFragmentedGridDepth(fragmentedGrid);
                         _isoGridService.PlaceFragmentedObject(parentId, userFurnitureId, newLocalFootprintStart, depth);
                     }
 
@@ -267,7 +267,7 @@ namespace Home.Service
                     var parentId = _dragStartFragmentedGrid.GetParentUserFurnitureId();
                     if (parentId != 0)
                     {
-                        var depth = CalculateFragmentedGridDepth(_dragStartFragmentedGrid);
+                        var depth = _isoGridService.CalculateFragmentedGridDepth(_dragStartFragmentedGrid);
                         _isoGridService.PlaceFragmentedObject(parentId, userFurnitureId, _dragStartLocalGridPos, depth);
                     }
 
@@ -411,25 +411,5 @@ namespace Home.Service
             return (current, depth);
         }
 
-        /// FragmentedIsoGridの入れ子の深さを計算
-        int CalculateFragmentedGridDepth(FragmentedIsoGrid grid)
-        {
-            var depth = 1;
-            var currentGrid = grid;
-
-            while (currentGrid != null)
-            {
-                var parentView = currentGrid.IsoDraggableView;
-                if (parentView == null) break;
-
-                var parentGrid = parentView.CurrentFragmentedGrid;
-                if (parentGrid == null) break;
-
-                depth++;
-                currentGrid = parentGrid;
-            }
-
-            return depth;
-        }
     }
 }

@@ -297,7 +297,7 @@ namespace Home.Service
             fragmentedGrid.PlaceObject(localGridPos, footprintSize, userFurnitureId);
 
             // Depthを計算（親のFragmentedIsoGridの入れ子の深さ）
-            var depth = CalculateFragmentedGridDepth(fragmentedGrid);
+            var depth = _isoGridService.CalculateFragmentedGridDepth(fragmentedGrid);
 
             // Stateにも記録
             _isoGridService.PlaceFragmentedObject(parentUserFurnitureId, userFurnitureId, localGridPos, depth);
@@ -320,29 +320,6 @@ namespace Home.Service
 #endif
 
             return worldPos;
-        }
-
-        /// FragmentedIsoGridの入れ子の深さを計算
-        /// 床に直接配置された家具上のFragmentedIsoGrid = 1
-        /// その上に配置された家具上のFragmentedIsoGrid = 2 ...
-        int CalculateFragmentedGridDepth(FragmentedIsoGrid grid)
-        {
-            var depth = 1;
-            var currentGrid = grid;
-
-            while (currentGrid != null)
-            {
-                var parentView = currentGrid.IsoDraggableView;
-                if (parentView == null) break;
-
-                var parentGrid = parentView.CurrentFragmentedGrid;
-                if (parentGrid == null) break;
-
-                depth++;
-                currentGrid = parentGrid;
-            }
-
-            return depth;
         }
 
         #endregion

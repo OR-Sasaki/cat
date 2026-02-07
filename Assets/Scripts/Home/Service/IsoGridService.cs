@@ -325,6 +325,29 @@ namespace Home.Service
             return _state.FragmentedGridObjectPositions;
         }
 
+        /// FragmentedIsoGridの入れ子の深さを計算
+        /// 床に直接配置された家具上のFragmentedIsoGrid = 1
+        /// その上に配置された家具上のFragmentedIsoGrid = 2 ...
+        public int CalculateFragmentedGridDepth(FragmentedIsoGrid grid)
+        {
+            var depth = 1;
+            var currentGrid = grid;
+
+            while (currentGrid is not null)
+            {
+                var parentView = currentGrid.IsoDraggableView;
+                if (parentView is null) break;
+
+                var parentGrid = parentView.CurrentFragmentedGrid;
+                if (parentGrid is null) break;
+
+                depth++;
+                currentGrid = parentGrid;
+            }
+
+            return depth;
+        }
+
         #endregion
     }
 }

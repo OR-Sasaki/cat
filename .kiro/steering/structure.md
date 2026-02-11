@@ -22,20 +22,20 @@
 
 ### Root Services
 **Location**: `Assets/Scripts/Root/`
-**Purpose**: 全シーン共通のグローバルサービス (RootScope)
-**Example**: `SceneLoader`, `PlayerPrefsService`, `MasterDataState`
+**Purpose**: 全シーン共通のグローバルサービス (RootScope)。シーンと同じ層構造 (Service/State/View) を持つ
+**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `MasterDataImportService`, `UserDataImportService`, `UserEpuippedOutfitService`
+**Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `SceneLoaderState`
+**Key Views**: `DialogCanvasView`, `BackdropView`, `BaseDialogView` (継承ベースのダイアログ基底クラス), `CommonConfirmDialog`, `CommonMessageDialog`
 
 ### Utilities
 **Location**: `Assets/Scripts/Utils/`
 **Purpose**: 定数・ユーティリティクラス
 **Example**: `Const.cs` (シーン名定数)
 
-### Standalone Systems
-**Location**: `Assets/Scripts/{SystemName}/`
-**Purpose**: シーンに依存しない独立システム（MonoBehaviourベース）
-**Pattern**: シーンフォルダ構造 (Scope/Service/etc.) を使わず、機能単位でファイルを配置
-**Example**: `IsoGrid/` - アイソメトリックグリッドシステム
-**Namespace**: `Cat` (プロジェクト共通) または機能名
+### Scene-Integrated Systems
+**Pattern**: 大規模な機能もシーンフォルダ内の層 (Service/State/View) に統合
+**Example**: IsoGrid機能は `Home/Service/IsoGridService.cs`, `Home/State/IsoGridState.cs`, `Home/View/IsoGridGizmo.cs` としてHomeシーンに統合
+**Namespace**: `Cat` (プロジェクト共通) または `{SceneName}.{Layer}` (例: `Home.Service`)
 
 ### Scene Template
 **Location**: `Assets/Scripts/TemplateScene/`

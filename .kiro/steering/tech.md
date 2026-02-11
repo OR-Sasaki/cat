@@ -52,8 +52,8 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ## Key Technical Decisions
 
 ### VContainer DI Pattern
-- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService` など)
-- **SceneScope**: 各シーンごとのスコープド登録 (`HomeScope`, `TitleScope` など)
+- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `MasterDataImportService`, `UserDataImportService`, `UserEpuippedOutfitService` など)
+- **SceneScope**: 各シーンごとのスコープド登録 (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope` など)
 - **Lifetime**: `Singleton` (RootScope), `Scoped` (SceneScope)
 
 ### Scene Transition System

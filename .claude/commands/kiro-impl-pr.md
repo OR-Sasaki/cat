@@ -116,6 +116,24 @@ git add <file1> <file2> ...
 git commit -m "Prepare scene constants and file structure"
 ```
 
+### Correcting Earlier Commits (Before PR Creation Only)
+
+When a correction targets the same concern as an older commit in the current branch:
+
+- **If it targets the immediately preceding commit:**
+  ```bash
+  git add <files>
+  git commit --amend --no-edit
+  ```
+- **Otherwise (targets an older commit):**
+  ```bash
+  git add <files>
+  git commit --fixup=<target-commit-hash>
+  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash main
+  ```
+
+**Note**: This is only permitted before PR creation. After a PR is created, always create new commits (see Step 7).
+
 ### Commit Message Format
 - Language: English
 - First letter: Uppercase
@@ -217,9 +235,9 @@ gh pr create --base {base-branch} --head {task-branch} --title "{title}" --body 
 Guidelines for addressing PR review feedback.
 
 ### Commit Strategy
-- **Do NOT use `git commit --amend`** for review fixes
-- **Create new commits** for each fix so reviewers can see what changed
-- Group related fixes into logical commits (e.g., one commit per review comment)
+- **Always create a new commit** for each review comment — never amend or squash into existing commits
+- Each review comment gets exactly **one dedicated commit**; do not batch multiple review responses into a single commit
+- This ensures each review thread has a clear, traceable diff
 
 ### Commit Message Format
 Review fix commits should clearly describe what was fixed:
@@ -233,10 +251,10 @@ git push origin {task-branch}
 ```
 
 ### Reply to Review
-After pushing fixes, reply to the review comment summarizing:
+After pushing the fix, reply in the corresponding review thread:
 1. What was fixed
 2. How it was fixed
-3. Any additional improvements made
+3. Include the commit hash for traceability
 
 ---
 

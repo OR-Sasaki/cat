@@ -89,12 +89,10 @@ namespace Home.Service
                 if (furniture is null) continue;
 
                 var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
-                // 床または壁のObjectFootprintStartPositionsに登録されていればSelectedをtrueにする
-                furnitureData.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(userFurniture.Id)
-                                      || _isoGridState.WallObjectFootprintStartPositions.ContainsKey(userFurniture.Id);
                 _data.Add(furnitureData);
             }
 
+            UpdateSelectionStates();
             _redecorateUiView.Scroller.ReloadData();
         }
 
@@ -133,9 +131,10 @@ namespace Home.Service
             for (var i = 0; i < _data.Count; i++)
             {
                 var data = _data[i];
-                // 床または壁のObjectFootprintStartPositionsに登録されていればSelectedをtrueにする
+                // 床、壁、またはFragmentedGridに登録されていればSelectedをtrueにする
                 data.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId)
-                             || _isoGridState.WallObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId);
+                             || _isoGridState.WallObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId)
+                             || _isoGridState.FragmentedGridObjectPositions.Values.Any(childPositions => childPositions.ContainsKey(data.UserFurnitureId));
             }
         }
 

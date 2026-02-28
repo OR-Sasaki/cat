@@ -100,3 +100,6 @@ InitTestScene*.unity*
 
 # idea
 .idea/
+
+# Claude Code (local)
+*.local.*

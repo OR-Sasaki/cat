@@ -23,8 +23,6 @@ cc-sddタスクを実装し、GitHubにPRを作成するワークフロー。
 - **Read first**: Load all context before implementation
 - **Test first**: Write tests before code (when applicable)
 - Use **WebSearch/WebFetch** for library documentation when needed
-- **Unity scripts**: See "Unity Script Workflow" section in Step 4
-
 ---
 
 ## Step 1: Load Context
@@ -109,62 +107,16 @@ For the specified task in `$2`, implement following TDD methodology when appropr
 ### Commit per Sub-task
 After completing each sub-task (1.1, 1.2, etc.), create a commit.
 
-**Important**: Only add files that were modified/created for this sub-task. Do NOT use `git add -A` as it may include unrelated changes by others.
-
 ```bash
 git add <file1> <file2> ...
 git commit -m "Prepare scene constants and file structure"
 ```
-
-### Correcting Earlier Commits (Before PR Creation Only)
-
-When a correction targets the same concern as an older commit in the current branch:
-
-- **If it targets the immediately preceding commit:**
-  ```bash
-  git add <files>
-  git commit --amend --no-edit
-  ```
-- **Otherwise (targets an older commit):**
-  ```bash
-  git add <files>
-  git commit --fixup=<target-commit-hash>
-  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash main
-  ```
-
-**Note**: This is only permitted before PR creation. After a PR is created, always create new commits (see Step 7).
-
-### Commit Message Format
-- Language: English
-- First letter: Uppercase
-- No prefix (no "feat:", "fix:", etc.)
-- Concise, describe the sub-task completed
-
-Examples:
-- `Prepare scene constants and file structure`
-- `Set up VContainer DI container`
-- `Configure entry point`
 
 ### Critical Constraints
 - **Task Scope**: Implement only what the specific task requires
 - **Design Alignment**: Implementation must follow design.md specifications
 - **No Over-engineering**: Avoid adding features beyond requirements
 - **TDD When Applicable**: Tests recommended but not mandatory (especially for Unity)
-
-### Unity Script Workflow
-
-When creating or modifying C# scripts in Unity projects:
-
-**If UnityMCP is available:**
-1. Use UnityMCP tools (`create_script`, `manage_script`, `script_apply_edits`, etc.) to create/update scripts
-2. After script changes, use `read_console` to check for compilation errors
-3. Wait for `editor_state.isCompiling` to become false before proceeding
-
-**If UnityMCP is not available or specific tools don't exist:**
-1. Create/update scripts directly using Write/Edit tools
-2. Check Unity Editor console manually or wait for user confirmation that compilation succeeded
-
-**Note**: UnityMCP is a third-party tool and implementations may vary. Some operations may not be available depending on the specific UnityMCP version installed. If a tool call fails, fall back to direct file operations.
 
 ## Step 5: Update tasks.md
 
@@ -199,9 +151,6 @@ Example: If branch `feature/shop-scene-mock-ui` contains tasks 1-6:
 git push -u origin {task-branch}
 ```
 
-**Title Format:** Japanese, branch goal from tasks.md table
-Example: `画面表示、タブ切り替え、戻るボタンが動作する状態`
-
 **Get Repository URL:**
 ```bash
 gh repo view --json url -q .url
@@ -233,17 +182,6 @@ gh pr create --base {base-branch} --head {task-branch} --title "{title}" --body 
 ## Step 7: Review Response (After PR Review)
 
 Guidelines for addressing PR review feedback.
-
-### Commit Strategy
-- **Always create a new commit** for each review comment — never amend or squash into existing commits
-- Each review comment gets exactly **one dedicated commit**; do not batch multiple review responses into a single commit
-- This ensures each review thread has a clear, traceable diff
-
-### Commit Message Format
-Review fix commits should clearly describe what was fixed:
-- `Remove redundant active dialog tracking`
-- `Add stack trace to error log for prefab load failure`
-- `Move DialogContainer from View to Service`
 
 ### Push
 ```bash

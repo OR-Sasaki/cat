@@ -66,7 +66,16 @@ namespace Home.Service
             }
             else
             {
-                _isoGridService.RemoveFloorObject(userFurnitureId, targetView.FootprintSize);
+                if (targetView.CurrentFragmentedGrid == null)
+                {
+                    // Fragmentedに乗っていない場合は、Floor上から削除
+                    _isoGridService.RemoveFloorObject(userFurnitureId, targetView.FootprintSize);
+                }
+                else
+                {
+                    // Fragmentedに乗っている場合は、Fragmented上から削除
+                    _isoGridService.RemoveFragmentedObject(targetView.CurrentFragmentedGrid.GetParentUserFurnitureId(), userFurnitureId);
+                }
             }
 
             // シーンからオブジェクトを削除
@@ -289,7 +298,7 @@ namespace Home.Service
             }
 
             // プレハブをインスタンス化
-            var instance = Object.Instantiate(furniture.SceneObject);
+            var instance = Object.Instantiate(furniture.SceneObject, fragmentedGrid.transform, true);
             instance.SetUserFurnitureId(userFurnitureId);
             instance.SetPlacementType(PlacementType.Floor);
 
@@ -302,8 +311,7 @@ namespace Home.Service
             // Stateにも記録
             _isoGridService.PlaceFragmentedObject(parentUserFurnitureId, userFurnitureId, localGridPos, depth);
 
-            // 親子関係を設定し、ワールド座標を計算
-            instance.transform.SetParent(fragmentedGrid.transform);
+            // ワールド座標を計算してセット
             var pivotOffset = instance.PivotGridPosition;
             var worldPos = fragmentedGrid.LocalGridToWorld(localGridPos + pivotOffset);
             instance.SetPosition(worldPos);
@@ -325,3 +333,4 @@ namespace Home.Service
         #endregion
     }
 }
+

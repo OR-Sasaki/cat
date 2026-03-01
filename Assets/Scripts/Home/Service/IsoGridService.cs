@@ -7,6 +7,8 @@ using UnityEngine;
 namespace Home.Service
 {
     /// IsoGridのセル操作と座標変換を行うService
+    /// ここではあくまでstateベースでIsoGridを管理している
+    /// シーン上に配置されているオブジェクトの管理については、IsoDragServiceやFurniturePlacementServiceなどで行なっている
     public class IsoGridService
     {
         readonly IsoGridState _state;

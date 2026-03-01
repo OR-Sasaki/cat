@@ -135,7 +135,7 @@ namespace Home.Service
                     furnitureAsset,
                     localGridPos);
 
-                if (result != null) loadedCount++;
+                if (result is not null) loadedCount++;
             }
 
             return loadedCount;

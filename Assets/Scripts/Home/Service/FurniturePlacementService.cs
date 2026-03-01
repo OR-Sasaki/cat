@@ -257,7 +257,7 @@ namespace Home.Service
         public Vector3? PlaceFragmentedFurnitureAt(
             int parentUserFurnitureId,
             int userFurnitureId,
-            Cat.Furniture.Furniture furniture,
+            Furniture furniture,
             Vector2Int localGridPos)
         {
             if (furniture.SceneObject is null) return null;

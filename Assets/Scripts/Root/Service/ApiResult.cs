@@ -1,13 +1,15 @@
+#nullable enable
+
 namespace Root.Service
 {
     /// API通信結果を表すジェネリック型
     public class ApiResult<T>
     {
         public bool IsSuccess { get; }
-        public T Data { get; }
-        public ApiError Error { get; }
+        public T? Data { get; }
+        public ApiError? Error { get; }
 
-        ApiResult(bool isSuccess, T data, ApiError error)
+        ApiResult(bool isSuccess, T? data, ApiError? error)
         {
             IsSuccess = isSuccess;
             Data = data;

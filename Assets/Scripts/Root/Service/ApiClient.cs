@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Text;
 using System.Threading;
@@ -12,7 +14,7 @@ namespace Root.Service
     /// ゲームサーバとのHTTP通信を行うAPIクライアント
     public class ApiClient : IApiClient
     {
-        string _bearerToken;
+        string? _bearerToken;
 
         [Inject]
         public ApiClient()
@@ -54,7 +56,7 @@ namespace Root.Service
         }
 
         async UniTask<ApiResult<TResponse>> SendAsync<TResponse>(
-            string method, string path, object body, CancellationToken cancellationToken)
+            string method, string path, object? body, CancellationToken cancellationToken)
         {
             var url = ApiClientSettings.BaseUrl + path;
 
@@ -108,7 +110,7 @@ namespace Root.Service
             try
             {
                 var data = JsonConvert.DeserializeObject<TResponse>(request.downloadHandler.text);
-                return ApiResult<TResponse>.Success(data);
+                return ApiResult<TResponse>.Success(data!);
             }
             catch (JsonException e)
             {

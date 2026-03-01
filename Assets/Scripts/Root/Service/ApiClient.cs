@@ -63,20 +63,20 @@ namespace Root.Service
             using var request = new UnityWebRequest(url, method);
             request.downloadHandler = new DownloadHandlerBuffer();
 
-            if (body != null)
+            if (body is not null)
             {
                 var json = JsonConvert.SerializeObject(body);
                 request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
                 request.SetRequestHeader("Content-Type", "application/json");
             }
 
-            if (!string.IsNullOrEmpty(_bearerToken))
+            if (_bearerToken is { Length: > 0 })
             {
                 request.SetRequestHeader("Authorization", "Bearer " + _bearerToken);
             }
 
 #if !PRODUCTION
-            Debug.Log($"[ApiClient] Request: {method} {path} {(body != null ? JsonConvert.SerializeObject(body) : "")}");
+            Debug.Log($"[ApiClient] Request: {method} {path} {(body is not null ? JsonConvert.SerializeObject(body) : "")}");
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
@@ -86,11 +86,11 @@ namespace Root.Service
                     .WithCancellation(cancellationToken)
                     .Timeout(TimeSpan.FromSeconds(ApiClientSettings.TimeoutSeconds));
             }
-            catch (TimeoutException)
+            catch (TimeoutException e)
             {
                 request.Abort();
                 var error = new ApiError(ApiErrorType.Timeout, 0, "Request timed out");
-                Debug.LogError($"[ApiClient] {error.Message}");
+                Debug.LogError($"[ApiClient] {e.Message}\n{e.StackTrace}");
                 return ApiResult<TResponse>.Failure(error);
             }
             catch (UnityWebRequestException e)
@@ -115,7 +115,7 @@ namespace Root.Service
             catch (JsonException e)
             {
                 var error = new ApiError(ApiErrorType.ParseError, request.responseCode, e.Message, request.downloadHandler.text);
-                Debug.LogError($"[ApiClient] {error.Message}");
+                Debug.LogError($"[ApiClient] {e.Message}\n{e.StackTrace}");
                 return ApiResult<TResponse>.Failure(error);
             }
         }
@@ -145,7 +145,7 @@ namespace Root.Service
             }
 
             var error = new ApiError(type, e.ResponseCode, e.Message, e.Text ?? "");
-            Debug.LogError($"[ApiClient] {error.Message}");
+            Debug.LogError($"[ApiClient] {e.Message}\n{e.StackTrace}");
             return error;
         }
     }

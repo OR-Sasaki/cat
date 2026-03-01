@@ -22,6 +22,8 @@ namespace Root.Scope
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DialogService>(Lifetime.Singleton).As<IDialogService>();
 
+            builder.Register<ApiClient>(Lifetime.Singleton).As<IApiClient>();
+
             builder.RegisterEntryPoint<UserDataImportService>();
         }
     }

@@ -23,6 +23,7 @@ namespace Root.Scope
             builder.Register<DialogService>(Lifetime.Singleton).As<IDialogService>();
 
             builder.Register<ApiClient>(Lifetime.Singleton).As<IApiClient>();
+            builder.Register<ApiErrorHandler>(Lifetime.Singleton).As<IApiErrorHandler>();
 
             builder.RegisterEntryPoint<UserDataImportService>();
         }

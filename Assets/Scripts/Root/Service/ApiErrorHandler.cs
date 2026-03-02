@@ -71,7 +71,7 @@ namespace Root.Service
             }
         }
 
-        void NavigateToTitle()
+        protected virtual void NavigateToTitle()
         {
             _sceneLoader.Load(Const.SceneName.Title);
         }

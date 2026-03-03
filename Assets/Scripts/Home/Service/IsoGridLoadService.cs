@@ -61,8 +61,9 @@ namespace Home.Service
 
             var floorLoadedCount = LoadFloorObjects(saveData);
             var wallLoadedCount = LoadWallObjects(saveData);
+            var fragmentedLoadedCount = LoadFragmentedObjects(saveData);
 
-            Debug.Log($"IsoGridLoadService: Loaded {floorLoadedCount} floor objects and {wallLoadedCount} wall objects from IsoGrid");
+            Debug.Log($"IsoGridLoadService: Loaded {floorLoadedCount} floor objects, {wallLoadedCount} wall objects, and {fragmentedLoadedCount} fragmented objects from IsoGrid");
         }
 
         int LoadFloorObjects(IsoGridSaveData saveData)
@@ -105,6 +106,36 @@ namespace Home.Service
                 var gridPos = new Vector2Int(wallObjectPosition.X, wallObjectPosition.Z);
                 _furniturePlacementService.PlaceWallFurnitureAt(wallObjectPosition.UserFurnitureId, furnitureAsset, side, gridPos);
                 loadedCount++;
+            }
+
+            return loadedCount;
+        }
+
+        int LoadFragmentedObjects(IsoGridSaveData saveData)
+        {
+            if (saveData.FragmentedObjectPositions is null or { Length: 0 })
+            {
+                return 0;
+            }
+
+            // Depthが浅い順（昇順）にソートしてロード
+            var sortedPositions = saveData.FragmentedObjectPositions.OrderBy(p => p.Depth);
+
+            var loadedCount = 0;
+            foreach (var fragmentedPosition in sortedPositions)
+            {
+                var furnitureAsset = GetFurnitureAsset(fragmentedPosition.UserFurnitureId);
+                if (furnitureAsset == null) continue;
+
+                // 指定位置にFragmentedIsoGrid上の家具を配置
+                var localGridPos = new Vector2Int(fragmentedPosition.X, fragmentedPosition.Y);
+                var result = _furniturePlacementService.PlaceFragmentedFurnitureAt(
+                    fragmentedPosition.ParentUserFurnitureId,
+                    fragmentedPosition.UserFurnitureId,
+                    furnitureAsset,
+                    localGridPos);
+
+                if (result != null) loadedCount++;
             }
 
             return loadedCount;

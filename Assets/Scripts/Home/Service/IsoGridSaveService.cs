@@ -63,10 +63,23 @@ namespace Home.Service
                 })
                 .ToArray();
 
+            // FragmentedIsoGrid上のオブジェクトを配列に変換
+            var fragmentedObjectPositions = _isoGridState.FragmentedGridObjectPositions
+                .SelectMany(parent => parent.Value.Select(child => new IsoGridFragmentedObjectPosition
+                {
+                    ParentUserFurnitureId = parent.Key,
+                    UserFurnitureId = child.Key,
+                    X = child.Value.Position.x,
+                    Y = child.Value.Position.y,
+                    Depth = child.Value.Depth
+                }))
+                .ToArray();
+
             var saveData = new IsoGridSaveData
             {
                 ObjectPositions = objectPositions,
-                WallObjectPositions = wallObjectPositions
+                WallObjectPositions = wallObjectPositions,
+                FragmentedObjectPositions = fragmentedObjectPositions
             };
 
             // UserStateに保存
@@ -75,7 +88,7 @@ namespace Home.Service
             // PlayerPrefsに保存
             _playerPrefsService.Save(PlayerPrefsKey.IsoGrid, saveData);
 
-            Debug.Log($"IsoGridSaveService: Saved {objectPositions.Length} floor objects and {wallObjectPositions.Length} wall objects to IsoGrid");
+            Debug.Log($"IsoGridSaveService: Saved {objectPositions.Length} floor objects, {wallObjectPositions.Length} wall objects, and {fragmentedObjectPositions.Length} fragmented objects to IsoGrid");
         }
     }
 }

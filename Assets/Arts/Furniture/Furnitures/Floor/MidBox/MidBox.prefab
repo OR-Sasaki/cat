@@ -141,6 +141,9 @@ MonoBehaviour:
   _pivotGridPosition: {x: 2, y: 2}
   _viewPivot: {fileID: 4244933040269976172}
   _userFurnitureId: 0
+  _rightViewPivot: {fileID: 0}
+  _leftViewPivot: {fileID: 0}
+  _sortingGroup: {fileID: 2638656251736117611}
 --- !u!60 &3787002667282665991
 PolygonCollider2D:
   m_ObjectHideFlags: 0

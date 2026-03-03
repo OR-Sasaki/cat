@@ -11,16 +11,11 @@ namespace Home.Service
     {
         readonly IsoGridState _state;
         readonly IsoGridSettingsView _isoGridSettingsView;
+        readonly IsoCoordinateConverterService _converter;
 
         // グリッド設定
         readonly Vector3 _origin;
         readonly float _cellSize;
-        readonly float _angle;
-
-        // 座標変換用キャッシュ
-        readonly Vector2 _xAxis;
-        readonly Vector2 _yAxis;
-        readonly float _determinant;
 
         // NavMesh再構築用イベント
         public event Action OnObjectPlaced;
@@ -39,17 +34,10 @@ namespace Home.Service
 
             // グリッド設定を初期化
             _origin = _isoGridSettingsView.Origin;
-            _cellSize = _isoGridSettingsView.CellSize;
-            _angle = _isoGridSettingsView.Angle;
+            _cellSize = IsoGridSettingsView.CellSize;
 
-            // 座標キャッシュ更新
-            var angleRad = _angle * Mathf.Deg2Rad;
-            _xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * _cellSize;
-            _yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * _cellSize;
-            _determinant = _xAxis.x * _yAxis.y - _xAxis.y * _yAxis.x;
-
-            if (Mathf.Approximately(_determinant, 0f))
-                Debug.LogError($"[IsoGridService] Determinant is zero, cannot convert coordinates.");
+            // 座標変換サービスを初期化
+            _converter = new IsoCoordinateConverterService(_cellSize, IsoGridSettingsView.Angle);
 
             // オブジェクトが置かれた時にNavMeshを再ビルドする
             // BuildNavMeshは、シーン上に配置されたColliderによってビルドされるが、
@@ -66,18 +54,14 @@ namespace Home.Service
         /// 床グリッド座標をワールド座標に変換
         public Vector3 FloorGridToWorld(Vector2Int gridPos)
         {
-            var worldOffset = gridPos.x * _xAxis + gridPos.y * _yAxis;
-            return _origin + (Vector3)worldOffset;
+            return _origin + (Vector3)_converter.GridToOffset(gridPos);
         }
 
         /// ワールド座標を床グリッド座標に変換
         public Vector2Int WorldToFloorGrid(Vector3 worldPos)
         {
             var offset = (Vector2)(worldPos - _origin);
-            var gridX = (offset.x * _yAxis.y - offset.y * _yAxis.x) / _determinant;
-            var gridY = (_xAxis.x * offset.y - _xAxis.y * offset.x) / _determinant;
-
-            return new Vector2Int(Mathf.RoundToInt(gridX), Mathf.RoundToInt(gridY));
+            return _converter.OffsetToGrid(offset);
         }
 
         /// 床グリッド座標が有効範囲内かチェック
@@ -167,12 +151,12 @@ namespace Home.Service
             var zOffset = Vector3.up * gridPos.y * _cellSize;
             if (side == WallSide.Left)
             {
-                var worldOffset = gridPos.x * _yAxis;
+                var worldOffset = gridPos.x * _converter.YAxis;
                 return _origin + (Vector3)worldOffset + zOffset;
             }
             else
             {
-                var worldOffset = gridPos.x * _xAxis;
+                var worldOffset = gridPos.x * _converter.XAxis;
                 return _origin + (Vector3)worldOffset + zOffset;
             }
         }
@@ -182,7 +166,7 @@ namespace Home.Service
         {
             // 壁面上の2D座標オフセット
             var offset = (Vector2)(worldPos - _origin);
-            var wallAxis = side == WallSide.Left ? _yAxis : _xAxis;
+            var wallAxis = side == WallSide.Left ? _converter.YAxis : _converter.XAxis;
 
             // 壁の座標系での逆変換（2x2行列の逆行列を使用）
             // [wallAxis.x, 0        ] [wallGrid]   [offset.x]
@@ -296,6 +280,72 @@ namespace Home.Service
         public WallObjectPosition GetWallObjectFootprintStart(int userFurnitureId)
         {
             return _state.WallObjectFootprintStartPositions[userFurnitureId];
+        }
+
+        #endregion
+
+        #region FragmentedIsoGrid操作
+
+        /// FragmentedIsoGrid上にオブジェクトを配置したことをStateに記録
+        public void PlaceFragmentedObject(int parentUserFurnitureId, int userFurnitureId, Vector2Int localGridPos, int depth)
+        {
+            if (!_state.FragmentedGridObjectPositions.TryGetValue(parentUserFurnitureId, out var childPositions))
+            {
+                childPositions = new System.Collections.Generic.Dictionary<int, FragmentedObjectData>();
+                _state.FragmentedGridObjectPositions[parentUserFurnitureId] = childPositions;
+            }
+
+            childPositions[userFurnitureId] = new FragmentedObjectData
+            {
+                Position = localGridPos,
+                Depth = depth
+            };
+        }
+
+        /// FragmentedIsoGrid上からオブジェクトを削除したことをStateに記録
+        public void RemoveFragmentedObject(int parentUserFurnitureId, int userFurnitureId)
+        {
+            if (!_state.FragmentedGridObjectPositions.TryGetValue(parentUserFurnitureId, out var childPositions))
+            {
+                return;
+            }
+
+            childPositions.Remove(userFurnitureId);
+
+            // 子が空になったら親のエントリも削除
+            if (childPositions.Count == 0)
+            {
+                _state.FragmentedGridObjectPositions.Remove(parentUserFurnitureId);
+            }
+        }
+
+        /// FragmentedIsoGrid用のStateを取得
+        public System.Collections.Generic.IReadOnlyDictionary<int, System.Collections.Generic.Dictionary<int, FragmentedObjectData>> GetFragmentedGridObjectPositions()
+        {
+            return _state.FragmentedGridObjectPositions;
+        }
+
+        /// FragmentedIsoGridの入れ子の深さを計算
+        /// 床に直接配置された家具上のFragmentedIsoGrid = 1
+        /// その上に配置された家具上のFragmentedIsoGrid = 2 ...
+        public int CalculateFragmentedGridDepth(FragmentedIsoGrid grid)
+        {
+            var depth = 1;
+            var currentGrid = grid;
+
+            while (currentGrid is not null)
+            {
+                var parentView = currentGrid.IsoDraggableView;
+                if (parentView is null) break;
+
+                var parentGrid = parentView.CurrentFragmentedGrid;
+                if (parentGrid is null) break;
+
+                depth++;
+                currentGrid = parentGrid;
+            }
+
+            return depth;
         }
 
         #endregion

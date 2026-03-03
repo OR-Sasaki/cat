@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Root.View;
-using UnityEngine;
 using VContainer;
 
 namespace Root.Service

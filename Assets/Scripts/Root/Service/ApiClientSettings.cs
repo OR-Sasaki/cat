@@ -1,7 +1,7 @@
 namespace Root.Service
 {
     /// APIクライアントの接続設定
-    public class ApiClientSettings
+    public static class ApiClientSettings
     {
 #if PRODUCTION
         // TODO: 本番APIエンドポイントに更新する

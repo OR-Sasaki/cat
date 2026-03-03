@@ -122,31 +122,17 @@ namespace Root.Service
 
         static ApiError ClassifyError(UnityWebRequestException e)
         {
-            ApiErrorType type;
-            if (e.Result == UnityWebRequest.Result.ConnectionError)
+            var type = e switch
             {
-                type = ApiErrorType.NetworkError;
-            }
-            else if (e.ResponseCode == 401)
-            {
-                type = ApiErrorType.AuthenticationError;
-            }
-            else if (e.ResponseCode >= 400 && e.ResponseCode < 500)
-            {
-                type = ApiErrorType.ClientError;
-            }
-            else if (e.ResponseCode >= 500)
-            {
-                type = ApiErrorType.ServerError;
-            }
-            else
-            {
-                type = ApiErrorType.NetworkError;
-            }
+                { Result: UnityWebRequest.Result.ConnectionError } => ApiErrorType.NetworkError,
+                { ResponseCode: 401 } => ApiErrorType.AuthenticationError,
+                { ResponseCode: >= 400 and < 500 } => ApiErrorType.ClientError,
+                { ResponseCode: >= 500 } => ApiErrorType.ServerError,
+                _ => ApiErrorType.NetworkError,
+            };
 
-            var error = new ApiError(type, e.ResponseCode, e.Message, e.Text ?? "");
             Debug.LogError($"[ApiClient] {e.Message}\n{e.StackTrace}");
-            return error;
+            return new ApiError(type, e.ResponseCode, e.Message, e.Text ?? "");
         }
     }
 }

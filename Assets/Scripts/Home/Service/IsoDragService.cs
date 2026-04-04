@@ -156,7 +156,6 @@ namespace Home.Service
                     _isoGridService.RemoveFragmentedObject(parentId, _currentIsoDraggableView.UserFurnitureId);
                 }
 
-                _currentIsoDraggableView.SetPlacedOnGrid(false);
                 _currentIsoDraggableView.SetCurrentFragmentedGrid(null);
                 return;
             }
@@ -169,11 +168,7 @@ namespace Home.Service
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
             _dragStartFootprintPos = currentFootprintStartPos;
-            if (_currentIsoDraggableView.IsPlacedOnGrid)
-            {
-                _isoGridService.RemoveFloorObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
-                _currentIsoDraggableView.SetPlacedOnGrid(false);
-            }
+            _isoGridService.RemoveFloorObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
         }
 
         void BeginWallDrag()
@@ -184,11 +179,7 @@ namespace Home.Service
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
             _dragStartFootprintPos = wallObjectPos.Position;
             _dragStartWallSide = wallObjectPos.Side;
-            if (_currentIsoDraggableView.IsPlacedOnGrid)
-            {
-                _isoGridService.RemoveWallObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
-                _currentIsoDraggableView.SetPlacedOnGrid(false);
-            }
+            _isoGridService.RemoveWallObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
         }
 
         /// ドラッグ終了
@@ -247,7 +238,6 @@ namespace Home.Service
                 PlaceOnFloor(_dragStartFootprintPos);
             }
 
-            _currentIsoDraggableView.SetPlacedOnGrid(true);
             _currentIsoDraggableView.SetSortingOrder(0);
             _currentIsoDraggableView.SetDragging(false);
         }
@@ -331,7 +321,6 @@ namespace Home.Service
             _isoGridService.PlaceWallObject(finalWallSide, finalFootprintPos, footprintSize, _currentIsoDraggableView.UserFurnitureId);
             _currentIsoDraggableView.SetPosition(SnapToWallGrid(finalWallSide, finalFootprintPos));
             _currentIsoDraggableView.SetWallSide(finalWallSide);
-            _currentIsoDraggableView.SetPlacedOnGrid(true);
             _currentIsoDraggableView.SetSortingOrder(0);
             _currentIsoDraggableView.SetDragging(false);
         }

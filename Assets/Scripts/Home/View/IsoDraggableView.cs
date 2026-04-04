@@ -26,13 +26,11 @@ namespace Home.View
         [SerializeField] SortingGroup _sortingGroup;
 
         bool _isDragging;
-        bool _isPlacedOnGrid;
         PlacementType _placementType;
         WallSide _wallSide;
         FragmentedIsoGrid _currentFragmentedGrid;
 
         public bool IsDragging => _isDragging;
-        public bool IsPlacedOnGrid => _isPlacedOnGrid;
         public Vector2Int FootprintSize => _footprintSize;
         public Vector2Int PivotGridPosition => _pivotGridPosition;
         public int UserFurnitureId => _userFurnitureId;
@@ -64,12 +62,6 @@ namespace Home.View
         public void SetDragging(bool isDragging)
         {
             _isDragging = isDragging;
-        }
-
-        // グリッド配置状態を設定
-        public void SetPlacedOnGrid(bool isPlaced)
-        {
-            _isPlacedOnGrid = isPlaced;
         }
 
         // 現在所属しているFragmentedIsoGridを設定

@@ -129,7 +129,6 @@ namespace Home.Service
             var pivotOffset = instance.PivotGridPosition;
             var worldPos = _isoGridService.FloorGridToWorld(gridPos + pivotOffset);
             instance.SetPosition(worldPos);
-            instance.SetPlacedOnGrid(true);
 
 #if UNITY_EDITOR
             var gizmo = instance.GetComponent<IsoDraggableGizmo>();
@@ -214,7 +213,6 @@ namespace Home.Service
             var pivotOffset = instance.PivotGridPosition;
             var worldPos = _isoGridService.WallGridToWorld(side, gridPos + pivotOffset);
             instance.SetPosition(worldPos);
-            instance.SetPlacedOnGrid(true);
 
 #if UNITY_EDITOR
             var gizmo = instance.GetComponent<IsoDraggableGizmo>();
@@ -315,7 +313,6 @@ namespace Home.Service
             var pivotOffset = instance.PivotGridPosition;
             var worldPos = fragmentedGrid.LocalGridToWorld(localGridPos + pivotOffset);
             instance.SetPosition(worldPos);
-            instance.SetPlacedOnGrid(true);
             instance.SetCurrentFragmentedGrid(fragmentedGrid);
 
 #if UNITY_EDITOR

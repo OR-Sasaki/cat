@@ -1,5 +1,6 @@
 using System.Collections;
 using Home.Service;
+using Home.State;
 using NavMeshPlus.Components;
 using UnityEngine;
 using VContainer;
@@ -28,5 +29,14 @@ namespace Home.View
         public int WallHeight => _wallHeight;
         public Vector3 Origin => transform.position;
         public NavMeshSurface Surface2D => _surface2D;
+
+        // ランタイムでIsoGridStateの中身をインスペクタから確認するための参照
+        public IsoGridState IsoGridStateRef { get; private set; }
+
+        [Inject]
+        void Construct(IsoGridState isoGridState)
+        {
+            IsoGridStateRef = isoGridState;
+        }
     }
 }

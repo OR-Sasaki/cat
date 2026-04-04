@@ -105,16 +105,19 @@ namespace Home.Service
             if (selectedData?.Furniture is null) return;
 
             var userFurnitureId = selectedData.UserFurnitureId;
+            var furniture = selectedData.Furniture;
 
+            // selectedDataで判定するのは設計思想的に微妙だが、設置判定は処理コストが重いためこうしている
+            // 直後にUpdateSelectionStates()をしていることで、設置判定をキャッシュしている
             if (selectedData.Selected)
             {
                 // 配置済みの場合：グリッドとシーンから削除
-                _furniturePlacementService.RemoveFurniture(userFurnitureId, selectedData.Furniture);
+                _furniturePlacementService.RemoveFurniture(userFurnitureId, furniture);
             }
             else
             {
                 // 未配置の場合：空き位置を探して配置
-                var placedPosition = _furniturePlacementService.PlaceFurniture(userFurnitureId, selectedData.Furniture);
+                var placedPosition = _furniturePlacementService.PlaceFurniture(userFurnitureId, furniture);
                 if (placedPosition.HasValue)
                 {
                     _redecorateCameraService.MoveTo(placedPosition.Value);

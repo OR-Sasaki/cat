@@ -37,7 +37,7 @@ namespace Home.Service
         }
 
         /// 家具をシーンとグリッドから削除する
-        public bool RemoveFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
+        public bool RemoveFurniture(int userFurnitureId, Furniture furniture)
         {
             if (furniture.SceneObject is null) return false;
 

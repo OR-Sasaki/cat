@@ -53,6 +53,13 @@ namespace Home.State
         // 親家具ID → FragmentedGridStateEntry
         public Dictionary<int, FragmentedGridStateEntry> FragmentedGrids { get; } = new();
 
+        // === 新フィールド（並行稼働） ===
+        public GridEntry Floor { get; private set; }
+        public GridEntry LeftWall { get; private set; }
+        public GridEntry RightWall { get; private set; }
+        // 名前衝突回避のため一時的に V2。手順7 で FragmentedGrids にリネーム
+        public Dictionary<int, GridEntry> FragmentedGridsV2 { get; } = new();
+
         // セル配列を初期化
         public void Initialize(int gridWidth, int gridHeight, int wallHeight)
         {
@@ -64,9 +71,15 @@ namespace Home.State
             LeftWallCells = new int[gridHeight, wallHeight];  // (y, z)
             RightWallCells = new int[gridWidth, wallHeight];  // (x, z)
 
+            // 新フィールドを「同一配列共有」で初期化
+            Floor = new GridEntry(new Vector2Int(gridWidth, gridHeight), FloorCells);
+            LeftWall = new GridEntry(new Vector2Int(gridHeight, wallHeight), LeftWallCells);
+            RightWall = new GridEntry(new Vector2Int(gridWidth, wallHeight), RightWallCells);
+
             ObjectFootprintStartPositions.Clear();
             WallObjectFootprintStartPositions.Clear();
             FragmentedGrids.Clear();
+            FragmentedGridsV2.Clear();
         }
     }
 }

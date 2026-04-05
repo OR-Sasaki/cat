@@ -199,6 +199,8 @@ namespace Home.Service
 
         void EndFloorDrag()
         {
+            _currentIsoDraggableView.SetDragging(false);
+
             var userFurnitureId = _currentIsoDraggableView.UserFurnitureId;
             var footprintSize = _currentIsoDraggableView.FootprintSize;
             var pivotGridPosition = _currentIsoDraggableView.PivotGridPosition;
@@ -237,9 +239,6 @@ namespace Home.Service
             {
                 PlaceOnFloor(_dragStartFootprintPos);
             }
-
-            _currentIsoDraggableView.SetSortingOrder(0);
-            _currentIsoDraggableView.SetDragging(false);
         }
 
         void PlaceOnFragmentedGrid(FragmentedIsoGrid grid, Vector2Int footprintStart)
@@ -272,6 +271,7 @@ namespace Home.Service
                 _currentIsoDraggableView.UserFurnitureId);
             _currentIsoDraggableView.SetPosition(SnapToFloorGrid(footprintStart));
             _currentIsoDraggableView.SetCurrentFragmentedGrid(null);
+            _currentIsoDraggableView.SetSortingOrder(0);
         }
 
         /// RayCastでFragmentedIsoGridを検出（自身のColliderは除外）

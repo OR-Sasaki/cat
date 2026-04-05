@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 236eca61cc1d7c04fa9cfbaca9a9e08c
+guid: 4577d400875964031ad1f3c7f08cfdad
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8790000615215789760
-    second: icon_timer_0
+      213: -2693364262958807686
+    second: footer_Makeover_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon_timer_0
+      name: footer_Makeover_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 304
-        height: 304
+        x: 42
+        y: 34
+        width: 112
+        height: 135
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0c6f665fcfa5cf970800000000000000
-      internalID: 8790000615215789760
+      spriteID: a75cb9f097f3f9ad0800000000000000
+      internalID: -2693364262958807686
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon_timer_0: 8790000615215789760
+      footer_Makeover_0: -2693364262958807686
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

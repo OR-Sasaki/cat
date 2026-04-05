@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b5c1ea041f8ee45489bb1e2f83096bf7
+guid: 4b5ebb99dabdb4939a59c4d995255030
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7916125057549437085
-    second: footer 1_0
+      213: 580996632235679942
+    second: footer_shop_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: footer 1_0
+      name: footer_shop_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 18
-        width: 971
-        height: 192
+        x: 39
+        y: 39
+        width: 110
+        height: 112
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 366, y: 0, z: 373, w: 0}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d988dc46cc9bbdd60800000000000000
-      internalID: 7916125057549437085
+      spriteID: 6c02b18db5d101800800000000000000
+      internalID: 580996632235679942
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7fb339690cd144d5da3776bca42cdd07
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      footer 1_0: 7916125057549437085
+      footer_shop_0: 580996632235679942
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

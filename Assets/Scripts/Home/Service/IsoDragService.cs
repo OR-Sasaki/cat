@@ -83,7 +83,7 @@ namespace Home.Service
         void UpdateDragSortingOrder(Vector3 worldPos)
         {
             var fragmentedGrid = RaycastForFragmentedGrid(worldPos);
-            if (fragmentedGrid != null)
+            if (fragmentedGrid is not null)
             {
                 var localGridPos = fragmentedGrid.WorldToLocalGrid(worldPos);
                 var footprintStart = localGridPos - _currentIsoDraggableView.PivotGridPosition;
@@ -139,7 +139,7 @@ namespace Home.Service
         {
             // FragmentedIsoGrid上にあるかチェック
             var fragmentedGrid = _currentIsoDraggableView.CurrentFragmentedGrid;
-            if (fragmentedGrid != null)
+            if (fragmentedGrid is not null)
             {
                 // FragmentedIsoGrid上からドラッグ開始
                 _dragStartFragmentedGrid = fragmentedGrid;
@@ -206,7 +206,7 @@ namespace Home.Service
 
             // FragmentedIsoGridへの配置を試行
             var fragmentedGrid = RaycastForFragmentedGrid(_currentIsoDraggableView.Position);
-            if (fragmentedGrid != null)
+            if (fragmentedGrid is not null)
             {
                 var localGridPos = fragmentedGrid.WorldToLocalGrid(_currentIsoDraggableView.Position);
                 var footprintStart = localGridPos - pivotGridPosition;
@@ -229,7 +229,7 @@ namespace Home.Service
             }
 
             // 配置不可能なら元の位置に戻す
-            if (_dragStartFragmentedGrid != null)
+            if (_dragStartFragmentedGrid is not null)
             {
                 PlaceOnFragmentedGrid(_dragStartFragmentedGrid, _dragStartLocalGridPos);
             }
@@ -282,7 +282,7 @@ namespace Home.Service
             foreach (var hit in hits)
             {
                 var fragmentedGrid = hit.collider.GetComponent<FragmentedIsoGrid>();
-                if (fragmentedGrid == null) continue;
+                if (fragmentedGrid is null) continue;
 
                 // 自身のColliderに属するFragmentedIsoGridは除外
                 var draggableInParent = hit.collider.GetComponentInParent<IsoDraggableView>();
@@ -381,10 +381,10 @@ namespace Home.Service
         {
             var depth = 0;
             var current = draggable;
-            while (current.CurrentFragmentedGrid != null)
+            while (current.CurrentFragmentedGrid is not null)
             {
                 var parentDraggable = current.CurrentFragmentedGrid.IsoDraggableView;
-                if (parentDraggable == null) break;
+                if (parentDraggable is null) break;
                 current = parentDraggable;
                 depth++;
             }

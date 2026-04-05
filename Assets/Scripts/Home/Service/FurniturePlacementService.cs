@@ -294,8 +294,17 @@ namespace Home.Service
                 return null;
             }
 
-            // FragmentedIsoGridを取得
-            var fragmentedGrid = parentView.GetComponentInChildren<FragmentedIsoGrid>();
+            // FragmentedIsoGridを取得（親自身に紐づくものだけを対象とし、子家具のgridを拾わないようにする）
+            FragmentedIsoGrid fragmentedGrid = null;
+            var candidateGrids = parentView.GetComponentsInChildren<FragmentedIsoGrid>();
+            foreach (var candidate in candidateGrids)
+            {
+                if (candidate.IsoDraggableView == parentView)
+                {
+                    fragmentedGrid = candidate;
+                    break;
+                }
+            }
             if (fragmentedGrid is null)
             {
                 Debug.LogWarning($"[FurniturePlacementService] FragmentedIsoGrid not found on parent furniture {parentUserFurnitureId}");

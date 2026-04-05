@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Cat.Furniture;
 using Home.State;
 using Home.View;
@@ -76,23 +74,16 @@ namespace Home.Service
                 else
                 {
                     // Fragmentedに乗っている場合は、Fragmented上から削除
-                    _isoGridService.RemoveFragmentedObject(targetView.CurrentFragmentedGrid.GetParentUserFurnitureId(), userFurnitureId);
+                    _isoGridService.RemoveFragmentedObject(targetView.CurrentFragmentedGrid, userFurnitureId, targetView.FootprintSize);
                 }
             }
 
-            // 自身が持つFragmentedIsoGridに載っている子家具のStateエントリを全て除去
+            // 自身が持つFragmentedIsoGridに紐づくStateエントリを破棄
             // （GameObjectはDestroyで一緒に破棄されるが、Stateに孤児エントリが残るのを防ぐ）
             var childGrids = targetView.GetComponentsInChildren<FragmentedIsoGrid>();
             foreach (var grid in childGrids)
             {
-                var parentId = grid.GetParentUserFurnitureId();
-                if (parentId == 0) continue;
-
-                var childIds = grid.GetPlacedObjectPositions().Keys.ToList();
-                foreach (var childId in childIds)
-                {
-                    _isoGridService.RemoveFragmentedObject(parentId, childId);
-                }
+                _isoGridService.UnregisterFragmentedGrid(grid);
             }
 
             // シーンからオブジェクトを削除
@@ -306,7 +297,7 @@ namespace Home.Service
             var footprintSize = furniture.SceneObject.FootprintSize;
 
             // 配置可能かチェック
-            if (!fragmentedGrid.CanPlace(localGridPos, footprintSize, false, userFurnitureId))
+            if (!_isoGridService.CanPlaceFragmentedObject(fragmentedGrid, localGridPos, footprintSize, userFurnitureId))
             {
                 Debug.LogWarning($"[FurniturePlacementService] Cannot place fragmented furniture at {localGridPos}: parentId={parentUserFurnitureId}, userFurnitureId={userFurnitureId}");
                 return null;
@@ -317,14 +308,8 @@ namespace Home.Service
             instance.SetUserFurnitureId(userFurnitureId);
             instance.SetPlacementType(PlacementType.Floor);
 
-            // FragmentedIsoGridにオブジェクトを配置
-            fragmentedGrid.PlaceObject(localGridPos, footprintSize, userFurnitureId);
-
-            // Depthを計算（親のFragmentedIsoGridの入れ子の深さ）
-            var depth = _isoGridService.CalculateFragmentedGridDepth(fragmentedGrid);
-
-            // Stateにも記録
-            _isoGridService.PlaceFragmentedObject(parentUserFurnitureId, userFurnitureId, localGridPos, depth);
+            // FragmentedIsoGridにオブジェクトを配置（Depthは内部で計算）
+            _isoGridService.PlaceFragmentedObject(fragmentedGrid, localGridPos, footprintSize, userFurnitureId);
 
             // ワールド座標を計算してセット
             var pivotOffset = instance.PivotGridPosition;

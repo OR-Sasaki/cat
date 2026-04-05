@@ -22,6 +22,14 @@ namespace Home.State
         public int Depth;
     }
 
+    /// FragmentedIsoGridごとのセル占有状態と配置オブジェクト情報
+    public class FragmentedGridStateEntry
+    {
+        public Vector2Int Size;
+        public int[,] Cells;
+        public Dictionary<int, FragmentedObjectData> ObjectPositions { get; } = new();
+    }
+
     // IsoGridのセル状態を保持するState
     public class IsoGridState
     {
@@ -41,9 +49,9 @@ namespace Home.State
         // UserFurnitureIDからフットプリント開始位置へのマッピング（壁）
         public Dictionary<int, WallObjectPosition> WallObjectFootprintStartPositions { get; } = new();
 
-        // FragmentedIsoGrid上のオブジェクト位置
-        // 親家具ID → (子家具ID → ローカル座標とDepth)
-        public Dictionary<int, Dictionary<int, FragmentedObjectData>> FragmentedGridObjectPositions { get; } = new();
+        // FragmentedIsoGridごとのセル占有状態と配置オブジェクト
+        // 親家具ID → FragmentedGridStateEntry
+        public Dictionary<int, FragmentedGridStateEntry> FragmentedGrids { get; } = new();
 
         // セル配列を初期化
         public void Initialize(int gridWidth, int gridHeight, int wallHeight)
@@ -58,7 +66,7 @@ namespace Home.State
 
             ObjectFootprintStartPositions.Clear();
             WallObjectFootprintStartPositions.Clear();
-            FragmentedGridObjectPositions.Clear();
+            FragmentedGrids.Clear();
         }
     }
 }

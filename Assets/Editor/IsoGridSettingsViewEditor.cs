@@ -86,15 +86,17 @@ namespace Editor
 
             // FragmentedGridオブジェクト配置
             _fragmentedObjectsFoldout = EditorGUILayout.Foldout(_fragmentedObjectsFoldout,
-                $"FragmentedGridObjectPositions [{state.FragmentedGridObjectPositions.Count}]");
+                $"FragmentedGrids [{state.FragmentedGrids.Count}]");
             if (_fragmentedObjectsFoldout)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in state.FragmentedGridObjectPositions)
+                foreach (var kvp in state.FragmentedGrids)
                 {
-                    EditorGUILayout.LabelField($"親家具ID: {kvp.Key}", $"子要素数: {kvp.Value.Count}");
+                    var entry = kvp.Value;
+                    EditorGUILayout.LabelField($"親家具ID: {kvp.Key}",
+                        $"Size: {entry.Size}, 子要素数: {entry.ObjectPositions.Count}");
                     EditorGUI.indentLevel++;
-                    foreach (var child in kvp.Value)
+                    foreach (var child in entry.ObjectPositions)
                     {
                         EditorGUILayout.LabelField($"子家具ID: {child.Key}",
                             $"Position: {child.Value.Position}, Depth: {child.Value.Depth}");

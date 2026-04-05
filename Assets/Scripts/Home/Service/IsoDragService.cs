@@ -88,10 +88,10 @@ namespace Home.Service
                 var localGridPos = fragmentedGrid.WorldToLocalGrid(worldPos);
                 var footprintStart = localGridPos - _currentIsoDraggableView.PivotGridPosition;
 
-                if (fragmentedGrid.CanPlace(
+                if (_isoGridService.CanPlaceFragmentedObject(
+                    fragmentedGrid,
                     footprintStart,
                     _currentIsoDraggableView.FootprintSize,
-                    _currentIsoDraggableView.IsWallPlacement,
                     _currentIsoDraggableView.UserFurnitureId))
                 {
                     // 配置可能な場合、FragmentedIsoGridの子に移動
@@ -143,18 +143,11 @@ namespace Home.Service
             {
                 // FragmentedIsoGrid上からドラッグ開始
                 _dragStartFragmentedGrid = fragmentedGrid;
-                _dragStartLocalGridPos = fragmentedGrid.GetObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
+                _dragStartLocalGridPos = _isoGridService.GetFragmentedObjectFootprintStart(fragmentedGrid, _currentIsoDraggableView.UserFurnitureId);
                 _dragStartFootprintPos = Vector2Int.zero; // 床には配置されていない
 
-                // 位置取得後にRemove
-                fragmentedGrid.RemoveObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
-
-                // Stateからも削除
-                var parentId = fragmentedGrid.GetParentUserFurnitureId();
-                if (parentId != 0)
-                {
-                    _isoGridService.RemoveFragmentedObject(parentId, _currentIsoDraggableView.UserFurnitureId);
-                }
+                // 位置取得後にStateから削除
+                _isoGridService.RemoveFragmentedObject(fragmentedGrid, _currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
 
                 _currentIsoDraggableView.SetCurrentFragmentedGrid(null);
                 return;
@@ -204,7 +197,6 @@ namespace Home.Service
             var userFurnitureId = _currentIsoDraggableView.UserFurnitureId;
             var footprintSize = _currentIsoDraggableView.FootprintSize;
             var pivotGridPosition = _currentIsoDraggableView.PivotGridPosition;
-            var isWallPlacement = _currentIsoDraggableView.IsWallPlacement;
 
             // FragmentedIsoGridへの配置を試行
             var fragmentedGrid = RaycastForFragmentedGrid(_currentIsoDraggableView.Position);
@@ -213,7 +205,7 @@ namespace Home.Service
                 var localGridPos = fragmentedGrid.WorldToLocalGrid(_currentIsoDraggableView.Position);
                 var footprintStart = localGridPos - pivotGridPosition;
 
-                if (fragmentedGrid.CanPlace(footprintStart, footprintSize, isWallPlacement, userFurnitureId))
+                if (_isoGridService.CanPlaceFragmentedObject(fragmentedGrid, footprintStart, footprintSize, userFurnitureId))
                 {
                     PlaceOnFragmentedGrid(fragmentedGrid, footprintStart);
                     return;
@@ -247,14 +239,7 @@ namespace Home.Service
             var footprintSize = _currentIsoDraggableView.FootprintSize;
             var pivotGridPosition = _currentIsoDraggableView.PivotGridPosition;
 
-            grid.PlaceObject(footprintStart, footprintSize, userFurnitureId);
-
-            var parentId = grid.GetParentUserFurnitureId();
-            if (parentId != 0)
-            {
-                var depth = _isoGridService.CalculateFragmentedGridDepth(grid);
-                _isoGridService.PlaceFragmentedObject(parentId, userFurnitureId, footprintStart, depth);
-            }
+            _isoGridService.PlaceFragmentedObject(grid, footprintStart, footprintSize, userFurnitureId);
 
             _currentIsoDraggableView.transform.SetParent(grid.transform);
             var snapPos = grid.LocalGridToWorld(footprintStart + pivotGridPosition);

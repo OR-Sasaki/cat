@@ -64,8 +64,8 @@ namespace Home.Service
                 .ToArray();
 
             // FragmentedIsoGrid上のオブジェクトを配列に変換
-            var fragmentedObjectPositions = _isoGridState.FragmentedGridObjectPositions
-                .SelectMany(parent => parent.Value.Select(child => new IsoGridFragmentedObjectPosition
+            var fragmentedObjectPositions = _isoGridState.FragmentedGrids
+                .SelectMany(parent => parent.Value.ObjectPositions.Select(child => new IsoGridFragmentedObjectPosition
                 {
                     ParentUserFurnitureId = parent.Key,
                     UserFurnitureId = child.Key,

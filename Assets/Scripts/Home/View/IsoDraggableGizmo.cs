@@ -115,7 +115,6 @@ namespace Home.View
             var footprintSize = _isoDraggableView.FootprintSize;
             var pivotGridPosition = _isoDraggableView.PivotGridPosition;
             var userFurnitureId = _isoDraggableView.UserFurnitureId;
-            var isWallPlacement = _isoDraggableView.IsWallPlacement;
 
             // 軸ベクトルを計算
             var angleRad = IsoGridSettingsView.Angle * Mathf.Deg2Rad;
@@ -128,7 +127,7 @@ namespace Home.View
             var footprintStartPos = localGridPos - pivotGridPosition;
 
             // 配置可能かチェック
-            var canPlace = fragmentedGrid.CanPlace(footprintStartPos, footprintSize, isWallPlacement, userFurnitureId);
+            var canPlace = _isoGridService.CanPlaceFragmentedObject(fragmentedGrid, footprintStartPos, footprintSize, userFurnitureId);
 
             // 配置可能なら緑、不可能なら赤
             var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);

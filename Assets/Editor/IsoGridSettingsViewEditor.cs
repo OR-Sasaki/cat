@@ -35,21 +35,21 @@ namespace Editor
             EditorGUILayout.LabelField("WallHeight", state.LeftWall.Size.y.ToString());
 
             // 床グリッド
-            _floorFoldout = EditorGUILayout.Foldout(_floorFoldout, $"FloorCells [{state.Floor.Size.x} x {state.Floor.Size.y}]");
+            _floorFoldout = EditorGUILayout.Foldout(_floorFoldout, $"Floor.Cells [{state.Floor.Size.x} x {state.Floor.Size.y}]");
             if (_floorFoldout)
             {
                 DrawCellGrid(state.Floor.Cells, state.Floor.Size.x, state.Floor.Size.y);
             }
 
             // 左壁グリッド
-            _leftWallFoldout = EditorGUILayout.Foldout(_leftWallFoldout, $"LeftWallCells [{state.LeftWall.Size.x} x {state.LeftWall.Size.y}]");
+            _leftWallFoldout = EditorGUILayout.Foldout(_leftWallFoldout, $"LeftWall.Cells [{state.LeftWall.Size.x} x {state.LeftWall.Size.y}]");
             if (_leftWallFoldout)
             {
                 DrawCellGrid(state.LeftWall.Cells, state.LeftWall.Size.x, state.LeftWall.Size.y);
             }
 
             // 右壁グリッド
-            _rightWallFoldout = EditorGUILayout.Foldout(_rightWallFoldout, $"RightWallCells [{state.RightWall.Size.x} x {state.RightWall.Size.y}]");
+            _rightWallFoldout = EditorGUILayout.Foldout(_rightWallFoldout, $"RightWall.Cells [{state.RightWall.Size.x} x {state.RightWall.Size.y}]");
             if (_rightWallFoldout)
             {
                 DrawCellGrid(state.RightWall.Cells, state.RightWall.Size.x, state.RightWall.Size.y);
@@ -89,11 +89,11 @@ namespace Editor
 
             // FragmentedGridオブジェクト配置
             _fragmentedObjectsFoldout = EditorGUILayout.Foldout(_fragmentedObjectsFoldout,
-                $"FragmentedGrids [{state.FragmentedGridsV2.Count}]");
+                $"FragmentedGrids [{state.FragmentedGrids.Count}]");
             if (_fragmentedObjectsFoldout)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in state.FragmentedGridsV2)
+                foreach (var kvp in state.FragmentedGrids)
                 {
                     var entry = kvp.Value;
                     EditorGUILayout.LabelField($"親家具ID: {kvp.Key}",

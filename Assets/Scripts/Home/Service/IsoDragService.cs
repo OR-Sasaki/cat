@@ -167,11 +167,11 @@ namespace Home.Service
         void BeginWallDrag()
         {
             // Stateから現在のフットプリント開始位置を取得
-            var wallObjectPos = _isoGridService.GetWallObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
+            var (side, position) = _isoGridService.GetWallObjectFootprintStart(_currentIsoDraggableView.UserFurnitureId);
 
             // ドラッグ開始位置を保存し、現在の位置からオブジェクトを削除
-            _dragStartFootprintPos = wallObjectPos.Position;
-            _dragStartWallSide = wallObjectPos.Side;
+            _dragStartFootprintPos = position;
+            _dragStartWallSide = side;
             _isoGridService.RemoveWallObject(_currentIsoDraggableView.UserFurnitureId, _currentIsoDraggableView.FootprintSize);
         }
 

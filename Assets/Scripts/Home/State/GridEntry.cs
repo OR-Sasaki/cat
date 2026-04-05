@@ -19,12 +19,5 @@ namespace Home.State
             Size = size;
             Cells = new int[size.x, size.y];
         }
-
-        /// 既存の int[,] を共有して構築する（並行稼働期間のため）
-        public GridEntry(Vector2Int size, int[,] sharedCells)
-        {
-            Size = size;
-            Cells = sharedCells;
-        }
     }
 }

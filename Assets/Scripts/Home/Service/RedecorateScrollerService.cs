@@ -128,7 +128,7 @@ namespace Home.Service
             UpdateSelectionStates();
         }
 
-        /// ObjectFootprintStartPositionsに基づいて全データの選択状態を更新する
+        /// 全グリッドのObjectPositionsに基づいて全データの選択状態を更新する
         public void UpdateSelectionStates()
         {
             for (var i = 0; i < _data.Count; i++)

@@ -42,7 +42,7 @@ namespace Home.Service
 
         void Save()
         {
-            var fragmentedGrids = _isoGridState.FragmentedGridsV2
+            var fragmentedGrids = _isoGridState.FragmentedGrids
                 .Select(parent => new FragmentedGridSaveEntry
                 {
                     ParentUserFurnitureId = parent.Key,

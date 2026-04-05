@@ -113,16 +113,37 @@ namespace Editor
 
         static void DrawCellGrid(Home.State.IsoGridCell[,] cells, int width, int height)
         {
-            EditorGUI.indentLevel++;
+            // 各セルの表示幅を揃えるため、最大桁数を求める
+            var maxLen = 1;
             for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
                 {
                     if (!cells[x, y].IsOccupied) continue;
-                    EditorGUILayout.LabelField($"[{x}, {y}]", $"UserFurnitureID: {cells[x, y].UserFurnitureId}");
+                    var len = cells[x, y].UserFurnitureId.ToString().Length;
+                    if (len > maxLen) maxLen = len;
                 }
             }
-            EditorGUI.indentLevel--;
+
+            var sb = new System.Text.StringBuilder();
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var cell = cells[x, y];
+                    var text = cell.IsOccupied ? cell.UserFurnitureId.ToString() : ".";
+                    sb.Append(text.PadLeft(maxLen));
+                    if (x < width - 1) sb.Append(' ');
+                }
+                if (y < height - 1) sb.AppendLine();
+            }
+
+            var style = new GUIStyle(EditorStyles.textArea)
+            {
+                font = Font.CreateDynamicFontFromOSFont("Courier New", 11),
+                wordWrap = false,
+            };
+            EditorGUILayout.TextArea(sb.ToString(), style);
         }
     }
 }

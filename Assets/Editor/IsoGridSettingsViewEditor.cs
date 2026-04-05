@@ -113,7 +113,7 @@ namespace Editor
             }
         }
 
-        static void DrawCellGrid(Home.State.IsoGridCell[,] cells, int width, int height)
+        static void DrawCellGrid(int[,] cells, int width, int height)
         {
             // 各セルの表示幅を揃えるため、最大桁数を求める
             var maxLen = 1;
@@ -121,8 +121,8 @@ namespace Editor
             {
                 for (var x = 0; x < width; x++)
                 {
-                    if (!cells[x, y].IsOccupied) continue;
-                    var len = cells[x, y].UserFurnitureId.ToString().Length;
+                    if (cells[x, y] == 0) continue;
+                    var len = cells[x, y].ToString().Length;
                     if (len > maxLen) maxLen = len;
                 }
             }
@@ -132,8 +132,8 @@ namespace Editor
             {
                 for (var x = 0; x < width; x++)
                 {
-                    var cell = cells[x, y];
-                    var text = cell.IsOccupied ? cell.UserFurnitureId.ToString() : ".";
+                    var cellValue = cells[x, y];
+                    var text = cellValue != 0 ? cellValue.ToString() : ".";
                     sb.Append(text.PadLeft(maxLen));
                     if (x < width - 1) sb.Append(' ');
                 }

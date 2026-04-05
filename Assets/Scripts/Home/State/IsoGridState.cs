@@ -34,13 +34,13 @@ namespace Home.State
     public class IsoGridState
     {
         // 床グリッド
-        public IsoGridCell[,] FloorCells { get; private set; }
+        public int[,] FloorCells { get; private set; }
         public int GridWidth { get; private set; }
         public int GridHeight { get; private set; }
 
         // 壁グリッド
-        public IsoGridCell[,] LeftWallCells { get; private set; }
-        public IsoGridCell[,] RightWallCells { get; private set; }
+        public int[,] LeftWallCells { get; private set; }
+        public int[,] RightWallCells { get; private set; }
         public int WallHeight { get; private set; }
 
         // UserFurnitureIDからフットプリント開始位置へのマッピング（床）
@@ -60,9 +60,9 @@ namespace Home.State
             GridHeight = gridHeight;
             WallHeight = wallHeight;
 
-            FloorCells = new IsoGridCell[gridWidth, gridHeight];
-            LeftWallCells = new IsoGridCell[gridHeight, wallHeight];  // (y, z)
-            RightWallCells = new IsoGridCell[gridWidth, wallHeight];  // (x, z)
+            FloorCells = new int[gridWidth, gridHeight];
+            LeftWallCells = new int[gridHeight, wallHeight];  // (y, z)
+            RightWallCells = new int[gridWidth, wallHeight];  // (x, z)
 
             ObjectFootprintStartPositions.Clear();
             WallObjectFootprintStartPositions.Clear();

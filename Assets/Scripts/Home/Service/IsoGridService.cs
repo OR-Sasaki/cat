@@ -78,7 +78,7 @@ namespace Home.Service
         public int GetFloorUserFurnitureId(Vector2Int gridPos)
         {
             if (!IsValidFloorPosition(gridPos)) return 0;
-            return _state.FloorCells[gridPos.x, gridPos.y].UserFurnitureId;
+            return _state.FloorCells[gridPos.x, gridPos.y];
         }
 
         /// 床の指定範囲のセルにオブジェクトを配置
@@ -91,7 +91,7 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidFloorPosition(cellPos)) continue;
 
-                    _state.FloorCells[cellPos.x, cellPos.y].UserFurnitureId = userFurnitureId;
+                    _state.FloorCells[cellPos.x, cellPos.y] = userFurnitureId;
                 }
             }
 
@@ -113,7 +113,7 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidFloorPosition(cellPos)) continue;
 
-                    _state.FloorCells[cellPos.x, cellPos.y].Clear();
+                    _state.FloorCells[cellPos.x, cellPos.y] = 0;
                 }
             }
 
@@ -137,8 +137,8 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidFloorPosition(cellPos)) return false;
 
-                    var cell = _state.FloorCells[cellPos.x, cellPos.y];
-                    if (cell.IsOccupied && cell.UserFurnitureId != selfUserFurnitureId) return false;
+                    var cellValue = _state.FloorCells[cellPos.x, cellPos.y];
+                    if (cellValue != 0 && cellValue != selfUserFurnitureId) return false;
                 }
             }
             return true;
@@ -206,7 +206,7 @@ namespace Home.Service
         {
             if (!IsValidWallPosition(side, gridPos)) return 0;
             var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
-            return cells[gridPos.x, gridPos.y].UserFurnitureId;
+            return cells[gridPos.x, gridPos.y];
         }
 
         /// 壁への配置可能チェック（自分自身のIDは無視）
@@ -221,8 +221,8 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidWallPosition(side, cellPos)) return false;
 
-                    var cell = cells[cellPos.x, cellPos.y];
-                    if (cell.IsOccupied && cell.UserFurnitureId != selfUserFurnitureId) return false;
+                    var cellValue = cells[cellPos.x, cellPos.y];
+                    if (cellValue != 0 && cellValue != selfUserFurnitureId) return false;
                 }
             }
             return true;
@@ -240,7 +240,7 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidWallPosition(side, cellPos)) continue;
 
-                    cells[cellPos.x, cellPos.y].UserFurnitureId = userFurnitureId;
+                    cells[cellPos.x, cellPos.y] = userFurnitureId;
                 }
             }
 
@@ -272,7 +272,7 @@ namespace Home.Service
                     var cellPos = new Vector2Int(wallPos.Position.x + x, wallPos.Position.y + y);
                     if (!IsValidWallPosition(wallPos.Side, cellPos)) continue;
 
-                    cells[cellPos.x, cellPos.y].Clear();
+                    cells[cellPos.x, cellPos.y] = 0;
                 }
             }
 

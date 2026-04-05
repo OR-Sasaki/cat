@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Cat.Furniture;
 using Home.State;
 using Home.View;
@@ -75,6 +77,21 @@ namespace Home.Service
                 {
                     // Fragmentedに乗っている場合は、Fragmented上から削除
                     _isoGridService.RemoveFragmentedObject(targetView.CurrentFragmentedGrid.GetParentUserFurnitureId(), userFurnitureId);
+                }
+            }
+
+            // 自身が持つFragmentedIsoGridに載っている子家具のStateエントリを全て除去
+            // （GameObjectはDestroyで一緒に破棄されるが、Stateに孤児エントリが残るのを防ぐ）
+            var childGrids = targetView.GetComponentsInChildren<FragmentedIsoGrid>();
+            foreach (var grid in childGrids)
+            {
+                var parentId = grid.GetParentUserFurnitureId();
+                if (parentId == 0) continue;
+
+                var childIds = grid.GetPlacedObjectPositions().Keys.ToList();
+                foreach (var childId in childIds)
+                {
+                    _isoGridService.RemoveFragmentedObject(parentId, childId);
                 }
             }
 

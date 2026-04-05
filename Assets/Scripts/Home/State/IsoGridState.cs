@@ -81,5 +81,18 @@ namespace Home.State
             FragmentedGrids.Clear();
             FragmentedGridsV2.Clear();
         }
+
+        public IEnumerable<GridEntry> EnumerateRootGrids()
+        {
+            yield return Floor;
+            yield return LeftWall;
+            yield return RightWall;
+        }
+
+        public IEnumerable<GridEntry> EnumerateAllGrids()
+        {
+            foreach (var g in EnumerateRootGrids()) yield return g;
+            foreach (var g in FragmentedGridsV2.Values) yield return g;
+        }
     }
 }

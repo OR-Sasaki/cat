@@ -102,6 +102,9 @@ namespace Home.Service
                 Depth = 0,
             };
 
+            // 自分の上に積まれている子孫オブジェクトのDepthを追従させる
+            UpdateDescendantDepths(userFurnitureId, 0);
+
             OnObjectPlaced?.Invoke();
         }
 
@@ -369,6 +372,28 @@ namespace Home.Service
                 Position = localGridPos,
                 Depth = depth,
             };
+
+            // 自分の上に積まれている子孫オブジェクトのDepthを追従させる
+            UpdateDescendantDepths(userFurnitureId, depth);
+        }
+
+        /// 指定オブジェクトを根とするサブツリー（そのFragmentedGrid上の家具とその子孫）のDepthを再帰的に更新する
+        /// 全オブジェクトを再計算せず、影響範囲（子孫のみ）に限定する
+        void UpdateDescendantDepths(int parentUserFurnitureId, int parentDepth)
+        {
+            if (!_state.FragmentedGrids.TryGetValue(parentUserFurnitureId, out var entry)) return;
+
+            var newDepth = parentDepth + 1;
+            // Dictionary の値を書き換えるため、キーのスナップショットを取ってから走査する
+            var childIds = new List<int>(entry.ObjectPositions.Keys);
+            foreach (var childId in childIds)
+            {
+                var placement = entry.ObjectPositions[childId];
+                placement.Depth = newDepth;
+                entry.ObjectPositions[childId] = placement;
+
+                UpdateDescendantDepths(childId, newDepth);
+            }
         }
 
         /// FragmentedIsoGrid上からオブジェクトを削除

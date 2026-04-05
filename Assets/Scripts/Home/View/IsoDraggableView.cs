@@ -11,7 +11,7 @@ namespace Home.View
     {
         [Header("Footprint Settings")]
         [SerializeField] Vector2Int _footprintSize = Vector2Int.one;
-        [Tooltip("オブジェクト内のピボット位置（IsoGrid座標）。フットプリントの左下を(0,0)とする")]
+        [Tooltip("オブジェクト内のピボット位置（IsoGrid座標）。フットプリントの下を(0,0)とする")]
         [SerializeField] Vector2Int _pivotGridPosition = Vector2Int.zero;
         [SerializeField] Transform _viewPivot;
 
@@ -103,6 +103,15 @@ namespace Home.View
             {
                 _sortingGroup.sortingOrder = order;
             }
+        }
+
+        /// FragmentedIsoGrid上のフットプリントからSortingOrderを計算する
+        /// フットプリントの一番手前のセル座標を元に、奥行き(x+y)を主キー、Xを副次キーとして算出する
+        /// （同じ奥行きならXが大きい方が手前に表示される）
+        public static int CalculateFragmentedSortingOrder(Vector2Int footprintStart, Vector2Int footprintSize)
+        {
+            var frontCell = footprintStart + footprintSize - Vector2Int.one;
+            return (frontCell.x + frontCell.y) * 1000 + frontCell.x;
         }
     }
 }

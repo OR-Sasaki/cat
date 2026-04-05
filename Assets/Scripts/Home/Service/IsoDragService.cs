@@ -97,8 +97,8 @@ namespace Home.Service
                     // 配置可能な場合、FragmentedIsoGridの子に移動
                     _currentIsoDraggableView.transform.SetParent(fragmentedGrid.transform);
 
-                    // ローカルグリッド座標のx + yをSortingOrderに設定
-                    var sortingOrder = footprintStart.x + footprintStart.y;
+                    var sortingOrder = IsoDraggableView.CalculateFragmentedSortingOrder(
+                        footprintStart, _currentIsoDraggableView.FootprintSize);
                     _currentIsoDraggableView.SetSortingOrder(sortingOrder);
                     return;
                 }

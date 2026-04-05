@@ -269,6 +269,13 @@ namespace Home.Service
         {
             if (furniture.SceneObject is null) return null;
 
+            // 壁家具はFragmentedIsoGrid上に配置不可
+            if (furniture.PlacementType == PlacementType.Wall)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Cannot place wall furniture on fragmented grid: userFurnitureId={userFurnitureId}");
+                return null;
+            }
+
             // 親家具のIsoDraggableViewを探す
             var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
             IsoDraggableView parentView = null;
@@ -287,8 +294,17 @@ namespace Home.Service
                 return null;
             }
 
-            // FragmentedIsoGridを取得
-            var fragmentedGrid = parentView.GetComponentInChildren<FragmentedIsoGrid>();
+            // FragmentedIsoGridを取得（親自身に紐づくものだけを対象とし、子家具のgridを拾わないようにする）
+            FragmentedIsoGrid fragmentedGrid = null;
+            var candidateGrids = parentView.GetComponentsInChildren<FragmentedIsoGrid>();
+            foreach (var candidate in candidateGrids)
+            {
+                if (candidate.IsoDraggableView == parentView)
+                {
+                    fragmentedGrid = candidate;
+                    break;
+                }
+            }
             if (fragmentedGrid is null)
             {
                 Debug.LogWarning($"[FurniturePlacementService] FragmentedIsoGrid not found on parent furniture {parentUserFurnitureId}");
@@ -317,6 +333,9 @@ namespace Home.Service
             var worldPos = fragmentedGrid.LocalGridToWorld(localGridPos + pivotOffset);
             instance.SetPosition(worldPos);
             instance.SetCurrentFragmentedGrid(fragmentedGrid);
+
+            var sortingOrder = IsoDraggableView.CalculateFragmentedSortingOrder(localGridPos, footprintSize);
+            instance.SetSortingOrder(sortingOrder);
 
 #if UNITY_EDITOR
             var gizmo = instance.GetComponent<IsoDraggableGizmo>();

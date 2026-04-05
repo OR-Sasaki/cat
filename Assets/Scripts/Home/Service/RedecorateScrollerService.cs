@@ -135,9 +135,8 @@ namespace Home.Service
             {
                 var data = _data[i];
                 // 床、壁、またはFragmentedGridに登録されていればSelectedをtrueにする
-                data.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId)
-                             || _isoGridState.WallObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId)
-                             || _isoGridState.FragmentedGrids.Values.Any(entry => entry.ObjectPositions.ContainsKey(data.UserFurnitureId));
+                data.Selected = _isoGridState.EnumerateAllGrids()
+                    .Any(g => g.ObjectPositions.ContainsKey(data.UserFurnitureId));
             }
         }
 

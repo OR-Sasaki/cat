@@ -24,73 +24,76 @@ namespace Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("IsoGridState (Runtime)", EditorStyles.boldLabel);
 
-            if (state == null || state.FloorCells == null)
+            if (state == null || state.Floor == null)
             {
                 EditorGUILayout.HelpBox("IsoGridStateは未初期化です（実行中のみ表示されます）", MessageType.Info);
                 return;
             }
 
-            EditorGUILayout.LabelField("GridWidth", state.GridWidth.ToString());
-            EditorGUILayout.LabelField("GridHeight", state.GridHeight.ToString());
-            EditorGUILayout.LabelField("WallHeight", state.WallHeight.ToString());
+            EditorGUILayout.LabelField("GridWidth", state.Floor.Size.x.ToString());
+            EditorGUILayout.LabelField("GridHeight", state.Floor.Size.y.ToString());
+            EditorGUILayout.LabelField("WallHeight", state.LeftWall.Size.y.ToString());
 
             // 床グリッド
-            _floorFoldout = EditorGUILayout.Foldout(_floorFoldout, $"FloorCells [{state.GridWidth} x {state.GridHeight}]");
+            _floorFoldout = EditorGUILayout.Foldout(_floorFoldout, $"FloorCells [{state.Floor.Size.x} x {state.Floor.Size.y}]");
             if (_floorFoldout)
             {
-                DrawCellGrid(state.FloorCells, state.GridWidth, state.GridHeight);
+                DrawCellGrid(state.Floor.Cells, state.Floor.Size.x, state.Floor.Size.y);
             }
 
             // 左壁グリッド
-            _leftWallFoldout = EditorGUILayout.Foldout(_leftWallFoldout, $"LeftWallCells [{state.GridHeight} x {state.WallHeight}]");
+            _leftWallFoldout = EditorGUILayout.Foldout(_leftWallFoldout, $"LeftWallCells [{state.LeftWall.Size.x} x {state.LeftWall.Size.y}]");
             if (_leftWallFoldout)
             {
-                DrawCellGrid(state.LeftWallCells,
-                    state.LeftWallCells.GetLength(0), state.LeftWallCells.GetLength(1));
+                DrawCellGrid(state.LeftWall.Cells, state.LeftWall.Size.x, state.LeftWall.Size.y);
             }
 
             // 右壁グリッド
-            _rightWallFoldout = EditorGUILayout.Foldout(_rightWallFoldout, $"RightWallCells [{state.GridWidth} x {state.WallHeight}]");
+            _rightWallFoldout = EditorGUILayout.Foldout(_rightWallFoldout, $"RightWallCells [{state.RightWall.Size.x} x {state.RightWall.Size.y}]");
             if (_rightWallFoldout)
             {
-                DrawCellGrid(state.RightWallCells,
-                    state.RightWallCells.GetLength(0), state.RightWallCells.GetLength(1));
+                DrawCellGrid(state.RightWall.Cells, state.RightWall.Size.x, state.RightWall.Size.y);
             }
 
             // 床オブジェクト配置
             _floorObjectsFoldout = EditorGUILayout.Foldout(_floorObjectsFoldout,
-                $"ObjectFootprintStartPositions [{state.ObjectFootprintStartPositions.Count}]");
+                $"Floor.ObjectPositions [{state.Floor.ObjectPositions.Count}]");
             if (_floorObjectsFoldout)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in state.ObjectFootprintStartPositions)
+                foreach (var kvp in state.Floor.ObjectPositions)
                 {
-                    EditorGUILayout.LabelField($"UserFurnitureID: {kvp.Key}", $"Position: {kvp.Value}");
+                    EditorGUILayout.LabelField($"UserFurnitureID: {kvp.Key}", $"Position: {kvp.Value.Position}");
                 }
                 EditorGUI.indentLevel--;
             }
 
-            // 壁オブジェクト配置
+            // 壁オブジェクト配置（LeftWall）
             _wallObjectsFoldout = EditorGUILayout.Foldout(_wallObjectsFoldout,
-                $"WallObjectFootprintStartPositions [{state.WallObjectFootprintStartPositions.Count}]");
+                $"WallObjectPositions [L:{state.LeftWall.ObjectPositions.Count} R:{state.RightWall.ObjectPositions.Count}]");
             if (_wallObjectsFoldout)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in state.WallObjectFootprintStartPositions)
+                foreach (var kvp in state.LeftWall.ObjectPositions)
                 {
                     EditorGUILayout.LabelField($"UserFurnitureID: {kvp.Key}",
-                        $"{kvp.Value.Side} ({kvp.Value.Position})");
+                        $"Left ({kvp.Value.Position})");
+                }
+                foreach (var kvp in state.RightWall.ObjectPositions)
+                {
+                    EditorGUILayout.LabelField($"UserFurnitureID: {kvp.Key}",
+                        $"Right ({kvp.Value.Position})");
                 }
                 EditorGUI.indentLevel--;
             }
 
             // FragmentedGridオブジェクト配置
             _fragmentedObjectsFoldout = EditorGUILayout.Foldout(_fragmentedObjectsFoldout,
-                $"FragmentedGrids [{state.FragmentedGrids.Count}]");
+                $"FragmentedGrids [{state.FragmentedGridsV2.Count}]");
             if (_fragmentedObjectsFoldout)
             {
                 EditorGUI.indentLevel++;
-                foreach (var kvp in state.FragmentedGrids)
+                foreach (var kvp in state.FragmentedGridsV2)
                 {
                     var entry = kvp.Value;
                     EditorGUILayout.LabelField($"親家具ID: {kvp.Key}",

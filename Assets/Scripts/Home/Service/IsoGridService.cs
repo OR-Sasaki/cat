@@ -70,15 +70,15 @@ namespace Home.Service
         /// 床グリッド座標が有効範囲内かチェック
         public bool IsValidFloorPosition(Vector2Int gridPos)
         {
-            return gridPos.x >= 0 && gridPos.x < _state.GridWidth
-                && gridPos.y >= 0 && gridPos.y < _state.GridHeight;
+            return gridPos.x >= 0 && gridPos.x < _state.Floor.Size.x
+                && gridPos.y >= 0 && gridPos.y < _state.Floor.Size.y;
         }
 
         /// 床の指定セルのUserFurnitureIdを取得
         public int GetFloorUserFurnitureId(Vector2Int gridPos)
         {
             if (!IsValidFloorPosition(gridPos)) return 0;
-            return _state.FloorCells[gridPos.x, gridPos.y];
+            return _state.Floor.Cells[gridPos.x, gridPos.y];
         }
 
         /// 床の指定範囲のセルにオブジェクトを配置
@@ -91,12 +91,17 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidFloorPosition(cellPos)) continue;
 
-                    _state.FloorCells[cellPos.x, cellPos.y] = userFurnitureId;
+                    _state.Floor.Cells[cellPos.x, cellPos.y] = userFurnitureId;
                 }
             }
 
             // オブジェクトのフットプリント開始位置を記録
             _state.ObjectFootprintStartPositions[userFurnitureId] = footprintStart;
+            _state.Floor.ObjectPositions[userFurnitureId] = new ObjectPlacement
+            {
+                Position = footprintStart,
+                Depth = 0,
+            };
 
             OnObjectPlaced?.Invoke();
         }
@@ -104,7 +109,7 @@ namespace Home.Service
         /// 床の指定範囲のセルからオブジェクトを削除
         public void RemoveFloorObject(int userFurnitureId, Vector2Int footprintSize)
         {
-            var footprintStart = _state.ObjectFootprintStartPositions[userFurnitureId];
+            var footprintStart = _state.Floor.ObjectPositions[userFurnitureId].Position;
 
             for (var x = 0; x < footprintSize.x; x++)
             {
@@ -113,18 +118,19 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidFloorPosition(cellPos)) continue;
 
-                    _state.FloorCells[cellPos.x, cellPos.y] = 0;
+                    _state.Floor.Cells[cellPos.x, cellPos.y] = 0;
                 }
             }
 
             // オブジェクトのフットプリント開始位置を削除
             _state.ObjectFootprintStartPositions.Remove(userFurnitureId);
+            _state.Floor.ObjectPositions.Remove(userFurnitureId);
         }
 
         /// 床のUserFurnitureIdからフットプリント開始位置を取得
         public Vector2Int GetFloorObjectFootprintStart(int userFurnitureId)
         {
-            return _state.ObjectFootprintStartPositions[userFurnitureId];
+            return _state.Floor.ObjectPositions[userFurnitureId].Position;
         }
 
         /// 床の指定範囲が配置可能かチェック（自分自身のIDは無視）
@@ -137,7 +143,7 @@ namespace Home.Service
                     var cellPos = new Vector2Int(footprintStart.x + x, footprintStart.y + y);
                     if (!IsValidFloorPosition(cellPos)) return false;
 
-                    var cellValue = _state.FloorCells[cellPos.x, cellPos.y];
+                    var cellValue = _state.Floor.Cells[cellPos.x, cellPos.y];
                     if (cellValue != 0 && cellValue != selfUserFurnitureId) return false;
                 }
             }
@@ -196,23 +202,23 @@ namespace Home.Service
         /// 壁グリッド座標が有効範囲内かチェック
         public bool IsValidWallPosition(WallSide side, Vector2Int gridPos)
         {
-            var maxWidth = side == WallSide.Left ? _state.GridHeight : _state.GridWidth;
-            return gridPos.x >= 0 && gridPos.x < maxWidth
-                && gridPos.y >= 0 && gridPos.y < _state.WallHeight;
+            var wallEntry = side == WallSide.Left ? _state.LeftWall : _state.RightWall;
+            return gridPos.x >= 0 && gridPos.x < wallEntry.Size.x
+                && gridPos.y >= 0 && gridPos.y < wallEntry.Size.y;
         }
 
         /// 壁の指定セルのUserFurnitureIdを取得
         public int GetWallUserFurnitureId(WallSide side, Vector2Int gridPos)
         {
             if (!IsValidWallPosition(side, gridPos)) return 0;
-            var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+            var cells = (side == WallSide.Left ? _state.LeftWall : _state.RightWall).Cells;
             return cells[gridPos.x, gridPos.y];
         }
 
         /// 壁への配置可能チェック（自分自身のIDは無視）
         public bool CanPlaceWallObject(WallSide side, Vector2Int footprintStart, Vector2Int footprintSize, int selfUserFurnitureId = 0)
         {
-            var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+            var cells = (side == WallSide.Left ? _state.LeftWall : _state.RightWall).Cells;
 
             for (var x = 0; x < footprintSize.x; x++)
             {
@@ -231,7 +237,7 @@ namespace Home.Service
         /// 壁にオブジェクトを配置
         public void PlaceWallObject(WallSide side, Vector2Int footprintStart, Vector2Int footprintSize, int userFurnitureId)
         {
-            var cells = side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+            var cells = (side == WallSide.Left ? _state.LeftWall : _state.RightWall).Cells;
 
             for (var x = 0; x < footprintSize.x; x++)
             {
@@ -250,6 +256,12 @@ namespace Home.Service
                 Side = side,
                 Position = footprintStart
             };
+            var wallEntry = side == WallSide.Left ? _state.LeftWall : _state.RightWall;
+            wallEntry.ObjectPositions[userFurnitureId] = new ObjectPlacement
+            {
+                Position = footprintStart,
+                Depth = 0,
+            };
 
             OnObjectPlaced?.Invoke();
         }
@@ -257,32 +269,54 @@ namespace Home.Service
         /// 壁からオブジェクトを削除
         public void RemoveWallObject(int userFurnitureId, Vector2Int footprintSize)
         {
-            if (!_state.WallObjectFootprintStartPositions.TryGetValue(userFurnitureId, out var wallPos))
+            WallSide side;
+            Vector2Int position;
+            if (_state.LeftWall.ObjectPositions.TryGetValue(userFurnitureId, out var leftPlacement))
+            {
+                side = WallSide.Left;
+                position = leftPlacement.Position;
+            }
+            else if (_state.RightWall.ObjectPositions.TryGetValue(userFurnitureId, out var rightPlacement))
+            {
+                side = WallSide.Right;
+                position = rightPlacement.Position;
+            }
+            else
             {
                 Debug.LogWarning($"[IsoGridService] WallObject {userFurnitureId} not found");
                 return;
             }
 
-            var cells = wallPos.Side == WallSide.Left ? _state.LeftWallCells : _state.RightWallCells;
+            var wallEntry = side == WallSide.Left ? _state.LeftWall : _state.RightWall;
+            var cells = wallEntry.Cells;
 
             for (var x = 0; x < footprintSize.x; x++)
             {
                 for (var y = 0; y < footprintSize.y; y++)
                 {
-                    var cellPos = new Vector2Int(wallPos.Position.x + x, wallPos.Position.y + y);
-                    if (!IsValidWallPosition(wallPos.Side, cellPos)) continue;
+                    var cellPos = new Vector2Int(position.x + x, position.y + y);
+                    if (!IsValidWallPosition(side, cellPos)) continue;
 
                     cells[cellPos.x, cellPos.y] = 0;
                 }
             }
 
             _state.WallObjectFootprintStartPositions.Remove(userFurnitureId);
+            wallEntry.ObjectPositions.Remove(userFurnitureId);
         }
 
         /// 壁のUserFurnitureIdからフットプリント開始位置を取得
         public WallObjectPosition GetWallObjectFootprintStart(int userFurnitureId)
         {
-            return _state.WallObjectFootprintStartPositions[userFurnitureId];
+            if (_state.LeftWall.ObjectPositions.TryGetValue(userFurnitureId, out var left))
+            {
+                return new WallObjectPosition { Side = WallSide.Left, Position = left.Position };
+            }
+            if (_state.RightWall.ObjectPositions.TryGetValue(userFurnitureId, out var right))
+            {
+                return new WallObjectPosition { Side = WallSide.Right, Position = right.Position };
+            }
+            throw new KeyNotFoundException($"WallObject {userFurnitureId} not found");
         }
 
         #endregion
@@ -302,13 +336,30 @@ namespace Home.Service
                 };
                 _state.FragmentedGrids[parentId] = entry;
             }
+            if (!_state.FragmentedGridsV2.ContainsKey(parentId))
+            {
+                _state.FragmentedGridsV2[parentId] = new GridEntry(grid.Size);
+            }
+            return entry;
+        }
+
+        /// FragmentedIsoGridの新GridEntry を取得（なければ生成）
+        GridEntry GetOrCreateFragmentedGridEntryV2(FragmentedIsoGrid grid)
+        {
+            var parentId = grid.GetParentUserFurnitureId();
+            if (!_state.FragmentedGridsV2.TryGetValue(parentId, out var entry))
+            {
+                entry = new GridEntry(grid.Size);
+                _state.FragmentedGridsV2[parentId] = entry;
+            }
             return entry;
         }
 
         /// FragmentedIsoGrid上の指定位置に家具が配置可能かチェック（自分自身のIDは無視）
         public bool CanPlaceFragmentedObject(FragmentedIsoGrid grid, Vector2Int localGridPos, Vector2Int footprint, int selfUserFurnitureId = 0)
         {
-            var entry = GetOrCreateFragmentedGridEntry(grid);
+            GetOrCreateFragmentedGridEntry(grid);
+            var entryV2 = GetOrCreateFragmentedGridEntryV2(grid);
 
             for (var x = 0; x < footprint.x; x++)
             {
@@ -317,7 +368,7 @@ namespace Home.Service
                     var cellPos = new Vector2Int(localGridPos.x + x, localGridPos.y + y);
                     if (!grid.IsValidLocalPosition(cellPos)) return false;
 
-                    var cellValue = entry.Cells[cellPos.x, cellPos.y];
+                    var cellValue = entryV2.Cells[cellPos.x, cellPos.y];
                     if (cellValue != 0 && cellValue != selfUserFurnitureId) return false;
                 }
             }
@@ -329,6 +380,7 @@ namespace Home.Service
         public void PlaceFragmentedObject(FragmentedIsoGrid grid, Vector2Int localGridPos, Vector2Int footprint, int userFurnitureId)
         {
             var entry = GetOrCreateFragmentedGridEntry(grid);
+            var entryV2 = GetOrCreateFragmentedGridEntryV2(grid);
 
             for (var x = 0; x < footprint.x; x++)
             {
@@ -338,11 +390,17 @@ namespace Home.Service
                     if (!grid.IsValidLocalPosition(cellPos)) continue;
 
                     entry.Cells[cellPos.x, cellPos.y] = userFurnitureId;
+                    entryV2.Cells[cellPos.x, cellPos.y] = userFurnitureId;
                 }
             }
 
             var depth = CalculateFragmentedGridDepth(grid);
             entry.ObjectPositions[userFurnitureId] = new FragmentedObjectData
+            {
+                Position = localGridPos,
+                Depth = depth,
+            };
+            entryV2.ObjectPositions[userFurnitureId] = new ObjectPlacement
             {
                 Position = localGridPos,
                 Depth = depth,
@@ -353,18 +411,20 @@ namespace Home.Service
         public void RemoveFragmentedObject(FragmentedIsoGrid grid, int userFurnitureId, Vector2Int footprint)
         {
             var parentId = grid.GetParentUserFurnitureId();
-            if (!_state.FragmentedGrids.TryGetValue(parentId, out var entry))
+            if (!_state.FragmentedGridsV2.TryGetValue(parentId, out var entryV2))
             {
                 Debug.LogError($"[IsoGridService] FragmentedGrid {parentId} not found");
+                return;
             }
 
-            if (!entry.ObjectPositions.TryGetValue(userFurnitureId, out var data))
+            if (!entryV2.ObjectPositions.TryGetValue(userFurnitureId, out var data))
             {
                 Debug.LogWarning($"[IsoGridService] FragmentedObject {userFurnitureId} not found on parent {parentId}");
                 return;
             }
 
             var localGridPos = data.Position;
+            var entry = _state.FragmentedGrids[parentId];
             for (var x = 0; x < footprint.x; x++)
             {
                 for (var y = 0; y < footprint.y; y++)
@@ -373,17 +433,19 @@ namespace Home.Service
                     if (!grid.IsValidLocalPosition(cellPos)) continue;
 
                     entry.Cells[cellPos.x, cellPos.y] = 0;
+                    entryV2.Cells[cellPos.x, cellPos.y] = 0;
                 }
             }
 
             entry.ObjectPositions.Remove(userFurnitureId);
+            entryV2.ObjectPositions.Remove(userFurnitureId);
         }
 
         /// FragmentedIsoGrid上のオブジェクトのフットプリント開始位置を取得
         public Vector2Int GetFragmentedObjectFootprintStart(FragmentedIsoGrid grid, int userFurnitureId)
         {
             var parentId = grid.GetParentUserFurnitureId();
-            return _state.FragmentedGrids[parentId].ObjectPositions[userFurnitureId].Position;
+            return _state.FragmentedGridsV2[parentId].ObjectPositions[userFurnitureId].Position;
         }
 
         /// FragmentedIsoGridのStateエントリを破棄（親家具削除時に呼ぶ）
@@ -391,6 +453,7 @@ namespace Home.Service
         {
             var parentId = grid.GetParentUserFurnitureId();
             _state.FragmentedGrids.Remove(parentId);
+            _state.FragmentedGridsV2.Remove(parentId);
         }
 
         /// FragmentedIsoGridの入れ子の深さを計算

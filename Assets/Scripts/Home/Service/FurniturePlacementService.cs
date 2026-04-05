@@ -153,9 +153,9 @@ namespace Home.Service
         /// 指定サイズの床家具を配置できる空き位置を探す
         Vector2Int? FindAvailableFloorPosition(Vector2Int footprintSize)
         {
-            for (var y = 0; y < _isoGridState.GridHeight - footprintSize.y + 1; y++)
+            for (var y = 0; y < _isoGridState.Floor.Size.y - footprintSize.y + 1; y++)
             {
-                for (var x = 0; x < _isoGridState.GridWidth - footprintSize.x + 1; x++)
+                for (var x = 0; x < _isoGridState.Floor.Size.x - footprintSize.x + 1; x++)
                 {
                     var pos = new Vector2Int(x, y);
                     if (_isoGridService.CanPlaceFloorObject(pos, footprintSize))
@@ -237,8 +237,9 @@ namespace Home.Service
         /// 壁の空き位置を探す
         Vector2Int? FindAvailableWallPosition(WallSide side, Vector2Int footprintSize)
         {
-            var maxWidth = side == WallSide.Left ? _isoGridState.GridHeight : _isoGridState.GridWidth;
-            var maxHeight = _isoGridState.WallHeight;
+            var wallEntry = side == WallSide.Left ? _isoGridState.LeftWall : _isoGridState.RightWall;
+            var maxWidth = wallEntry.Size.x;
+            var maxHeight = wallEntry.Size.y;
 
             for (var z = 0; z < maxHeight - footprintSize.y + 1; z++)
             {

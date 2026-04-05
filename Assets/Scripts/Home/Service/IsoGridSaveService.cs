@@ -42,44 +42,20 @@ namespace Home.Service
 
         void Save()
         {
-            // 床オブジェクトを配列に変換
-            var objectPositions = _isoGridState.ObjectFootprintStartPositions
-                .Select(kvp => new IsoGridObjectPosition
-                {
-                    UserFurnitureId = kvp.Key,
-                    X = kvp.Value.x,
-                    Y = kvp.Value.y
-                })
-                .ToArray();
-
-            // 壁オブジェクトを配列に変換
-            var wallObjectPositions = _isoGridState.WallObjectFootprintStartPositions
-                .Select(kvp => new IsoGridWallObjectPosition
-                {
-                    UserFurnitureId = kvp.Key,
-                    Side = (int)kvp.Value.Side,
-                    X = kvp.Value.Position.x,
-                    Z = kvp.Value.Position.y
-                })
-                .ToArray();
-
-            // FragmentedIsoGrid上のオブジェクトを配列に変換
-            var fragmentedObjectPositions = _isoGridState.FragmentedGrids
-                .SelectMany(parent => parent.Value.ObjectPositions.Select(child => new IsoGridFragmentedObjectPosition
+            var fragmentedGrids = _isoGridState.FragmentedGridsV2
+                .Select(parent => new FragmentedGridSaveEntry
                 {
                     ParentUserFurnitureId = parent.Key,
-                    UserFurnitureId = child.Key,
-                    X = child.Value.Position.x,
-                    Y = child.Value.Position.y,
-                    Depth = child.Value.Depth
-                }))
+                    ObjectPositions = ToSaveEntries(parent.Value.ObjectPositions),
+                })
                 .ToArray();
 
             var saveData = new IsoGridSaveData
             {
-                ObjectPositions = objectPositions,
-                WallObjectPositions = wallObjectPositions,
-                FragmentedObjectPositions = fragmentedObjectPositions
+                Floor = new GridSaveEntry { ObjectPositions = ToSaveEntries(_isoGridState.Floor.ObjectPositions) },
+                LeftWall = new GridSaveEntry { ObjectPositions = ToSaveEntries(_isoGridState.LeftWall.ObjectPositions) },
+                RightWall = new GridSaveEntry { ObjectPositions = ToSaveEntries(_isoGridState.RightWall.ObjectPositions) },
+                FragmentedGrids = fragmentedGrids,
             };
 
             // UserStateに保存
@@ -88,7 +64,20 @@ namespace Home.Service
             // PlayerPrefsに保存
             _playerPrefsService.Save(PlayerPrefsKey.IsoGrid, saveData);
 
-            Debug.Log($"IsoGridSaveService: Saved {objectPositions.Length} floor objects, {wallObjectPositions.Length} wall objects, and {fragmentedObjectPositions.Length} fragmented objects to IsoGrid");
+            Debug.Log($"IsoGridSaveService: Saved Floor={saveData.Floor.ObjectPositions.Length}, LeftWall={saveData.LeftWall.ObjectPositions.Length}, RightWall={saveData.RightWall.ObjectPositions.Length}, FragmentedGrids={fragmentedGrids.Length}");
+        }
+
+        static ObjectPlacementSaveEntry[] ToSaveEntries(System.Collections.Generic.Dictionary<int, ObjectPlacement> positions)
+        {
+            return positions
+                .Select(kvp => new ObjectPlacementSaveEntry
+                {
+                    UserFurnitureId = kvp.Key,
+                    X = kvp.Value.Position.x,
+                    Y = kvp.Value.Position.y,
+                    Depth = kvp.Value.Depth,
+                })
+                .ToArray();
         }
     }
 }

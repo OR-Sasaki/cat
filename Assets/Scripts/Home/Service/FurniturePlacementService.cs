@@ -269,6 +269,13 @@ namespace Home.Service
         {
             if (furniture.SceneObject is null) return null;
 
+            // 壁家具はFragmentedIsoGrid上に配置不可
+            if (furniture.PlacementType == PlacementType.Wall)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Cannot place wall furniture on fragmented grid: userFurnitureId={userFurnitureId}");
+                return null;
+            }
+
             // 親家具のIsoDraggableViewを探す
             var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
             IsoDraggableView parentView = null;

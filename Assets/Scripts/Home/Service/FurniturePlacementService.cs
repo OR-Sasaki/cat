@@ -68,7 +68,7 @@ namespace Home.Service
             }
             else
             {
-                if (targetView.CurrentFragmentedGrid == null)
+                if (targetView.CurrentFragmentedGrid is null)
                 {
                     // Fragmentedに乗っていない場合は、Floor上から削除
                     _isoGridService.RemoveFloorObject(userFurnitureId, targetView.FootprintSize);

@@ -1,7 +1,6 @@
 using Cat.Furniture;
 using Home.State;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Home.View
 {
@@ -22,15 +21,13 @@ namespace Home.View
         [SerializeField] GameObject _rightViewPivot;
         [SerializeField] GameObject _leftViewPivot;
 
-        [Header("Sorting")]
-        [SerializeField] SortingGroup _sortingGroup;
-
         bool _isDragging;
+        bool _isPlacedOnGrid;
         PlacementType _placementType;
         WallSide _wallSide;
-        FragmentedIsoGrid _currentFragmentedGrid;
 
         public bool IsDragging => _isDragging;
+        public bool IsPlacedOnGrid => _isPlacedOnGrid;
         public Vector2Int FootprintSize => _footprintSize;
         public Vector2Int PivotGridPosition => _pivotGridPosition;
         public int UserFurnitureId => _userFurnitureId;
@@ -39,7 +36,6 @@ namespace Home.View
         public PlacementType PlacementType => _placementType;
         public WallSide WallSide => _wallSide;
         public bool IsWallPlacement => _placementType == PlacementType.Wall;
-        public FragmentedIsoGrid CurrentFragmentedGrid => _currentFragmentedGrid;
 
         void Awake()
         {
@@ -64,10 +60,10 @@ namespace Home.View
             _isDragging = isDragging;
         }
 
-        // 現在所属しているFragmentedIsoGridを設定
-        public void SetCurrentFragmentedGrid(FragmentedIsoGrid grid)
+        // グリッド配置状態を設定
+        public void SetPlacedOnGrid(bool isPlaced)
         {
-            _currentFragmentedGrid = grid;
+            _isPlacedOnGrid = isPlaced;
         }
 
         // UserFurnitureIdを設定
@@ -94,15 +90,6 @@ namespace Home.View
         {
             if (_rightViewPivot) _rightViewPivot.SetActive(isRight);
             if(_leftViewPivot) _leftViewPivot.SetActive(!isRight);
-        }
-
-        /// SortingGroupのSortingOrderを設定
-        public void SetSortingOrder(int order)
-        {
-            if (_sortingGroup != null)
-            {
-                _sortingGroup.sortingOrder = order;
-            }
         }
     }
 }

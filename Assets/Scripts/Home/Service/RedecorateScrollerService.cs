@@ -89,10 +89,12 @@ namespace Home.Service
                 if (furniture is null) continue;
 
                 var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
+                // 床または壁のObjectFootprintStartPositionsに登録されていればSelectedをtrueにする
+                furnitureData.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(userFurniture.Id)
+                                      || _isoGridState.WallObjectFootprintStartPositions.ContainsKey(userFurniture.Id);
                 _data.Add(furnitureData);
             }
 
-            UpdateSelectionStates();
             _redecorateUiView.Scroller.ReloadData();
         }
 
@@ -105,19 +107,16 @@ namespace Home.Service
             if (selectedData?.Furniture is null) return;
 
             var userFurnitureId = selectedData.UserFurnitureId;
-            var furniture = selectedData.Furniture;
 
-            // selectedDataで判定するのは設計思想的に微妙だが、設置判定は処理コストが重いためこうしている
-            // 直後にUpdateSelectionStates()をしていることで、設置判定をキャッシュしている
             if (selectedData.Selected)
             {
                 // 配置済みの場合：グリッドとシーンから削除
-                _furniturePlacementService.RemoveFurniture(userFurnitureId, furniture);
+                _furniturePlacementService.RemoveFurniture(userFurnitureId, selectedData.Furniture);
             }
             else
             {
                 // 未配置の場合：空き位置を探して配置
-                var placedPosition = _furniturePlacementService.PlaceFurniture(userFurnitureId, furniture);
+                var placedPosition = _furniturePlacementService.PlaceFurniture(userFurnitureId, selectedData.Furniture);
                 if (placedPosition.HasValue)
                 {
                     _redecorateCameraService.MoveTo(placedPosition.Value);
@@ -128,15 +127,15 @@ namespace Home.Service
             UpdateSelectionStates();
         }
 
-        /// 全グリッドのObjectPositionsに基づいて全データの選択状態を更新する
+        /// ObjectFootprintStartPositionsに基づいて全データの選択状態を更新する
         public void UpdateSelectionStates()
         {
             for (var i = 0; i < _data.Count; i++)
             {
                 var data = _data[i];
-                // 床、壁、またはFragmentedGridに登録されていればSelectedをtrueにする
-                data.Selected = _isoGridState.EnumerateAllGrids()
-                    .Any(g => g.ObjectPositions.ContainsKey(data.UserFurnitureId));
+                // 床または壁のObjectFootprintStartPositionsに登録されていればSelectedをtrueにする
+                data.Selected = _isoGridState.ObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId)
+                             || _isoGridState.WallObjectFootprintStartPositions.ContainsKey(data.UserFurnitureId);
             }
         }
 

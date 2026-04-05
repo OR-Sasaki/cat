@@ -37,7 +37,7 @@ namespace Home.Service
         }
 
         /// 家具をシーンとグリッドから削除する
-        public bool RemoveFurniture(int userFurnitureId, Furniture furniture)
+        public bool RemoveFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
             if (furniture.SceneObject is null) return false;
 
@@ -66,24 +66,7 @@ namespace Home.Service
             }
             else
             {
-                if (targetView.CurrentFragmentedGrid is null)
-                {
-                    // Fragmentedに乗っていない場合は、Floor上から削除
-                    _isoGridService.RemoveFloorObject(userFurnitureId, targetView.FootprintSize);
-                }
-                else
-                {
-                    // Fragmentedに乗っている場合は、Fragmented上から削除
-                    _isoGridService.RemoveFragmentedObject(targetView.CurrentFragmentedGrid, userFurnitureId, targetView.FootprintSize);
-                }
-            }
-
-            // 自身が持つFragmentedIsoGridに紐づくStateエントリを破棄
-            // （GameObjectはDestroyで一緒に破棄されるが、Stateに孤児エントリが残るのを防ぐ）
-            var childGrids = targetView.GetComponentsInChildren<FragmentedIsoGrid>();
-            foreach (var grid in childGrids)
-            {
-                _isoGridService.UnregisterFragmentedGrid(grid);
+                _isoGridService.RemoveFloorObject(userFurnitureId, targetView.FootprintSize);
             }
 
             // シーンからオブジェクトを削除
@@ -137,6 +120,7 @@ namespace Home.Service
             var pivotOffset = instance.PivotGridPosition;
             var worldPos = _isoGridService.FloorGridToWorld(gridPos + pivotOffset);
             instance.SetPosition(worldPos);
+            instance.SetPlacedOnGrid(true);
 
 #if UNITY_EDITOR
             var gizmo = instance.GetComponent<IsoDraggableGizmo>();
@@ -153,9 +137,9 @@ namespace Home.Service
         /// 指定サイズの床家具を配置できる空き位置を探す
         Vector2Int? FindAvailableFloorPosition(Vector2Int footprintSize)
         {
-            for (var y = 0; y < _isoGridState.Floor.Size.y - footprintSize.y + 1; y++)
+            for (var y = 0; y < _isoGridState.GridHeight - footprintSize.y + 1; y++)
             {
-                for (var x = 0; x < _isoGridState.Floor.Size.x - footprintSize.x + 1; x++)
+                for (var x = 0; x < _isoGridState.GridWidth - footprintSize.x + 1; x++)
                 {
                     var pos = new Vector2Int(x, y);
                     if (_isoGridService.CanPlaceFloorObject(pos, footprintSize))
@@ -221,6 +205,7 @@ namespace Home.Service
             var pivotOffset = instance.PivotGridPosition;
             var worldPos = _isoGridService.WallGridToWorld(side, gridPos + pivotOffset);
             instance.SetPosition(worldPos);
+            instance.SetPlacedOnGrid(true);
 
 #if UNITY_EDITOR
             var gizmo = instance.GetComponent<IsoDraggableGizmo>();
@@ -237,9 +222,8 @@ namespace Home.Service
         /// 壁の空き位置を探す
         Vector2Int? FindAvailableWallPosition(WallSide side, Vector2Int footprintSize)
         {
-            var wallEntry = side == WallSide.Left ? _isoGridState.LeftWall : _isoGridState.RightWall;
-            var maxWidth = wallEntry.Size.x;
-            var maxHeight = wallEntry.Size.y;
+            var maxWidth = side == WallSide.Left ? _isoGridState.GridHeight : _isoGridState.GridWidth;
+            var maxHeight = _isoGridState.WallHeight;
 
             for (var z = 0; z < maxHeight - footprintSize.y + 1; z++)
             {
@@ -256,81 +240,5 @@ namespace Home.Service
         }
 
         #endregion
-
-        #region FragmentedIsoGrid配置
-
-        /// FragmentedIsoGrid上に家具を配置する
-        /// 親家具のUserFurnitureIdと配置するローカル座標を指定
-        public Vector3? PlaceFragmentedFurnitureAt(
-            int parentUserFurnitureId,
-            int userFurnitureId,
-            Furniture furniture,
-            Vector2Int localGridPos)
-        {
-            if (furniture.SceneObject is null) return null;
-
-            // 親家具のIsoDraggableViewを探す
-            var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
-            IsoDraggableView parentView = null;
-            foreach (var draggable in allDraggables)
-            {
-                if (draggable.UserFurnitureId == parentUserFurnitureId)
-                {
-                    parentView = draggable;
-                    break;
-                }
-            }
-
-            if (parentView is null)
-            {
-                Debug.LogWarning($"[FurniturePlacementService] Parent furniture {parentUserFurnitureId} not found");
-                return null;
-            }
-
-            // FragmentedIsoGridを取得
-            var fragmentedGrid = parentView.GetComponentInChildren<FragmentedIsoGrid>();
-            if (fragmentedGrid is null)
-            {
-                Debug.LogWarning($"[FurniturePlacementService] FragmentedIsoGrid not found on parent furniture {parentUserFurnitureId}");
-                return null;
-            }
-
-            var footprintSize = furniture.SceneObject.FootprintSize;
-
-            // 配置可能かチェック
-            if (!_isoGridService.CanPlaceFragmentedObject(fragmentedGrid, localGridPos, footprintSize, userFurnitureId))
-            {
-                Debug.LogWarning($"[FurniturePlacementService] Cannot place fragmented furniture at {localGridPos}: parentId={parentUserFurnitureId}, userFurnitureId={userFurnitureId}");
-                return null;
-            }
-
-            // プレハブをインスタンス化
-            var instance = Object.Instantiate(furniture.SceneObject, fragmentedGrid.transform, true);
-            instance.SetUserFurnitureId(userFurnitureId);
-            instance.SetPlacementType(PlacementType.Floor);
-
-            // FragmentedIsoGridにオブジェクトを配置（Depthは内部で計算）
-            _isoGridService.PlaceFragmentedObject(fragmentedGrid, localGridPos, footprintSize, userFurnitureId);
-
-            // ワールド座標を計算してセット
-            var pivotOffset = instance.PivotGridPosition;
-            var worldPos = fragmentedGrid.LocalGridToWorld(localGridPos + pivotOffset);
-            instance.SetPosition(worldPos);
-            instance.SetCurrentFragmentedGrid(fragmentedGrid);
-
-#if UNITY_EDITOR
-            var gizmo = instance.GetComponent<IsoDraggableGizmo>();
-            if (gizmo != null)
-            {
-                var settingsView = Object.FindFirstObjectByType<IsoGridSettingsView>();
-                gizmo.Init(settingsView, _isoGridService);
-            }
-#endif
-
-            return worldPos;
-        }
-
-        #endregion
     }
 }
-

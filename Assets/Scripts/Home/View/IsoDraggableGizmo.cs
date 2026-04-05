@@ -47,21 +47,13 @@ namespace Home.View
 
         void DrawFloorGizmo()
         {
-            // FragmentedIsoGrid上にいる場合はそちらで描画
-            var fragmentedGrid = RaycastForFragmentedGrid(transform.position);
-            if (fragmentedGrid != null)
-            {
-                DrawFragmentedGridGizmo(fragmentedGrid);
-                return;
-            }
-
             var footprintSize = _isoDraggableView.FootprintSize;
             var pivotGridPosition = _isoDraggableView.PivotGridPosition;
             var userFurnitureId = _isoDraggableView.UserFurnitureId;
 
             // 軸ベクトルを計算
-            var angleRad = IsoGridSettingsView.Angle * Mathf.Deg2Rad;
-            var cellSize = IsoGridSettingsView.CellSize;
+            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = _isoGridSettingsView.CellSize;
             var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var origin = _isoGridSettingsView.Origin;
@@ -110,83 +102,6 @@ namespace Home.View
             Gizmos.DrawLine(outerCorner3, outerCorner0);
         }
 
-        void DrawFragmentedGridGizmo(FragmentedIsoGrid fragmentedGrid)
-        {
-            var footprintSize = _isoDraggableView.FootprintSize;
-            var pivotGridPosition = _isoDraggableView.PivotGridPosition;
-            var userFurnitureId = _isoDraggableView.UserFurnitureId;
-
-            // 軸ベクトルを計算
-            var angleRad = IsoGridSettingsView.Angle * Mathf.Deg2Rad;
-            var cellSize = fragmentedGrid.CellSize;
-            var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-            var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
-
-            // ローカルグリッド座標を計算
-            var localGridPos = fragmentedGrid.WorldToLocalGrid(transform.position);
-            var footprintStartPos = localGridPos - pivotGridPosition;
-
-            // 配置可能かチェック
-            var canPlace = _isoGridService.CanPlaceFragmentedObject(fragmentedGrid, footprintStartPos, footprintSize, userFurnitureId);
-
-            // 配置可能なら緑、不可能なら赤
-            var color = canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
-            Gizmos.color = color;
-
-            // FragmentedGridのoriginは、そのGridのtransform.position
-            var origin = fragmentedGrid.transform.position;
-
-            // footprintSize分のセルを描画
-            for (var x = 0; x < footprintSize.x; x++)
-            {
-                for (var y = 0; y < footprintSize.y; y++)
-                {
-                    var cellOrigin = origin + (Vector3)((footprintStartPos.x + x) * xAxis + (footprintStartPos.y + y) * yAxis);
-
-                    var corner0 = cellOrigin;
-                    var corner1 = cellOrigin + (Vector3)xAxis;
-                    var corner2 = cellOrigin + (Vector3)xAxis + (Vector3)yAxis;
-                    var corner3 = cellOrigin + (Vector3)yAxis;
-
-                    // 塗りつぶし
-                    DrawFilledQuad(corner0, corner1, corner2, corner3, color);
-                }
-            }
-
-            // 外周のアウトラインを描画
-            var footprintOrigin = origin + (Vector3)(footprintStartPos.x * xAxis + footprintStartPos.y * yAxis);
-            var outerCorner0 = footprintOrigin;
-            var outerCorner1 = footprintOrigin + (Vector3)(xAxis * footprintSize.x);
-            var outerCorner2 = footprintOrigin + (Vector3)(xAxis * footprintSize.x + yAxis * footprintSize.y);
-            var outerCorner3 = footprintOrigin + (Vector3)(yAxis * footprintSize.y);
-
-            Gizmos.color = canPlace ? Color.green : Color.red;
-            Gizmos.DrawLine(outerCorner0, outerCorner1);
-            Gizmos.DrawLine(outerCorner1, outerCorner2);
-            Gizmos.DrawLine(outerCorner2, outerCorner3);
-            Gizmos.DrawLine(outerCorner3, outerCorner0);
-        }
-
-        /// RayCastでFragmentedIsoGridを検出（自身のColliderは除外）
-        FragmentedIsoGrid RaycastForFragmentedGrid(Vector3 worldPos)
-        {
-            var hits = Physics2D.RaycastAll(worldPos, Vector2.zero, 0f, -1);
-
-            foreach (var hit in hits)
-            {
-                var fragmentedGrid = hit.collider.GetComponent<FragmentedIsoGrid>();
-                if (fragmentedGrid == null) continue;
-
-                // 自身のColliderに属するFragmentedIsoGridは除外
-                var draggableInParent = hit.collider.GetComponentInParent<IsoDraggableView>();
-                if (draggableInParent == _isoDraggableView) continue;
-
-                return fragmentedGrid;
-            }
-
-            return null;
-        }
-
         void DrawWallGizmo()
         {
             var footprintSize = _isoDraggableView.FootprintSize;
@@ -195,8 +110,8 @@ namespace Home.View
             var wallSide = _isoDraggableView.WallSide;
 
             // 軸ベクトルを計算
-            var angleRad = IsoGridSettingsView.Angle * Mathf.Deg2Rad;
-            var cellSize = IsoGridSettingsView.CellSize;
+            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = _isoGridSettingsView.CellSize;
             var xAxis = new Vector2(Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var yAxis = new Vector2(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad)) * cellSize;
             var zAxis = Vector3.up * cellSize;

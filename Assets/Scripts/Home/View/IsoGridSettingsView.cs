@@ -1,6 +1,5 @@
 using System.Collections;
 using Home.Service;
-using Home.State;
 using NavMeshPlus.Components;
 using UnityEngine;
 using VContainer;
@@ -12,11 +11,10 @@ namespace Home.View
     public class IsoGridSettingsView : MonoBehaviour
     {
         [Header("Grid Settings")]
-        [SerializeField] int _gridWidth = 32;
-        [SerializeField] int _gridHeight = 32;
-
-        public const float CellSize = 0.4885f;
-        public const float Angle = 15.5f;
+        [SerializeField] int _gridWidth = 10;
+        [SerializeField] int _gridHeight = 10;
+        [SerializeField] float _cellSize = 1f;
+        [SerializeField, Range(0f, 90f)] float _angle = 30f;
 
         [Header("Wall Settings")]
         [SerializeField] int _wallHeight = 10;
@@ -26,17 +24,10 @@ namespace Home.View
 
         public int GridWidth => _gridWidth;
         public int GridHeight => _gridHeight;
+        public float CellSize => _cellSize;
+        public float Angle => _angle;
         public int WallHeight => _wallHeight;
         public Vector3 Origin => transform.position;
         public NavMeshSurface Surface2D => _surface2D;
-
-        // ランタイムでIsoGridStateの中身をインスペクタから確認するための参照
-        public IsoGridState IsoGridStateRef { get; private set; }
-
-        [Inject]
-        void Construct(IsoGridState isoGridState)
-        {
-            IsoGridStateRef = isoGridState;
-        }
     }
 }

@@ -516,7 +516,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2.66
+  orthographic size: 5.8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -6903,7 +6903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoGridTest
   _isoGridSettingsView: {fileID: 1759482995}
   _lineInterval: 1
-  _showFloorGrid: 0
+  _showFloorGrid: 1
   _floorGridColor: {r: 0, g: 1, b: 0, a: 1}
   _showWallGrid: 1
   _wallHeight: 10
@@ -6938,6 +6938,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Home.View.IsoGridSettingsView
   _gridWidth: 32
   _gridHeight: 32
+  _cellSize: 0.4885
+  _angle: 15.5
   _wallHeight: 10
   _surface2D: {fileID: 868431863}
 --- !u!1 &1838396421

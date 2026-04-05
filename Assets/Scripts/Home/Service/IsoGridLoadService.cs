@@ -59,82 +59,52 @@ namespace Home.Service
             // UserStateに設定
             _userState.IsoGridSaveData = saveData;
 
-            var floorLoadedCount = LoadFloorObjects(saveData.Floor);
-            var leftWallLoadedCount = LoadWallObjects(saveData.LeftWall, WallSide.Left);
-            var rightWallLoadedCount = LoadWallObjects(saveData.RightWall, WallSide.Right);
-            var fragmentedLoadedCount = LoadFragmentedObjects(saveData.FragmentedGrids);
+            var floorLoadedCount = LoadFloorObjects(saveData);
+            var wallLoadedCount = LoadWallObjects(saveData);
 
-            Debug.Log($"IsoGridLoadService: Loaded Floor={floorLoadedCount}, LeftWall={leftWallLoadedCount}, RightWall={rightWallLoadedCount}, Fragmented={fragmentedLoadedCount}");
+            Debug.Log($"IsoGridLoadService: Loaded {floorLoadedCount} floor objects and {wallLoadedCount} wall objects from IsoGrid");
         }
 
-        int LoadFloorObjects(GridSaveEntry entry)
+        int LoadFloorObjects(IsoGridSaveData saveData)
         {
-            if (entry?.ObjectPositions is null or { Length: 0 })
+            if (saveData.ObjectPositions is null or { Length: 0 })
             {
                 return 0;
             }
 
             var loadedCount = 0;
-            foreach (var placement in entry.ObjectPositions)
+            foreach (var objectPosition in saveData.ObjectPositions)
             {
-                var furnitureAsset = GetFurnitureAsset(placement.UserFurnitureId);
+                var furnitureAsset = GetFurnitureAsset(objectPosition.UserFurnitureId);
                 if (furnitureAsset == null) continue;
 
-                var gridPos = new Vector2Int(placement.X, placement.Y);
-                _furniturePlacementService.PlaceFloorFurnitureAt(placement.UserFurnitureId, furnitureAsset, gridPos);
+                // 指定位置に床家具を配置
+                var gridPos = new Vector2Int(objectPosition.X, objectPosition.Y);
+                _furniturePlacementService.PlaceFloorFurnitureAt(objectPosition.UserFurnitureId, furnitureAsset, gridPos);
                 loadedCount++;
             }
 
             return loadedCount;
         }
 
-        int LoadWallObjects(GridSaveEntry entry, WallSide side)
+        int LoadWallObjects(IsoGridSaveData saveData)
         {
-            if (entry?.ObjectPositions is null or { Length: 0 })
+            if (saveData.WallObjectPositions is null or { Length: 0 })
             {
                 return 0;
             }
 
             var loadedCount = 0;
-            foreach (var placement in entry.ObjectPositions)
+            foreach (var wallObjectPosition in saveData.WallObjectPositions)
             {
-                var furnitureAsset = GetFurnitureAsset(placement.UserFurnitureId);
+                var furnitureAsset = GetFurnitureAsset(wallObjectPosition.UserFurnitureId);
                 if (furnitureAsset == null) continue;
 
-                var gridPos = new Vector2Int(placement.X, placement.Y);
-                _furniturePlacementService.PlaceWallFurnitureAt(placement.UserFurnitureId, furnitureAsset, side, gridPos);
+                // 指定位置に壁家具を配置
+                var side = (WallSide)wallObjectPosition.Side;
+                var gridPos = new Vector2Int(wallObjectPosition.X, wallObjectPosition.Z);
+                _furniturePlacementService.PlaceWallFurnitureAt(wallObjectPosition.UserFurnitureId, furnitureAsset, side, gridPos);
                 loadedCount++;
-            }
-
-            return loadedCount;
-        }
-
-        int LoadFragmentedObjects(FragmentedGridSaveEntry[] fragmentedGrids)
-        {
-            if (fragmentedGrids is null or { Length: 0 })
-            {
-                return 0;
-            }
-
-            // Depthが浅い順（昇順）にソートしてロード（親→子の順で配置する必要があるため）
-            var sortedPositions = fragmentedGrids
-                .SelectMany(parent => parent.ObjectPositions.Select(child => (parent.ParentUserFurnitureId, Placement: child)))
-                .OrderBy(p => p.Placement.Depth);
-
-            var loadedCount = 0;
-            foreach (var (parentUserFurnitureId, placement) in sortedPositions)
-            {
-                var furnitureAsset = GetFurnitureAsset(placement.UserFurnitureId);
-                if (furnitureAsset == null) continue;
-
-                var localGridPos = new Vector2Int(placement.X, placement.Y);
-                var result = _furniturePlacementService.PlaceFragmentedFurnitureAt(
-                    parentUserFurnitureId,
-                    placement.UserFurnitureId,
-                    furnitureAsset,
-                    localGridPos);
-
-                if (result is not null) loadedCount++;
             }
 
             return loadedCount;

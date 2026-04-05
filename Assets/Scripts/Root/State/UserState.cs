@@ -14,32 +14,25 @@ namespace Root.State
     [Serializable]
     public class IsoGridSaveData
     {
-        public GridSaveEntry Floor;
-        public GridSaveEntry LeftWall;
-        public GridSaveEntry RightWall;
-        public FragmentedGridSaveEntry[] FragmentedGrids;
+        public IsoGridObjectPosition[] ObjectPositions;
+        public IsoGridWallObjectPosition[] WallObjectPositions;
     }
 
     [Serializable]
-    public class GridSaveEntry
-    {
-        public ObjectPlacementSaveEntry[] ObjectPositions;
-    }
-
-    [Serializable]
-    public class FragmentedGridSaveEntry
-    {
-        public int ParentUserFurnitureId; // FragmentedIsoGridを持つ親家具のID
-        public ObjectPlacementSaveEntry[] ObjectPositions;
-    }
-
-    [Serializable]
-    public class ObjectPlacementSaveEntry
+    public class IsoGridObjectPosition
     {
         public int UserFurnitureId;
         public int X;
         public int Y;
-        public int Depth; // ルート=0, Fragmented=1以上（ロード順序用）
+    }
+
+    [Serializable]
+    public class IsoGridWallObjectPosition
+    {
+        public int UserFurnitureId;
+        public int Side; // 0=Left, 1=Right
+        public int X;
+        public int Z;
     }
 
     [Serializable]

@@ -8,10 +8,14 @@ namespace Home.State
     /// </summary>
     public class RedecorateFurnitureData
     {
+        // ユーザーの所持ID
         public int UserFurnitureId { get; }
-        public Furniture Furniture { get; }
-        public readonly UnityEvent<bool> SelectedChanged = new();
 
+        // マスタデータ(ScriptableObject)
+        public Furniture Furniture { get; }
+
+        // 選択状況
+        public readonly UnityEvent<bool> SelectedChanged = new();
         bool _selected;
 
         public bool Selected

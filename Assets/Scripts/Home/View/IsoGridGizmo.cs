@@ -42,8 +42,8 @@ namespace Home.View
         {
             Gizmos.color = _floorGridColor;
 
-            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
-            var cellSize = _isoGridSettingsView.CellSize;
+            var angleRad = IsoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = IsoGridSettingsView.CellSize;
             var xAxis = new Vector3(Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
             var yAxis = new Vector3(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
 
@@ -70,8 +70,8 @@ namespace Home.View
 
         void DrawWallGrid()
         {
-            var angleRad = _isoGridSettingsView.Angle * Mathf.Deg2Rad;
-            var cellSize = _isoGridSettingsView.CellSize;
+            var angleRad = IsoGridSettingsView.Angle * Mathf.Deg2Rad;
+            var cellSize = IsoGridSettingsView.CellSize;
             var xAxis = new Vector3(Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
             var yAxis = new Vector3(-Mathf.Cos(angleRad), -Mathf.Sin(angleRad), 0f) * cellSize;
             var zAxis = Vector3.up * cellSize;

@@ -318,6 +318,9 @@ namespace Home.Service
             instance.SetPosition(worldPos);
             instance.SetCurrentFragmentedGrid(fragmentedGrid);
 
+            var sortingOrder = IsoDraggableView.CalculateFragmentedSortingOrder(localGridPos, footprintSize);
+            instance.SetSortingOrder(sortingOrder);
+
 #if UNITY_EDITOR
             var gizmo = instance.GetComponent<IsoDraggableGizmo>();
             if (gizmo != null)

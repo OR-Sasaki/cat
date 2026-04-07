@@ -34,6 +34,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string LicenseButtonContactSupport;
             public static string LicenseButtonUpgradeLicense;
             public static string LicenseButtonManageLicense;
+
+            public static string ResetLicenseRemotely;
             
             public static void LoadEnglish() {
                 // License & Authentication
@@ -69,6 +71,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 LicenseButtonContactSupport = "Contact Support";
                 LicenseButtonUpgradeLicense = "Upgrade License";
                 LicenseButtonManageLicense = "Manage License";
+                
+                ResetLicenseRemotely = " Reset license remotely";
             }
             
             public static void LoadSimplifiedChinese() {
@@ -105,6 +109,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 LicenseButtonContactSupport = "联系支持";
                 LicenseButtonUpgradeLicense = "升级许可证";
                 LicenseButtonManageLicense = "管理许可证";
+                
+                ResetLicenseRemotely = " 远程重置许可证";
             }
         }
     }

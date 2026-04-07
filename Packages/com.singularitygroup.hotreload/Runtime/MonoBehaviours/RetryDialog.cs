@@ -1,5 +1,6 @@
 #if ENABLE_MONO && (DEVELOPMENT_BUILD || UNITY_EDITOR)
 using JetBrains.Annotations;
+using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Localization;
 using UnityEngine;
 using UnityEngine.UI;

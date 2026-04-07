@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Editor.Localization;
 using SingularityGroup.HotReload.Localization;
 using SingularityGroup.HotReload.Editor.Semver;
@@ -16,7 +17,7 @@ using Translations = SingularityGroup.HotReload.Editor.Localization.Translations
 
 namespace SingularityGroup.HotReload.Editor {
     internal class PackageUpdateChecker {
-        const string persistedFile = PackageConst.LibraryCachePath + "/updateChecker.json";
+        static readonly string persistedFile = PackageConst.LibraryCachePath + "/updateChecker.json";
         readonly JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();
         SemVersion newVersionDetected;
         bool started;

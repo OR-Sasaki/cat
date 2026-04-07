@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Editor.Localization;
@@ -22,13 +23,14 @@ namespace SingularityGroup.HotReload.Editor {
             CompileErrors,
             ActivationFailed,
             FinishRegistration,
+            DisabledDuringDebugging,
             Undetected,
             Paused,
         }
 
-        internal static readonly string greyIconPath = "grey";
-        internal static readonly string greenIconPath = "green";
-        internal static readonly string redIconPath = "red";
+        internal static readonly string greyIconPath = "Hot_Reload_status_grey";
+        internal static readonly string greenIconPath = "Hot_Reload_status_green";
+        internal static readonly string redIconPath = "Hot_Reload_status_red";
         private static readonly Dictionary<IndicationStatus, string> IndicationIcon = new Dictionary<IndicationStatus, string> {
             // grey icon:
             { IndicationStatus.FinishRegistration, greyIconPath },
@@ -40,6 +42,7 @@ namespace SingularityGroup.HotReload.Editor {
             { IndicationStatus.Reloaded, HotReloadTimelineHelper.alertIconString[AlertType.AppliedChange] },
             { IndicationStatus.Unsupported, HotReloadTimelineHelper.alertIconString[AlertType.UnsupportedChange] },
             { IndicationStatus.Undetected, HotReloadTimelineHelper.alertIconString[AlertType.UndetectedChange] },
+            { IndicationStatus.DisabledDuringDebugging, HotReloadTimelineHelper.alertIconString[AlertType.UnsupportedChange] },
             { IndicationStatus.PartiallySupported, HotReloadTimelineHelper.alertIconString[AlertType.PartiallySupportedChange] },
             { IndicationStatus.CompileErrors, HotReloadTimelineHelper.alertIconString[AlertType.CompileError] },
             // spinner:
@@ -71,6 +74,7 @@ namespace SingularityGroup.HotReload.Editor {
             { IndicationStatus.PartiallySupported, Translations.Miscellaneous.IndicationPartiallySupported },
             { IndicationStatus.Unsupported, Translations.Miscellaneous.IndicationUnsupported },
             { IndicationStatus.Patching, Translations.Miscellaneous.IndicationPatching },
+            { IndicationStatus.DisabledDuringDebugging, Translations.Miscellaneous.IndicationDisabledDuringDebugging },
             { IndicationStatus.Compiling, Translations.Miscellaneous.IndicationCompiling },
             { IndicationStatus.CompileErrors, Translations.Miscellaneous.IndicationCompileErrors },
             { IndicationStatus.ActivationFailed, Translations.Miscellaneous.IndicationActivationFailed },
@@ -144,6 +148,9 @@ namespace SingularityGroup.HotReload.Editor {
             // fallback on patch status
             if (!EditorCodePatcher.Started && !EditorCodePatcher.Running) {
                 return IndicationStatus.Stopped;
+            }
+            if (Debugger.IsAttached && !CodePatcher.I.debuggerCompatibilityEnabled) {
+                return IndicationStatus.DisabledDuringDebugging;
             }
             switch (EditorCodePatcher.patchStatus) {
                 case PatchStatus.Idle:

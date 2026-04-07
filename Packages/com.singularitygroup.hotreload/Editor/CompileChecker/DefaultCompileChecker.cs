@@ -9,10 +9,13 @@ using UnityEngine;
 
 namespace SingularityGroup.HotReload.Editor {
     class DefaultCompileChecker : ICompileChecker {
-        const string recompileFilePath = PackageConst.LibraryCachePath + "/recompile.txt";
+        static string recompileFilePath = PackageConst.LibraryCachePath + "/recompile.txt";
         public bool hasCompileErrors { get; private set;  }
         bool recompile;
         public DefaultCompileChecker() {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             CompilationPipeline.assemblyCompilationFinished += DetectCompileErrors;
             CompilationPipeline.compilationFinished += OnCompilationFinished;
             var currentSessionId = EditorAnalyticsSessionInfo.id;

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Editor.Cli;
 using SingularityGroup.HotReload.Editor.Localization;
 using SingularityGroup.HotReload.Localization;

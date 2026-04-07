@@ -68,6 +68,7 @@ namespace SingularityGroup.HotReload {
             }
 
             CodePatcher.I.debuggerCompatibilityEnabled = true;
+            CodePatcher.I.disableTelemetry = buildInfo.disableTelemetry;
 
             try {
                 var customIp = PlayerPrefs.GetString("HotReloadRuntime.CustomIP", "");

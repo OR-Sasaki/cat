@@ -46,6 +46,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string IndicationPartiallySupported;
             public static string IndicationUnsupported;
             public static string IndicationPatching;
+            public static string IndicationDisabledDuringDebugging;
             public static string IndicationCompiling;
             public static string IndicationCompileErrors;
             public static string IndicationActivationFailed;
@@ -98,6 +99,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 IndicationPartiallySupported = "Changes partially applied";
                 IndicationUnsupported = "Finished with warnings";
                 IndicationPatching = "Reloading";
+                IndicationDisabledDuringDebugging = "Disabled during debugging";
                 IndicationCompiling = "Compiling";
                 IndicationCompileErrors = "Scripts have compile errors";
                 IndicationActivationFailed = "Activation failed";
@@ -153,6 +155,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 IndicationPatching = "正在重新加载";
                 IndicationCompiling = "正在编译";
                 IndicationCompileErrors = "脚本有编译错误";
+                IndicationDisabledDuringDebugging = "调试期间已禁用";
                 IndicationActivationFailed = "激活失败";
                 IndicationLoading = "正在加载";
                 IndicationUndetected = "未应用任何更改";

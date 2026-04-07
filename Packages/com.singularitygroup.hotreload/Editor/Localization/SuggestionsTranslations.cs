@@ -24,6 +24,10 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string Award2023Title;
             public static string Award2023Message;
             
+            // Telemetry collection
+            public static string TelemetryCollectionTitle;
+            public static string TelemetryCollectionMessage;
+            
             // Unsupported Changes
             public static string UnsupportedChangesTitle;
             public static string UnsupportedChangesMessage;
@@ -75,7 +79,9 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             
             // Hot Reload While Debugger Is Attached
             public static string DebuggerAttachedTitle;
-            public static string DebuggerAttachedMessage;
+            public static string DebuggerAttachedMessagePaused;
+            public static string DebuggerAttachedMessageAutoRecompile;
+            
             
             // Hot Reloaded Methods When Debugger Is Attached
             public static string DebuggerMethodsTitle;
@@ -113,6 +119,11 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 // Unsupported Changes
                 UnsupportedChangesTitle = "Which changes does Hot Reload support?";
                 UnsupportedChangesMessage = "Hot Reload supports most code changes, but there are some limitations. Generally, changes to methods and fields are supported. Things like adding new types is not (yet) supported. See the documentation for the list of current features and our current roadmap";
+                
+                
+                // Telemetry collection
+                TelemetryCollectionTitle = "Learn how Hot Reload collects telemetry";
+                TelemetryCollectionMessage = "Hot Reload collects basic usage metrics (reload counts, failure rates) and coarse error categories (e.g. \"Compile error due to file\") to impove our service. Code and project-specific data is NOT included and never sent to our servers.\nYou can opt out out of all telemetry in Settings → Telemetry → Disable Telemetry.";
                 
                 // Unsupported Packages
                 UnsupportedPackagesTitle = "Unsupported package detected";
@@ -161,7 +172,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 
                 // Hot Reload While Debugger Is Attached
                 DebuggerAttachedTitle = "Hot Reload is disabled while a debugger is attached";
-                DebuggerAttachedMessage = "Hot Reload automatically disables itself while a debugger is attached, as it can otherwise interfere with certain debugger features.\nWhile disabled, every code change will trigger a full Unity recompilation.\n\nYou can choose to keep Hot Reload enabled while a debugger is attached, though some features like debugger variable inspection might not always work as expected.";
+                DebuggerAttachedMessageAutoRecompile = "Hot Reload automatically disables itself while a debugger is attached, as it can otherwise interfere with certain debugger features.\nWhile disabled, every code change will trigger a full Unity recompilation.\n\nYou can choose to keep Hot Reload enabled while a debugger is attached, though some features like debugger variable inspection might not always work as expected.";
+                DebuggerAttachedMessagePaused = "Hot Reload automatically disables itself while a debugger is attached, as it can otherwise interfere with certain debugger features.\n\nYou can choose to keep Hot Reload enabled while a debugger is attached, though some features like debugger variable inspection might not always work as expected.";
                 
                 // Hot Reloaded Methods When Debugger Is Attached
                 DebuggerMethodsTitle = "Hot Reload may interfere with your debugger session";
@@ -196,6 +208,10 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 // Unity Best Development Tool Award 2023
                 Award2023Title = "为“最佳开发工具”奖投票！";
                 Award2023Message = "Hot Reload 被提名为“最佳开发工具”奖。请考虑投票。谢谢！";
+                
+                // Telemetry collection
+                TelemetryCollectionTitle = "了解 Hot Reload 如何收集遥测数据";
+                TelemetryCollectionMessage = "Hot Reload 会收集基本使用指标（重载次数、失败率）和粗略错误类别（例如“由于文件导致的编译错误“），以改进我们的服务。代码和项目特定数据不包含在内，且不会发送至我们的服务器。\n您可以在 设置 → 遥测 → 禁用遥测 中选择退出所有遥测。";
 
                 // Unsupported Changes
                 UnsupportedChangesTitle = "Hot Reload 支持哪些更改？";
@@ -248,7 +264,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
 
                 // Hot Reload While Debugger Is Attached
                 DebuggerAttachedTitle = "附加调试器时禁用 Hot Reload";
-                DebuggerAttachedMessage = "附加调试器时，Hot Reload 会自动禁用自身，因为它可能会干扰某些调试器功能。\n禁用后，每次代码更改都会触发完整的 Unity 重新编译。\n\n您可以选择在附加调试器时保持 Hot Reload 启用，但某些功能（如调试器变量检查）可能不总是按预期工作。";
+                DebuggerAttachedMessageAutoRecompile = "当附加调试器时,热重载将自动禁用,以避免干扰某些调试器功能。\n禁用状态下,每次修改代码都会触发Unity完整重编译。\n\n您也可以选择在附加调试器时继续启用热重载,但请注意某些功能(例如调试器的变量检查)可能无法正常工作。";
+                DebuggerAttachedMessagePaused = "当附加调试器时,热重载将自动禁用,以避免干扰某些调试器功能。\n\n您也可以选择在附加调试器时继续启用热重载,但请注意某些功能(例如调试器的变量检查)可能无法正常工作。";
 
                 // Hot Reloaded Methods When Debugger Is Attached
                 DebuggerMethodsTitle = "Hot Reload 可能会干扰您的调试会话";

@@ -17,6 +17,7 @@ namespace SingularityGroup.HotReload.Editor {
     internal class ServerDownloader : IProgress<float> {
         public float Progress {get; private set;}
         public bool Started {get; private set;}
+        public int Attempts { get; private set; }
 
         class Config {
             public Dictionary<string, string> customServerExecutables;
@@ -30,6 +31,21 @@ namespace SingularityGroup.HotReload.Editor {
         
         public bool IsDownloaded(ICliController cliController) {
             return File.Exists(GetExecutablePath(cliController));
+        }
+
+        public string GetBinaryPath(ICliController cliController) {
+            var defaultExecutablePath = CliUtils.GetExecutableTargetDir();
+            var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PackageConst.ConfigFilePath));
+            var customExecutables = config?.customServerExecutables;
+            if (customExecutables == null) {
+                return defaultExecutablePath;
+            }
+
+            string customBinaryPath;
+            if (!customExecutables.TryGetValue(cliController.PlatformName, out customBinaryPath)) {
+                return defaultExecutablePath;
+            }
+            return Path.GetDirectoryName(customBinaryPath);
         }
         
         public bool CheckIfDownloaded(ICliController cliController) {
@@ -48,36 +64,42 @@ namespace SingularityGroup.HotReload.Editor {
             }
         }
         
-        public async Task<bool> EnsureDownloaded(ICliController cliController, CancellationToken cancellationToken) {
+        public async Task<bool> EnsureDownloaded(ICliController cliController, CancellationToken cancellationToken, int maxAttempts = -1) {
             var targetDir = CliUtils.GetExecutableTargetDir();
             var targetPath = Path.Combine(targetDir, cliController.BinaryFileName);
             Started = true;
+            Progress = 0f;
+            Attempts = 0;
             if(File.Exists(targetPath)) {
                 Progress = 1f;
                 return true;
             }
-            Progress = 0f;
             await ThreadUtility.SwitchToThreadPool(cancellationToken);
 
             Directory.CreateDirectory(targetDir);
-            if(TryUseUserDefinedBinaryPath(cliController, targetPath)) {
+            if(TryUseUserDefinedBinaryPath(cliController, targetPath, true)) {
                 Progress = 1f;
                 return true;
             }
 
             var tmpPath = CliUtils.GetTempDownloadFilePath("Server.tmp");
-            var attempt = 0;
             bool sucess = false;
             HashSet<string> errors = null;
             while(!sucess) {
                 try {
                     if (File.Exists(targetPath)) {
                         Progress = 1f;
+                        Attempts = 0;
                         return true;
                     }
                     // Note: we are writing to temp file so if downloaded file is corrupted it will not cause issues until it's copied to target location
                     var result = await DownloadUtility.DownloadFile(GetDownloadUrl(cliController), tmpPath, this, cancellationToken).ConfigureAwait(false);
                     sucess = result.statusCode == HttpStatusCode.OK;
+                } catch (OperationCanceledException) {
+                    Progress = 0;
+                    Started = false;
+                    Attempts = 0;
+                    throw;
                 } catch (Exception e) {
                     var error = $"{e.GetType().Name}: {e.Message}";
                     errors = (errors ?? new HashSet<string>());
@@ -86,10 +108,16 @@ namespace SingularityGroup.HotReload.Editor {
                     }
                 }
                 if (!sucess) {
-                    await Task.Delay(ExponentialBackoff.GetTimeout(attempt), cancellationToken).ConfigureAwait(false);
+                    if (maxAttempts > 0 && Attempts + 1 >= maxAttempts) {
+                        Progress = 0;
+                        Attempts = 0;
+                        Started = false;
+                        Log.Warning(Translations.Errors.ErrorDownloadFailedMaxAttempts);
+                        return false;
+                    }
+                    await Task.Delay(ExponentialBackoff.GetTimeout(Attempts++), cancellationToken).ConfigureAwait(false);
+                    Progress = 0;
                 }
-                Progress = 0;
-                attempt++;
             }
             
             if (errors?.Count > 0) {
@@ -97,7 +125,7 @@ namespace SingularityGroup.HotReload.Editor {
                     { StatKey.Errors, new List<string>(errors) },
                 };
                 // sending telemetry requires server to be running so we only attempt after server is downloaded
-                RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Editor, StatEventType.Download), data).Forget();
+                EditorCodePatcher.SendEditorTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Editor, StatEventType.Download), data);
                 Log.Info(Translations.Errors.ErrorDownloadSucceeded);
             }
             
@@ -113,15 +141,16 @@ namespace SingularityGroup.HotReload.Editor {
                 }
             }
             Progress = 1f;
+            Attempts = 0;
             return true;
         }
 
-        static bool TryUseUserDefinedBinaryPath(ICliController cliController, string targetPath) {
-            if (!File.Exists(PackageConst.ConfigFileName)) {
+        static bool TryUseUserDefinedBinaryPath(ICliController cliController, string targetPath, bool logNotFoundWarning = false) {
+            if (!File.Exists(PackageConst.ConfigFilePath)) {
                 return false;
             } 
             
-            var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PackageConst.ConfigFileName));
+            var config = JsonConvert.DeserializeObject<Config>(File.ReadAllText(PackageConst.ConfigFilePath));
             var customExecutables = config?.customServerExecutables;
             if (customExecutables == null) {
                 return false;
@@ -133,7 +162,9 @@ namespace SingularityGroup.HotReload.Editor {
             }
             
             if (!File.Exists(customBinaryPath)) {
-                Log.Warning(Translations.Errors.ErrorServerBinaryNotFound, cliController.PlatformName, customBinaryPath);
+                if (logNotFoundWarning) {
+                    Log.Warning(Translations.Errors.ErrorServerBinaryNotFound, cliController.PlatformName, customBinaryPath);
+                }
                 return false;
             } 
             
@@ -154,7 +185,7 @@ namespace SingularityGroup.HotReload.Editor {
             }
         }
 
-        static string GetDownloadUrl(ICliController cliController) {
+        public static string GetDownloadUrl(ICliController cliController) {
             const string version = PackageConst.ServerVersion;
             // NOTE: server is not translated at the moment so we always use english
             var key = $"{DownloadUtility.GetPackagePrefix(version, Locale.English)}/server/{cliController.PlatformName}/{cliController.BinaryFileName}";
@@ -165,17 +196,24 @@ namespace SingularityGroup.HotReload.Editor {
             Progress = value;
         }
         
-        public Task<bool> PromptForDownload() {
+        public async Task<bool> PromptForDownload(CancellationToken manualDownloadCancelationToken) {
             if (EditorUtility.DisplayDialog(
                 title: Translations.Dialogs.DialogTitleInstallComponents,
                 message: Translations.Dialogs.DialogMessageInstallComponents,
                 ok: Translations.Dialogs.DialogButtonInstall,
                 cancel: Translations.Dialogs.DialogButtonMoreInfo)
             ) {
-                return EnsureDownloaded(HotReloadCli.controller, CancellationToken.None);
+                try {
+                    return await EnsureDownloaded(HotReloadCli.controller, manualDownloadCancelationToken);
+                } catch (Exception ex) {
+                    if (ex is OperationCanceledException || manualDownloadCancelationToken.IsCancellationRequested) {
+                        // binary was downloaded manually. Retry once to detect the binary.
+                        return await EnsureDownloaded(HotReloadCli.controller, CancellationToken.None, 1);
+                    }
+                    Log.Exception(ex);
+                }
             }
-            Application.OpenURL(Constants.AdditionalContentURL);
-            return Task.FromResult(false);
+            return false;
         }
     }
     

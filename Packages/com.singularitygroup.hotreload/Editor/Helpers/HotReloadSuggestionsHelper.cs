@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using SingularityGroup.HotReload.DTO;
-using SingularityGroup.HotReload.Editor.Localization;
 using SingularityGroup.HotReload.Localization;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -17,6 +15,9 @@ namespace SingularityGroup.HotReload.Editor {
 
 	internal static class HotReloadSuggestionsHelper {
         internal static void SetSuggestionsShown(HotReloadSuggestionKind hotReloadSuggestionKind) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             if (EditorPrefs.GetBool($"HotReloadWindow.SuggestionsShown.{hotReloadSuggestionKind}")) {
                 return;
             }
@@ -55,6 +56,9 @@ namespace SingularityGroup.HotReload.Editor {
         }
         
         internal static void SetServerSuggestionShown(HotReloadSuggestionKind hotReloadSuggestionKind) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             if (hotReloadSuggestionKind == HotReloadSuggestionKind.DetailedErrorReportingIsEnabled) {
                 HotReloadSuggestionsHelper.SetSuggestionsShown(hotReloadSuggestionKind);
                 return;
@@ -77,6 +81,9 @@ namespace SingularityGroup.HotReload.Editor {
         
         // used for cases where suggestion might need to be shown more than once
         internal static void SetSuggestionActive(HotReloadSuggestionKind hotReloadSuggestionKind) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             if (EditorPrefs.GetBool($"HotReloadWindow.SuggestionsShown.{hotReloadSuggestionKind}")) {
                 return;
             }
@@ -90,6 +97,9 @@ namespace SingularityGroup.HotReload.Editor {
         }
         
         internal static void SetSuggestionInactive(HotReloadSuggestionKind hotReloadSuggestionKind) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             EditorPrefs.SetBool($"HotReloadWindow.SuggestionsActive.{hotReloadSuggestionKind}", false);
             AlertEntry entry;
             if (suggestionMap.TryGetValue(hotReloadSuggestionKind, out entry)) {
@@ -97,7 +107,7 @@ namespace SingularityGroup.HotReload.Editor {
             }
         }
         
-        internal static void InitSuggestions() {
+        private static void InitSuggestions() {
             foreach (HotReloadSuggestionKind value in Enum.GetValues(typeof(HotReloadSuggestionKind))) {
                 if (!CheckSuggestionActive(value)) {
                     continue;
@@ -122,6 +132,7 @@ namespace SingularityGroup.HotReload.Editor {
         internal static readonly OpenURLButton featuresDocumentationButton = new OpenURLButton(Translations.Suggestions.ButtonDocs, Constants.FeaturesDocumentationURL);
         internal static readonly OpenURLButton multipleEditorsDocumentationButton = new OpenURLButton(Translations.Suggestions.ButtonDocs, Constants.MultipleEditorsURL);
         internal static readonly OpenURLButton debuggerDocumentationButton = new OpenURLButton(Translations.Suggestions.ButtonMoreInfo, Constants.DebuggerURL);
+        internal static readonly OpenURLButton securityDocumentationButton = new OpenURLButton(Translations.Suggestions.ButtonMoreInfo, Constants.SecurityURL);
         public static Dictionary<HotReloadSuggestionKind, AlertEntry> suggestionMap = new Dictionary<HotReloadSuggestionKind, AlertEntry> {
             { HotReloadSuggestionKind.UnityBestDevelopmentToolAward2023, new AlertEntry(
                 AlertType.Suggestion, 
@@ -134,6 +145,23 @@ namespace SingularityGroup.HotReload.Editor {
                             Application.OpenURL(Constants.VoteForAwardURL);
                             SetSuggestionInactive(HotReloadSuggestionKind.UnityBestDevelopmentToolAward2023);
                         }
+                        GUILayout.FlexibleSpace();
+                    }
+                },
+                timestamp: DateTime.Now,
+                entryType: EntryType.Foldout
+            )},
+            { HotReloadSuggestionKind.TelemetryCollection, new AlertEntry(
+                AlertType.Suggestion, 
+                Translations.Suggestions.TelemetryCollectionTitle, 
+                Translations.Suggestions.TelemetryCollectionMessage,
+                actionData: () => {
+                    GUILayout.Space(10f);
+                    using (new EditorGUILayout.HorizontalScope()) {
+                        if (GUILayout.Button(Translations.Suggestions.ButtonOK)) {
+                            SetSuggestionInactive(HotReloadSuggestionKind.TelemetryCollection);
+                        }
+                        securityDocumentationButton.OnGUI();
                         GUILayout.FlexibleSpace();
                     }
                 },
@@ -408,7 +436,7 @@ namespace SingularityGroup.HotReload.Editor {
             { HotReloadSuggestionKind.HotReloadWhileDebuggerIsAttached, new AlertEntry(
                 AlertType.Suggestion, 
                 Translations.Suggestions.DebuggerAttachedTitle,
-                Translations.Suggestions.DebuggerAttachedMessage,
+                Translations.Suggestions.DebuggerAttachedMessagePaused,
                 actionData: () => {
                     GUILayout.Space(8f);
                     using (new EditorGUILayout.HorizontalScope()) {
@@ -480,6 +508,9 @@ namespace SingularityGroup.HotReload.Editor {
         static DateTime lastPlaymodeChange;
         
         public static void Init() {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             listRequest = Client.List(offlineMode: false, includeIndirectDependencies: true);
 
             EditorApplication.playModeStateChanged += state => {
@@ -501,6 +532,9 @@ namespace SingularityGroup.HotReload.Editor {
 
         private static DateTime lastCheckedUnityInstances = DateTime.UtcNow;
         public static void Check() {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             if (listRequest.IsCompleted && 
                 unsupportedPackagesList == null) 
             {
@@ -542,6 +576,7 @@ namespace SingularityGroup.HotReload.Editor {
             CheckEditorsWithoutHRAsync().Forget();
         }
 
+        
         static bool checkingEditorsWihtoutHR;
         private static async Task CheckEditorsWithoutHRAsync() {
             try {
@@ -557,7 +592,6 @@ namespace SingularityGroup.HotReload.Editor {
                 }
                 if (!HotReloadState.ShowedEditorsWithoutHR && ServerHealthCheck.I.IsServerHealthy) {
                     HotReloadSuggestionsHelper.SetSuggestionActive(HotReloadSuggestionKind.EditorsWithoutHRRunning);
-                    HotReloadState.ShowedEditorsWithoutHR = true;
                 }
             } finally {
                 checkingEditorsWihtoutHR = false;

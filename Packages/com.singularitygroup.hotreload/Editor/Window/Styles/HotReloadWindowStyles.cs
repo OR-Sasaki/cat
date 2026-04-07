@@ -380,6 +380,18 @@ namespace SingularityGroup.HotReload.Editor {
             }
         }
         
+        public static GUIStyle ReportBugButton {
+            get {
+                if (stopButtonStyle == null) {
+                    stopButtonStyle = new GUIStyle(EditorStyles.miniButton);
+                    stopButtonStyle.fixedHeight = 25;
+                    stopButtonStyle.margin.top = 17;
+                }
+                stopButtonStyle.fixedWidth = 30;
+                return stopButtonStyle;
+            }
+        }
+        
         internal static GUIStyle EventFiltersStyle {
             get {
                 if (eventFilters == null) {

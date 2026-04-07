@@ -90,6 +90,11 @@ namespace SingularityGroup.HotReload {
         /// </summary>
         public string locale;
 
+        /// <summary>
+        /// Used to define if telemetry is disabled
+        /// </summary>
+        public bool disableTelemetry;
+
         [JsonIgnore]
         public HashSet<string> DefineSymbolsAsHashSet {
             get {

@@ -65,10 +65,15 @@ namespace SingularityGroup.HotReload {
         readonly string tmpDir;
         public FieldHandler fieldHandler;
         public bool debuggerCompatibilityEnabled;
+        public bool anyFailures;
+        public bool ignoreCompileErrorOnRecompileUnsupported;
+        public bool disableTelemetry;
         
+        public IReadOnlyList<MethodPatchResponse> PatchHistory => patchHistory;
+
         CodePatcher() {
             pendingPatches = new List<MethodPatchResponse>();
-            patchHistory = new List<MethodPatchResponse>(); 
+            patchHistory = new List<MethodPatchResponse>();
             if(UnityHelper.IsEditor) {
                 tmpDir = PackageConst.LibraryCachePath;
             } else {
@@ -81,6 +86,8 @@ namespace SingularityGroup.HotReload {
                 } catch(Exception ex) {
                     Log.Error($"{Localization.Translations.Logging.LoadingPatchesFromDiskError}\n{ex}");
                 }
+            } else {
+                PersistencePath = Path.Combine(PackageConst.LibraryCachePath, "patches.json");
             }
 #if UNITY_EDITOR
             // Unity event methods are not assigned outside the scene. 
@@ -123,6 +130,10 @@ namespace SingularityGroup.HotReload {
         internal string[] GetAssemblySearchPaths() {
             EnsureSymbolResolver();
             return assemblySearchPaths;
+        }
+
+        internal void RegisterFailures(MethodPatchResponse patch, RegisterPatchesResult result) {
+            anyFailures |= patch.failures?.Length > 0 || result?.patchFailures.Count > 0 || result?.patchExceptions.Count > 0;
         }
        
         internal RegisterPatchesResult RegisterPatches(MethodPatchResponse patches, bool persist) {
@@ -259,13 +270,20 @@ namespace SingularityGroup.HotReload {
                     HandleNewFields(patch.patchId, result, patch.newFields);
 #endif
                 } catch (Exception ex) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.Exception), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.Exception), new EditorExtraData {
                         { StatKey.PatchId, patch.patchId },
                         { StatKey.Detailed_Exception, ex.ToString() },
-                    }).Forget();
+                    });
                     result.patchExceptions.Add($"{Localization.Translations.Logging.ExceptionApplyingPatch}\nException: {ex}");
                 }
             }
+        }
+        
+        void SendRuntimeTelemetryIfEnabled(Stat stat, EditorExtraData extraData = null) {
+            if (disableTelemetry) {
+                return;
+            }
+            RequestHelper.RequestEditorEventWithRetry(stat, extraData).Forget();
         }
         
         void HandleRemovedUnityMethods(SMethod[] removedMethods) {
@@ -305,10 +323,10 @@ namespace SingularityGroup.HotReload {
                     FieldInitializerRegister.RegisterInitializer(declaringType, sField.fieldName, initializer.ReturnType, initializer, isStatic);
                     
                 } catch (Exception e) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.RegisterFieldInitializer), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.RegisterFieldInitializer), new EditorExtraData {
                         { StatKey.PatchId, resp.id },
                         { StatKey.Detailed_Exception, e.ToString() },
-                    }).Forget();
+                    });
                     Log.Warning(string.Format(Localization.Translations.Logging.FailedRegisteringInitializerException, sField.fieldName, sField.declaringType.typeName, e.Message));
                 }
             }
@@ -321,10 +339,10 @@ namespace SingularityGroup.HotReload {
                     var fieldType = SymbolResolver.Resolve(sField).FieldType;
                     FieldResolver.RegisterFieldType(declaringType, sField.fieldName, fieldType);
                 } catch (Exception e) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.RegisterFieldDefinition), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.RegisterFieldDefinition), new EditorExtraData {
                         { StatKey.PatchId, resp.id },
                         { StatKey.Detailed_Exception, e.ToString() },
-                    }).Forget();
+                    });
                     Log.Warning(string.Format(Localization.Translations.Logging.FailedRegisteringNewFieldDefinitions, sField.fieldName, sField.declaringType.typeName, e.Message));
                 }
             }
@@ -339,10 +357,10 @@ namespace SingularityGroup.HotReload {
                     var fieldType = SymbolResolver.Resolve(sField.declaringType);
                     FieldInitializerRegister.UnregisterInitializer(declaringType, sField.fieldName, fieldType, sField.isStatic);
                 } catch (Exception e) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.UnregisterFieldInitializer), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.UnregisterFieldInitializer), new EditorExtraData {
                         { StatKey.PatchId, resp.id },
                         { StatKey.Detailed_Exception, e.ToString() },
-                    }).Forget();
+                    });
                     Log.Warning(string.Format(Localization.Translations.Logging.FailedRemovingInitializer, sField.fieldName, sField.declaringType.typeName, e.Message));
                 }
             }
@@ -362,10 +380,10 @@ namespace SingularityGroup.HotReload {
                         var fieldType = SymbolResolver.Resolve(f).FieldType;
                         FieldResolver.ClearHolders(declaringType, f.isStatic, f.fieldName, fieldType);
                     } catch (Exception e) {
-                        RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.ClearHolders), new EditorExtraData {
+                        SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.ClearHolders), new EditorExtraData {
                             { StatKey.PatchId, resp.id },
                             { StatKey.Detailed_Exception, e.ToString() },
-                        }).Forget();
+                        });
                         Log.Warning(string.Format(Localization.Translations.Logging.FailedRemovingFieldValue, f.fieldName, f.declaringType.typeName, e.Message));
                     }
                 }
@@ -385,10 +403,10 @@ namespace SingularityGroup.HotReload {
                         }
                         FieldResolver.MoveHolders(declaringType, fromField.fieldName, toField.fieldName, fieldType, fromField.isStatic);
                     } catch (Exception e) {
-                        RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.MoveHolders), new EditorExtraData {
+                        SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.MoveHolders), new EditorExtraData {
                             { StatKey.PatchId, resp.id },
                             { StatKey.Detailed_Exception, e.ToString() },
-                        }).Forget();
+                        });
                         Log.Warning(Localization.Translations.Logging.FailedMovingFieldValue, fromField, toField, toField.declaringType.typeName, e.Message);
                     }
                 }
@@ -429,10 +447,10 @@ namespace SingularityGroup.HotReload {
                         fieldHandler?.registerInspectorFieldAttributes?.Invoke(declaringType, originalField, updatedField);
                         result.inspectorModified = true;
                     } catch (Exception e) {
-                        RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.MoveHolders), new EditorExtraData {
+                        SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.MoveHolders), new EditorExtraData {
                             { StatKey.PatchId, resp.id },
                             { StatKey.Detailed_Exception, e.ToString() },
-                        }).Forget();
+                        });
                         Log.Warning(string.Format(Localization.Translations.Logging.FailedUpdatingFieldAttributes, original.fieldName, original.declaringType.typeName, e.Message));
                     }
                 }
@@ -450,10 +468,10 @@ namespace SingularityGroup.HotReload {
                     result.inspectorFieldAdded = fieldHandler?.storeField?.Invoke(declaringType, field) ?? false;
                     result.inspectorModified = true;
                 } catch (Exception e) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.AddInspectorField), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.AddInspectorField), new EditorExtraData {
                         { StatKey.PatchId, patchId },
                         { StatKey.Detailed_Exception, e.ToString() },
-                    }).Forget();
+                    });
                     Log.Warning(string.Format(Localization.Translations.Logging.FailedAddingFieldToInspector, sField.fieldName, sField.declaringType.typeName, e.Message));
                 }
             }
@@ -473,10 +491,10 @@ namespace SingularityGroup.HotReload {
                         alteredFieldHidden = true;
                     }
                 } catch(Exception e) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.HideInspectorField), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.HideInspectorField), new EditorExtraData {
                         { StatKey.PatchId, patchId },
                         { StatKey.Detailed_Exception, e.ToString() },
-                    }).Forget();
+                    });
                     Log.Warning(string.Format(Localization.Translations.Logging.FailedHidingFieldFromInspector, sField.fieldName, sField.declaringType.typeName, e.Message));
                 }
             }
@@ -496,9 +514,9 @@ namespace SingularityGroup.HotReload {
                 var start = DateTime.UtcNow;
                 var state = TryResolveMethod(sOriginalMethod, patchMethod);
                 if (Debugger.IsAttached && !debuggerCompatibilityEnabled) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.DebuggerAttached), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.DebuggerAttached), new EditorExtraData {
                         { StatKey.PatchId, patchId },
-                    }).Forget();
+                    });
                     return Localization.Translations.Logging.DebuggerAttachedNotAllowed;
                 }
 
@@ -507,9 +525,9 @@ namespace SingularityGroup.HotReload {
                 }
 
                 if(state.match == null) {
-                    RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.MethodMismatch), new EditorExtraData {
+                    SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.MethodMismatch), new EditorExtraData {
                         { StatKey.PatchId, patchId },
-                    }).Forget();
+                    });
                     return string.Format(Localization.Translations.Logging.MethodMismatch, sOriginalMethod.simpleName, patchMethod.Name);
                 }
 
@@ -541,18 +559,18 @@ namespace SingularityGroup.HotReload {
                         //ignore. The method is likely burst compiled and can't be patched
                         return null;
                     } else {
-                        RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.Failure), new EditorExtraData {
+                        SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.Failure), new EditorExtraData {
                             { StatKey.PatchId, patchId },
                             { StatKey.Detailed_Exception, result.exception.ToString() },
-                        }).Forget();
+                        });
                         return HandleMethodPatchFailure(sOriginalMethod, result.exception);
                     }
                 }
             } catch(Exception ex) {
-                RequestHelper.RequestEditorEventWithRetry(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.Exception), new EditorExtraData {
+                SendRuntimeTelemetryIfEnabled(new Stat(StatSource.Client, StatLevel.Error, StatFeature.Patching, StatEventType.Exception), new EditorExtraData {
                     { StatKey.PatchId, patchId },
                     { StatKey.Detailed_Exception, ex.ToString() },
-                }).Forget();
+                });
                 return HandleMethodPatchFailure(sOriginalMethod, ex);
             }
         }
@@ -715,9 +733,12 @@ namespace SingularityGroup.HotReload {
             });
         }
         
-        public void InitPatchesBlocked(string filePath) {
+        public void InitPatchesBlocked() {
+            if (PersistencePath == null) {
+                return;
+            }
             seenResponses.Clear();
-            var file = new FileInfo(filePath);
+            var file = new FileInfo(PersistencePath);
             if (file.Exists) {
                 using(var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan))
                 using (StreamReader sr = new StreamReader(fs))
@@ -729,6 +750,13 @@ namespace SingularityGroup.HotReload {
                 }
                 ApplyPatches(persist: false);
             }
+        }
+
+        public void ClearPatchesThreaded() {
+            if (PersistencePath == null) {
+                return;
+            }
+            Task.Run(() => File.Delete(PersistencePath));
         }
         
         

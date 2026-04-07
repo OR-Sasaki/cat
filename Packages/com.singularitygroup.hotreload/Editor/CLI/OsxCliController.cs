@@ -12,7 +12,7 @@ namespace SingularityGroup.HotReload.Editor.Cli {
 
         public string BinaryFileName => "HotReload.app.zip";
         public string PlatformName => "osx-x64";
-        public bool CanOpenInBackground => false;
+        public bool CanOpenInBackground => true;
 
         /// In MacOS 13 Ventura, our app cannot launch a terminal window.
         /// We use a custom app that launches HotReload server and shows it's output (just like a terminal would). 
@@ -71,14 +71,16 @@ namespace SingularityGroup.HotReload.Editor.Cli {
                 // ignored
             }
 
-            if (UseCustomConsoleApp()) {
-                await StartCustomConsole(args, appExecutablePath);
+            if (args.createNoWindow) {
+                await StartExecutableOrApp(args, cliExecutablePath);
+            } else if (UseCustomConsoleApp()) {
+                await StartExecutableOrApp(args, appExecutablePath);
             } else {
                 await StartTerminal(args, cliExecutablePath);
             }
         }
 
-        public Task StartCustomConsole(StartArgs args, string executablePath) {
+        public Task StartExecutableOrApp(StartArgs args, string executablePath) {
             process = Process.Start(new ProcessStartInfo {
                 // Path to the HotReload.app
                 FileName = executablePath,

@@ -1,6 +1,6 @@
+using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Localization;
 using UnityEditor;
-using UnityEngine;
 
 namespace SingularityGroup.HotReload.Editor.Localization {
     [InitializeOnLoad]
@@ -28,6 +28,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
 
         static void LoadEnglish() {
             Common.LoadEnglish();
+            BugReport.LoadEnglish();
             Timeline.LoadEnglish();
             License.LoadEnglish();
             Errors.LoadEnglish();
@@ -44,6 +45,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
 
         static void LoadSimplifiedChinese() {
             Common.LoadSimplifiedChinese();
+            BugReport.LoadSimplifiedChinese();
             Timeline.LoadSimplifiedChinese();
             License.LoadSimplifiedChinese();
             Errors.LoadSimplifiedChinese();

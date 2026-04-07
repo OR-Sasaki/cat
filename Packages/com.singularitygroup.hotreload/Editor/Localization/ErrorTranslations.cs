@@ -5,6 +5,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string ErrorInvalidInput;
             public static string ErrorNetworkIssue;
             public static string ErrorDownloadFailed;
+            public static string ErrorDownloadFailedMaxAttempts;
             public static string ErrorServerBinaryNotFound;
             public static string ErrorCopyingServerBinary;
             public static string ErrorDownloadSucceeded;
@@ -54,7 +55,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string WarningIndicationTextNotFound;
             
             // Info Messages
-            public static string InfoDebuggerAttached;
+            public static string InfoDebuggerAttachedFullRecompile;
+            public static string InfoDebuggerAttachedPauseHotReload;
             public static string InfoInspectorFieldRecompile;
             public static string InfoDefaultProjectGeneration;
             public static string ErrorFreeChargesUnavailable;
@@ -113,6 +115,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 ErrorNetworkIssue = "Something went wrong. Please check your internet connection.";
                 ErrorContactSupport = "Something went wrong. Please contact support if the issue persists.";
                 ErrorDownloadFailed = "Download attempt failed. If the issue persists please reach out to customer support for assistance. Exception: {0}";
+                ErrorDownloadFailedMaxAttempts = "Download attempt failed. If the issue persists please reach out to customer support for assistance.";
                 ErrorServerBinaryNotFound = "unable to find server binary for platform '{0}' at '{1}'. Will proceed with downloading the binary (default behavior)";
                 ErrorCopyingServerBinary = "encountered exception when copying server binary in the specified custom executable path '{0}':\n{1}";
                 ErrorDownloadSucceeded = "Download succeeded!";
@@ -161,7 +164,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 WarningIndicationTextNotFound = "Indication text not found for status {0}";
                 
                 // Info Messages
-                InfoDebuggerAttached = "Debugger was attached. Hot Reload may interfere with your debugger session. Recompiling in order to get full debugger experience.";
+                InfoDebuggerAttachedFullRecompile = "A debugger was attached. Pausing Hot Reload and switching to Full Recompile mode to avoid interference with the debugger session. Hot Reload will automatically resume on debugger detach.";
+                InfoDebuggerAttachedPauseHotReload = "A debugger was attached. Pausing Hot Reload to avoid interference with the debugger session. Hot Reload will automatically resume on debugger detach.";
                 InfoInspectorFieldRecompile = "Some inspector field changes require recompilation in Unity. Auto recompiling Unity according to the settings.";
                 InfoDefaultProjectGeneration = "Using default project generation. If you encounter any problem with Unity's default project generation consider disabling it to use custom project generation.";
                 ErrorFreeChargesUnavailable = "Free charges unavailabe. Please contact support if the issue persists.";
@@ -221,6 +225,7 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 ErrorNetworkIssue = "出现问题。请检查您的网络连接。";
                 ErrorContactSupport = "出现问题。如果问题仍然存在，请联系支持。";
                 ErrorDownloadFailed = "下载尝试失败。如果问题仍然存在，请联系客户支持寻求帮助。异常：{0}";
+                ErrorDownloadFailedMaxAttempts = "下载尝试失败。如果问题仍然存在，请联系客户支持寻求帮助。";
                 ErrorServerBinaryNotFound = "无法在“{1}”找到平台“{0}”的服务器二进制文件。将继续下载二进制文件（默认行为）";
                 ErrorCopyingServerBinary = "在指定的自定义可执行路径“{0}”中复制服务器二进制文件时遇到异常：\n{1}";
                 ErrorDownloadSucceeded = "下载成功！";
@@ -269,7 +274,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 WarningIndicationTextNotFound = "未找到状态 {0} 的指示文本";
 
                 // Info Messages
-                InfoDebuggerAttached = "调试器已附加。Hot Reload 可能会干扰您的调试会话。正在重新编译以获得完整的调试器体验。";
+                InfoDebuggerAttachedFullRecompile = "已附加调试器。正在暂停热重载并切换到完全重编译模式,以避免干扰调试器会话。热重载将在调试器分离后自动恢复。";
+                InfoDebuggerAttachedPauseHotReload = "检测到调试器已附加。热重载已暂停,以避免对调试会话造成干扰。当调试器断开连接后,热重载将自动恢复。";
                 InfoInspectorFieldRecompile = "一些检查器字段更改需要 Unity 重新编译。根据设置自动重新编译 Unity。";
                 InfoDefaultProjectGeneration = "使用默认项目生成。如果您遇到 Unity 默认项目生成的任何问题，请考虑禁用它以使用自定义项目生成。";
                 ErrorFreeChargesUnavailable = "免费费用不可用。如果问题仍然存在，请联系支持。";

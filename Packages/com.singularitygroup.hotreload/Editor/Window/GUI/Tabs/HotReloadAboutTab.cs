@@ -264,7 +264,11 @@ namespace SingularityGroup.HotReload.Editor {
                         OpenURLButton.RenderRaw(new Rect { x = secondLayerX, y = firstLayerY, width = secondLayerWidth, height = buttonHeight }, Translations.About.ButtonUnityForum, Constants.ForumURL, HotReloadWindowStyles.HelpTabButton);
                     }
                     using (new EditorGUILayout.HorizontalScope()) {
-                        OpenDialogueButton.RenderRaw(rect: new Rect { x = firstLayerX, y = secondLayerY, width = firstLayerWidth, height = buttonHeight }, text: reportIssueButton.text, url: reportIssueButton.url, title: reportIssueButton.title, message: reportIssueButton.message, ok: reportIssueButton.ok, cancel: reportIssueButton.cancel, style: HotReloadWindowStyles.HelpTabButton);
+                        if (GUI.Button(new Rect { x = firstLayerX, y = secondLayerY, width = firstLayerWidth, height = buttonHeight }, 
+                            new GUIContent(reportIssueButton.text.StartsWith(" ") ? reportIssueButton.text : " " + reportIssueButton.text), HotReloadWindowStyles.HelpTabButton)
+                        ) {
+                            ReportWindowAPI.OpenBugReport();
+                        }
                         OpenURLButton.RenderRaw(new Rect { x = secondLayerX, y = secondLayerY, width = secondLayerWidth, height = buttonHeight }, discordButton.text, discordButton.url, HotReloadWindowStyles.HelpTabButton);
                     }
                 }

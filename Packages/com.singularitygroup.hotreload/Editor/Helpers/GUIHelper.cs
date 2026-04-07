@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace SingularityGroup.HotReload.Editor {
@@ -8,6 +9,7 @@ namespace SingularityGroup.HotReload.Editor {
         EventsNew,
         Recompile,
         Logo,
+        LogoNew,
         Close,
         FoldoutOpen,
         FoldoutClosed,
@@ -18,16 +20,16 @@ namespace SingularityGroup.HotReload.Editor {
     
     internal static class GUIHelper {
         private static readonly Dictionary<InvertibleIcon, string> supportedInvertibleIcons = new Dictionary<InvertibleIcon, string> {
-            { InvertibleIcon.BugReport, "report_bug" },
-            { InvertibleIcon.Events, "events" },
-            { InvertibleIcon.Recompile, "refresh" },
-            { InvertibleIcon.Logo, "logo" },
-            { InvertibleIcon.Close, "close" },
-            { InvertibleIcon.FoldoutOpen, "foldout_open" },
-            { InvertibleIcon.FoldoutClosed, "foldout_closed" },
-            { InvertibleIcon.Spinner, "icon_loading_star_light_mode_96" },
-            { InvertibleIcon.Stop, "Icn_Stop" },
-            { InvertibleIcon.Start, "Icn_play" },
+            { InvertibleIcon.BugReport, "Hot_Reload_report_bug" },
+            { InvertibleIcon.Events, "Hot_Reload_events" },
+            { InvertibleIcon.Recompile, "Hot_Reload_refresh" },
+            { InvertibleIcon.Logo, "Hot_Reload_logo" },
+            { InvertibleIcon.Close, "Hot_Reload_close" },
+            { InvertibleIcon.FoldoutOpen, "Hot_Reload_foldout_open" },
+            { InvertibleIcon.FoldoutClosed, "Hot_Reload_foldout_closed" },
+            { InvertibleIcon.Spinner, "Hot_Reload_icon_loading_star_light_mode_96" },
+            { InvertibleIcon.Stop, "Hot_Reload_Icn_Stop" },
+            { InvertibleIcon.Start, "Hot_Reload_Icn_play" },
         };
         
         private static readonly Dictionary<InvertibleIcon, Texture2D> invertibleIconCache = new Dictionary<InvertibleIcon, Texture2D>();
@@ -66,22 +68,35 @@ namespace SingularityGroup.HotReload.Editor {
             var cache = HotReloadWindowStyles.IsDarkMode ? invertibleIconInvertedCache : invertibleIconCache;
            
             if (!cache.TryGetValue(invertibleIcon, out iconTexture) || !iconTexture) {
-                var type = invertibleIcon == InvertibleIcon.EventsNew ? InvertibleIcon.Events : invertibleIcon;
+                var type = invertibleIcon;
+                if (invertibleIcon == InvertibleIcon.EventsNew) {
+                    type = InvertibleIcon.Events;
+                } else if (invertibleIcon == InvertibleIcon.LogoNew) {
+                    type = InvertibleIcon.Logo;
+                }
                 iconTexture = Resources.Load<Texture2D>(supportedInvertibleIcons[type]);
                 
                 // we assume icons are for light mode by default
                 // therefore if its dark mode we should invert them
                 if (HotReloadWindowStyles.IsDarkMode) {
                     iconTexture = InvertTextureColor(iconTexture);
+                    // Prevent Unity from destroying this during play mode exit
+                    if (iconTexture) {
+                        iconTexture.hideFlags = HideFlags.HideAndDontSave;
+                    }
                 }
 
                 cache[type] = iconTexture;
 
                 // we combine dot image with Events icon to create a new alert version
-                if (invertibleIcon == InvertibleIcon.EventsNew) {
-                    var redDot = Resources.Load<Texture2D>("red_dot");
+                if (invertibleIcon == InvertibleIcon.LogoNew || invertibleIcon == InvertibleIcon.EventsNew) {
+                    var redDot = Resources.Load<Texture2D>("Hot_Reload_red_dot");
                     iconTexture = CombineImages(iconTexture, redDot);
-                    cache[InvertibleIcon.EventsNew] = iconTexture;
+                    // Same here — this texture is programmatically created
+                    if (iconTexture) {
+                        iconTexture.hideFlags = HideFlags.HideAndDontSave;
+                    }
+                    cache[invertibleIcon] = iconTexture;
                 }
             }
             return cache[invertibleIcon];
@@ -127,7 +142,7 @@ namespace SingularityGroup.HotReload.Editor {
         
         private static readonly Dictionary<string, Texture2D> grayTextureCache = new Dictionary<string, Texture2D>();
         private static readonly Dictionary<string, Color> colorFactor = new Dictionary<string, Color> {
-            { "error", new Color(0.6f, 0.587f, 0.114f) },
+            { "Hot_Reload_error", new Color(0.6f, 0.587f, 0.114f) },
         };
         
         internal static Texture2D ConvertToGrayscale(string localIcon) {

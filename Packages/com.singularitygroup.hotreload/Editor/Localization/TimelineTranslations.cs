@@ -9,11 +9,12 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string MessageEnableFilters;
             public static string MessageMakeCodeChanges;
             public static string MessageOnly40EntriesShown;
-            public static string EventsTooltip;
             public static string LabelSuggestionsFormat;
             public static string LabelTimeline;
             public static string ButtonIgnoreEventType;
             public static string MessageStartHotReload;
+            public static string IndicationTooltip;
+            public static string OpenToViewNewEventsTooltip;
             
             // Partially Supported Change Descriptions
             public static string PartiallySupportedLambdaClosure;
@@ -41,6 +42,22 @@ namespace SingularityGroup.HotReload.Editor.Localization {
             public static string EventTitleChangePartiallyApplied;
             public static string EventDescriptionFailedApplyingPatchTapForMore;
             
+            // Manual download
+            public static string ManualDownloadButtonContactSupport;
+            public static string ManualDownloadWarning;
+            public static string ManualDownloadInfo;
+            public static string ManualDownloadButtonCopyToClipboard;
+            public static string ManualDownloadButtonOpenDownloadUrl;
+            public static string ManualDownloadButtonComplete;
+            
+            public static string EntryTimeNow;
+            public static string EntryTimeHours;
+            public static string EntryTimeMinutes;
+
+            public static string FullAssemblyRecompilation;
+            public static string ViewAll;
+            public static string ViewRecent;
+            
             public static void LoadEnglish() {
                 // Timeline/Events
                 TimelineTitle = "Timeline";
@@ -50,7 +67,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 MessageEnableFilters = "Enable filters to see events";
                 MessageMakeCodeChanges = "Make code changes to see events";
                 MessageOnly40EntriesShown = "Only last 40 entries are shown";
-                EventsTooltip = "Events";
+                IndicationTooltip = "View events timeline\nLast event: {0}";
+                OpenToViewNewEventsTooltip = "Open to see new events/suggestions";
                 LabelSuggestionsFormat = "Suggestions ({0})";
                 LabelTimeline = "Timeline";
                 ButtonIgnoreEventType = "Ignore this event type ";
@@ -81,6 +99,22 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 EventDescriptionUndetectedChange = "Code semantics didn't change (e.g. whitespace) or the change requires manual recompile.\n\nRecompile to force-apply changes.";
                 EventTitleChangePartiallyApplied = "Change partially applied";
                 EventDescriptionFailedApplyingPatchTapForMore = "{0}: {1}, tap here to see more.";
+                
+                // Manual download
+                ManualDownloadButtonContactSupport = "Contact Support";
+                ManualDownloadWarning = "Automatic downloads are slow or not available. You can download the required binaries manually.";
+                ManualDownloadInfo = "Download the server binary and save it to the following path:\n{0}";
+                ManualDownloadButtonCopyToClipboard = "Copy path to clipboard";
+                ManualDownloadButtonOpenDownloadUrl = "Open Download URL";
+                ManualDownloadButtonComplete = "I've completed the download";
+                
+                FullAssemblyRecompilation = "Full assembly recompilation";
+                ViewAll = "View All";
+                ViewRecent = "View Recent";
+                
+                EntryTimeNow = "now";
+                EntryTimeHours = "h";
+                EntryTimeMinutes = "min";
             }
             
             public static void LoadSimplifiedChinese() {
@@ -92,7 +126,8 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 MessageEnableFilters = "启用过滤器以查看事件";
                 MessageMakeCodeChanges = "进行代码更改以查看事件";
                 MessageOnly40EntriesShown = "仅显示最后 40 个条目";
-                EventsTooltip = "事件";
+                IndicationTooltip = "查看事件时间线\n最后事件：{0}";
+                OpenToViewNewEventsTooltip = "打开以查看新事件/建议";
                 LabelSuggestionsFormat = "建议 ({0})";
                 LabelTimeline = "时间线";
                 ButtonIgnoreEventType = "忽略此事件类型 ";
@@ -123,6 +158,22 @@ namespace SingularityGroup.HotReload.Editor.Localization {
                 EventDescriptionUndetectedChange = "代码语义未更改（例如空格）或更改需要手动重新编译。\n\n重新编译以强制应用更改。";
                 EventTitleChangePartiallyApplied = "更改部分应用";
                 EventDescriptionFailedApplyingPatchTapForMore = "{0}: {1}，点击此处查看更多。";
+                
+                // Manual download
+                ManualDownloadButtonContactSupport = "联系支持";
+                ManualDownloadWarning = "自动下载速度较慢或不可用。您可以手动下载所需的二进制文件。";
+                ManualDownloadInfo = "下载服务器二进制文件并将其保存到以下路径：\n{0}";
+                ManualDownloadButtonCopyToClipboard = "复制路径到剪贴板";
+                ManualDownloadButtonOpenDownloadUrl = "打开下载链接";
+                ManualDownloadButtonComplete = "我已完成下载";
+                
+                FullAssemblyRecompilation = "完整程序集重新编译";
+                ViewAll = "查看全部";
+                ViewRecent = "查看最近";
+                
+                EntryTimeNow = "刚刚";
+                EntryTimeHours = "小时";
+                EntryTimeMinutes = "分钟";
             }
         }
     }

@@ -49,6 +49,9 @@ namespace SingularityGroup.HotReload.Editor {
         }
 
         public static void AddOrRemoveFromBuild(bool includeSettingsInBuild) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             AssetDatabase.StartAssetEditing();
             var so = LoadSettingsOrDefault();
             try {

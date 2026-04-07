@@ -1,6 +1,7 @@
 #if ENABLE_MONO && (DEVELOPMENT_BUILD || UNITY_EDITOR)
 using System;
 using System.Threading.Tasks;
+using SingularityGroup.HotReload.DTO;
 using SingularityGroup.HotReload.Localization;
 using UnityEngine;
 using UnityEngine.UI;

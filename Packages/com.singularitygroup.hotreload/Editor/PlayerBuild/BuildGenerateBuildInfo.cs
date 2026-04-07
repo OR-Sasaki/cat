@@ -10,7 +10,7 @@ namespace SingularityGroup.HotReload.Editor {
 
         public void OnPreprocessBuild(BuildTarget target, string path) {
             try {
-                if (!HotReloadBuildHelper.IncludeInThisBuild()) {
+                if (!HotReloadBuildHelper.IncludeInThisBuild() || MultiplayerPlaymodeHelper.IsClone) {
                     return;
                 }
                 // write BuildInfo json into the StreamingAssets directory

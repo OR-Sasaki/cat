@@ -10,7 +10,7 @@ namespace SingularityGroup.HotReload.Editor {
         public int callbackOrder => 9999;
         public void OnPostprocessBuild(BuildTarget target, string path) {
             try {
-                if (!HotReloadBuildHelper.IncludeInThisBuild()) {
+                if (!HotReloadBuildHelper.IncludeInThisBuild() || MultiplayerPlaymodeHelper.IsClone) {
                     return;
                 }
                 // after build passes, need to send again because EditorApplication.delayCall isn't called.

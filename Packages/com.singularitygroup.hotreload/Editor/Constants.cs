@@ -1,4 +1,5 @@
-﻿using SingularityGroup.HotReload.Editor.Localization;
+﻿using SingularityGroup.HotReload.DTO;
+using SingularityGroup.HotReload.Editor.Localization;
 using SingularityGroup.HotReload.Localization;
 using Translations = SingularityGroup.HotReload.Editor.Localization.Translations;
 
@@ -23,6 +24,7 @@ namespace SingularityGroup.HotReload.Editor {
         public const string FeaturesDocumentationURL = DocumentationURL + "/features";
         public const string MultipleEditorsURL = DocumentationURL + "/multiple-editors";
         public const string DebuggerURL = DocumentationURL + "/debugger";
+        public const string SecurityURL = DocumentationURL + "/security";
         public const string UndetectedChangesURL = DocumentationURL + "/getting-started#undetected-changes";
         public const string VoteForAwardURL = "https://awards.unity.com/#best-development-tool";
         public const string UnityStoreRateAppURL = "https://assetstore.unity.com/packages/slug/254358#reviews";
@@ -39,7 +41,7 @@ namespace SingularityGroup.HotReload.Editor {
         public const int UpgradeLicenseNoteHideHeight = 150;
         public const int RateAppHideHeight = 325;
         public const int RateAppHideWidth = 300;
-        public const int EventFiltersShownHideWidth = 275;
+        public const int EventFiltersShownHideWidth = 325;
         public const int ConsumptionsHideWidth = 300;
         public const int ConsumptionsHideHeight = 360;
         

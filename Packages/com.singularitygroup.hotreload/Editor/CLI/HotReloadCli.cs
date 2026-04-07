@@ -21,6 +21,10 @@ namespace SingularityGroup.HotReload.Editor.Cli {
         
         //InitializeOnLoad ensures controller gets initialized on unity thread
         static HotReloadCli() {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                controller = new FallbackCliController();
+                return;
+            }
             controller =
     #if UNITY_EDITOR_OSX
                 new OsxCliController();
@@ -47,7 +51,8 @@ namespace SingularityGroup.HotReload.Editor.Cli {
 #if UNITY_EDITOR_WIN
                 useWatchman: HotReloadPrefs.UseWatchman,
 #endif
-                detailedErrorReporting: !HotReloadPrefs.DisableDetailedErrorReporting
+                detailedErrorReporting: !HotReloadPrefs.DisableDetailedErrorReporting,
+                disableTelemetry: HotReloadPrefs.DisableTelemetry
             );
         }
         
@@ -57,11 +62,15 @@ namespace SingularityGroup.HotReload.Editor.Cli {
             bool createNoWindow, 
             bool isReleaseMode, 
             bool detailedErrorReporting, 
+            bool disableTelemetry,
 #if UNITY_EDITOR_WIN 
             bool useWatchman = true,
 #endif
             LoginData loginData = null
 ) {
+            if (controller.PlatformName == "") {
+                return;
+            }
             var port = await Prepare().ConfigureAwait(false);
             await ThreadUtility.SwitchToThreadPool();
             StartArgs args;
@@ -72,6 +81,7 @@ namespace SingularityGroup.HotReload.Editor.Cli {
                     createNoWindow, 
                     isReleaseMode, 
                     detailedErrorReporting, 
+                    disableTelemetry,
                     loginData, 
                     port, 
 #if UNITY_EDITOR_WIN 
@@ -105,6 +115,7 @@ namespace SingularityGroup.HotReload.Editor.Cli {
             bool createNoWindow, 
             bool isReleaseMode, 
             bool detailedErrorReporting, 
+            bool disableTelemetry,
             LoginData loginData, 
             int port, 
 #if UNITY_EDITOR_WIN 
@@ -159,9 +170,12 @@ namespace SingularityGroup.HotReload.Editor.Cli {
             }
             
             var searchAssemblies = string.Join(";", CodePatcher.I.GetAssemblySearchPaths());
-            var cliArguments = $@"-u ""{unityProjDir}"" -s ""{slnPath}"" -t ""{cliTempDir}"" -a ""{searchAssemblies}"" -ver ""{PackageConst.Version}"" -proc ""{Process.GetCurrentProcess().Id}"" -assets ""{allAssetChanges}"" -p ""{port}"" -r {isReleaseMode} -detailed-error-reporting {detailedErrorReporting}";
+            var cliArguments = $@"-u ""{unityProjDir}"" -s ""{slnPath}"" -t ""{cliTempDir}"" -a ""{searchAssemblies}"" -ver ""{PackageConst.Version}"" -proc ""{Process.GetCurrentProcess().Id}"" -assets ""{allAssetChanges}"" -p ""{port}"" -r {isReleaseMode} -detailed-error-reporting {detailedErrorReporting} -default-locale {PackageConst.DefaultLocale}";
             if (loginData != null) {
                 cliArguments += $@" -email ""{loginData.email}"" -pass ""{loginData.password}""";
+            }
+            if (disableTelemetry) {
+                cliArguments += $@" -disableTelemetry true";
             }
             #if UNITY_EDITOR_WIN
             cliArguments += $@" -w ""{useWatchman}""";
@@ -236,7 +250,8 @@ namespace SingularityGroup.HotReload.Editor.Cli {
             
             var port = DiscoverFreePort();
             HotReloadState.ServerPort = port;
-            RequestHelper.SetServerPort(port);
+            var serverInfo = RequestHelper.SetServerPort(port);
+            await Task.Run(() => File.WriteAllText(Path.Combine(PackageConst.LibraryCachePath, PackageConst.ServerInfoFileName), JsonConvert.SerializeObject(serverInfo)));
             return port;
         }
 

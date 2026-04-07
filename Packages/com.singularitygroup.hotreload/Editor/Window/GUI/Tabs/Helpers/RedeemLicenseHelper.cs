@@ -6,10 +6,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using SingularityGroup.HotReload.DTO;
-using SingularityGroup.HotReload.Editor.Localization;
+using SingularityGroup.HotReload.Localization;
 using SingularityGroup.HotReload.Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
+using Translations = SingularityGroup.HotReload.Editor.Localization.Translations;
 
 namespace SingularityGroup.HotReload.Editor {
     internal enum RedeemStage {
@@ -33,8 +34,8 @@ namespace SingularityGroup.HotReload.Editor {
         private string _pendingInvoiceNumber;
         private string _pendingRedeemEmail;
 
-        private const string registerFlagPath = PackageConst.LibraryCachePath + "/registerFlag.txt";
-        public const string registerOutcomePath = PackageConst.LibraryCachePath + "/registerOutcome.txt";
+        private static string registerFlagPath = PackageConst.LibraryCachePath + "/registerFlag.txt";
+        public static string registerOutcomePath = PackageConst.LibraryCachePath + "/registerOutcome.txt";
 
         public RedeemStage RedeemStage { get; private set; }
         public RegistrationOutcome RegistrationOutcome { get; private set; }
@@ -128,7 +129,18 @@ namespace SingularityGroup.HotReload.Editor {
             EditorGUILayout.Space();
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField(Translations.Common.LabelInvoiceNumber);
+            if (PackageConst.DefaultLocaleField == Locale.SimplifiedChinese) {
+                EditorGUILayout.LabelField(Translations.Common.LabelInvoiceNumber);
+            } else {
+                // show american asset store orders link
+                using (new EditorGUILayout.HorizontalScope()) {
+                    EditorGUILayout.LabelField(Translations.Common.LabelInvoiceNumber);
+                    var linkColor = EditorGUIUtility.isProSkin ? new Color32(0x3F, 0x9F, 0xFF, 0xFF) : new Color32(0x0F, 0x52, 0xD7, 0xFF);
+                    if (HotReloadGUIHelper.LinkLabel("Open Asset Store orders", 11, FontStyle.Normal, TextAnchor.MiddleRight, linkColor)) {
+                        Application.OpenURL("https://assetstore.unity.com/orders");
+                    }
+                }
+            }
             GUI.SetNextControlName("invoice_number");
             _pendingInvoiceNumber = EditorGUILayout.TextField(_pendingInvoiceNumber ?? HotReloadPrefs.RedeemLicenseInvoice)?.Trim();
             EditorGUILayout.Space();
@@ -166,7 +178,7 @@ namespace SingularityGroup.HotReload.Editor {
                 error = validationError;
                 return;
             }
-            var resp = await RequestRedeem(email: email, invoiceNumber: invoiceNumber);
+            var resp = await RequestRedeem(email: email, invoiceNumber: invoiceNumber, isChina: PackageConst.DefaultLocale == Locale.SimplifiedChinese);
             status = resp?.status;
             if (status != null) {
                 if (status != statusSuccess && status != statusAlreadyClaimed) {
@@ -179,7 +191,11 @@ namespace SingularityGroup.HotReload.Editor {
                     HotReloadPrefs.LicenseEmail = email;
                     HotReloadPrefs.LicensePassword = null;
 
-                    SwitchToStage(RedeemStage.Login);
+                    if (resp?.initialPassword != null) {
+                        HotReloadRunTab.FinishLogin(email, resp.initialPassword);
+                    } else {
+                        SwitchToStage(RedeemStage.Login);
+                    }
                 }
             } else if (resp?.error != null) {
                 Log.Warning(Translations.Errors.WarningRedeemingLicenseFailed, resp.error);
@@ -210,29 +226,30 @@ namespace SingularityGroup.HotReload.Editor {
             }
         }
 
-        async Task<RedeemResponse> RequestRedeem(string email, string invoiceNumber) {
+        async Task<RedeemResponse> RequestRedeem(string email, string invoiceNumber, bool isChina) {
             requestingRedeem = true;
             await ThreadUtility.SwitchToThreadPool();
             try {
                 redeemClient = redeemClient ?? (redeemClient = HttpClientUtils.CreateHttpClient());
-                var input = new Dictionary<string, string> {
+                var input = new Dictionary<string, object> {
                     { "email", email },
-                    { "invoice", invoiceNumber }
+                    { "invoice", invoiceNumber },
+                    { "isChina", isChina },
                 };
                 var content = new StringContent(JsonConvert.SerializeObject(input), Encoding.UTF8, "application/json");
                 using (var resp = await redeemClient.PostAsync(redeemUrl, content, HotReloadWindow.Current.cancelToken).ConfigureAwait(false)) {
                     if (resp.StatusCode != HttpStatusCode.OK) {
-                        return new RedeemResponse(null, string.Format(Translations.Errors.ErrorRedeemRequestFailed, (int)resp.StatusCode, resp.ReasonPhrase));
+                        return new RedeemResponse(null, string.Format(Translations.Errors.ErrorRedeemRequestFailed, (int)resp.StatusCode, resp.ReasonPhrase), null);
                     }
                     var str = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
                     try {
                         return JsonConvert.DeserializeObject<RedeemResponse>(str);
                     } catch (Exception ex) {
-                        return new RedeemResponse(null, string.Format(Translations.Errors.ErrorFailedDeserializingRedeem, ex.GetType().Name, ex.Message));
+                        return new RedeemResponse(null, string.Format(Translations.Errors.ErrorFailedDeserializingRedeem, ex.GetType().Name, ex.Message), null);
                     }
                 }
             } catch (WebException ex) {
-                return new RedeemResponse(null, string.Format(Translations.Errors.ErrorRedeemingWebException, ex.Message));
+                return new RedeemResponse(null, string.Format(Translations.Errors.ErrorRedeemingWebException, ex.Message), null);
             } finally {
                 requestingRedeem = false;
             }
@@ -241,10 +258,12 @@ namespace SingularityGroup.HotReload.Editor {
         private class RedeemResponse {
             public string status;
             public string error;
+            public string initialPassword;
 
-            public RedeemResponse(string status, string error) {
+            public RedeemResponse(string status, string error, string initialPassword) {
                 this.status = status;
                 this.error = error;
+                this.initialPassword = initialPassword;
             }
         }
 

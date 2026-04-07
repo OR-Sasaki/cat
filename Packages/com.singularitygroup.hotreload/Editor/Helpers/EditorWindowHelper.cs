@@ -25,6 +25,10 @@ namespace SingularityGroup.HotReload.Editor {
 
         public static bool IsHumanControllingUs() {
             if (Application.isBatchMode) {
+                // allow for running tests
+                if (MultiplayerPlaymodeHelper.HasCommandLineArgument(Environment.GetCommandLineArgs(), "-runTests")) {
+                    return true;
+                }
                 return false;
             }
             

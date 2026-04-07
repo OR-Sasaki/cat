@@ -1,11 +1,8 @@
+using SingularityGroup.HotReload.DTO;
+
 #if ENABLE_MONO && (DEVELOPMENT_BUILD || UNITY_EDITOR)
 
 namespace SingularityGroup.HotReload.Localization {
-    public static class Locale {
-        public const string SimplifiedChinese = "zh";
-        public const string English = "en";
-    }
-    
     internal static partial class Translations {
         static string loadedLocale;
         static Translations() {

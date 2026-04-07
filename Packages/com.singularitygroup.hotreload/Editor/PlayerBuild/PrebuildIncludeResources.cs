@@ -25,6 +25,9 @@ namespace SingularityGroup.HotReload.Editor {
         bool warnSettingsNotSupported;
         
         public void OnPreprocessBuild(BuildTarget target, string path) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             try {
                 if (HotReloadBuildHelper.IncludeInThisBuild()) {
                     // move scriptable object into Resources/ folder

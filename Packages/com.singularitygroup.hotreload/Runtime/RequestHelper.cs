@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -42,14 +43,34 @@ namespace SingularityGroup.HotReload {
         public string generalInfo;
     }
 
+    public class BugReport {
+        public string reportId;
+        public string label;
+        public string title;
+        public string description;
+        public string email;
+        public string hotReloadVersion;
+        public string unityVersion;
+        public string operatingSystemVersionInfo;
+        public string hwId;
+    }
+
     static class RequestHelper {
         internal const ushort defaultPort = 33242;
         internal const string defaultServerHost = "127.0.0.1";
         const string ChangelogURL = PackageConst.DefaultLocale == Locale.SimplifiedChinese ? 
             "https://d2tc55zjhw51ly.cloudfront.net/releases/latest/changelog-zh.json" :
             "https://d2tc55zjhw51ly.cloudfront.net/releases/latest/changelog.json";
-        static readonly string defaultOrigin = Path.GetDirectoryName(UnityHelper.DataPath);
+        static readonly string defaultOrigin = GetProjectRoot();
+        const string BugReportLambdaURL = "https://api.unityhotreload.com";
         public static string origin { get; private set; } = defaultOrigin;
+
+        static string GetProjectRoot() {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return Path.GetFullPath(MultiplayerPlaymodeHelper.PathToMainProject("."));
+            }
+            return Path.GetFullPath(".");
+        }
         
         static PatchServerInfo serverInfo = new PatchServerInfo(defaultServerHost, null, null);
         public static PatchServerInfo ServerInfo => serverInfo;
@@ -69,8 +90,7 @@ namespace SingularityGroup.HotReload {
         
         static HttpClient CreateHttpClientWithOrigin() {
             var httpClient = HttpClientUtils.CreateHttpClient();
-            httpClient.DefaultRequestHeaders.Add("origin", Path.GetDirectoryName(UnityHelper.DataPath));
-
+            httpClient.DefaultRequestHeaders.Add("origin", origin);
             return httpClient;
         }
         
@@ -81,13 +101,11 @@ namespace SingularityGroup.HotReload {
             return $"http://{server.hostName}:{server.port.ToString()}";
         }
         
-        public static void SetServerPort(int port) {
-            serverInfo = new PatchServerInfo(serverInfo.hostName, port, serverInfo.commitHash, serverInfo.rootPath);
-            cachedUrl = null;
-            Log.Debug($"SetServerInfo to {CreateUrl(serverInfo)}");
+        public static PatchServerInfo SetServerPort(int port) {
+            return SetServerInfo(new PatchServerInfo(serverInfo.hostName, port, serverInfo.commitHash, serverInfo.rootPath, false, serverInfo.customRequestOrigin));
         }
 
-        public static void SetServerInfo(PatchServerInfo info) {
+        public static PatchServerInfo SetServerInfo(PatchServerInfo info) {
             if (info != null) Log.Debug($"SetServerInfo to {CreateUrl(info)}");
             serverInfo = info;
             cachedUrl = null;
@@ -95,6 +113,7 @@ namespace SingularityGroup.HotReload {
             if (info?.customRequestOrigin != null) {
                 SetOrigin(info.customRequestOrigin);
             }
+            return info;
         }
 
         // This function is not thread safe but is currently called before the first request is sent so no issue.
@@ -142,8 +161,12 @@ namespace SingularityGroup.HotReload {
                 return;
             }
             pollPending = true;
-            var searchPaths = assemblySearchPaths ?? CodePatcher.I.GetAssemblySearchPaths();
-            var body = SerializeRequestBody(new MethodPatchRequest(lastPatchId, searchPaths, TimeSpan.FromSeconds(20), Path.GetDirectoryName(Application.dataPath)));
+            string[] searchPaths = null;
+            // This is here so that it doesn't override searchPaths registered by main project
+            if (!MultiplayerPlaymodeHelper.IsClone) {
+                searchPaths = assemblySearchPaths ?? CodePatcher.I.GetAssemblySearchPaths();
+            }
+            var body = SerializeRequestBody(new MethodPatchRequest(lastPatchId, searchPaths, TimeSpan.FromSeconds(20), origin));
             
             await ThreadUtility.SwitchToThreadPool();
             
@@ -264,6 +287,21 @@ namespace SingularityGroup.HotReload {
             return null;
         }
         
+        public static async Task<RemoteLicenseResetRespone> RequestRemoteLicenseReset(string email, string password, int timeoutSeconds) {
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+            var json = SerializeRequestBody(new RemoteLicenseResetRequest(email, password));
+            var resp = await PostJson(url + "/remoteLicenseReset", json, timeoutSeconds, cts.Token);
+            if (resp.statusCode == HttpStatusCode.OK) {
+                try {
+                    return JsonConvert.DeserializeObject<RemoteLicenseResetRespone>(resp.responseText);
+                } catch (Exception e){
+                    return new RemoteLicenseResetRespone(error: $"{e.GetType().Name} {e.Message}");
+                }
+            } else {
+                return new RemoteLicenseResetRespone(error: resp.responseText ?? Localization.Translations.Logging.RequestTimeout);
+            }
+        }
+        
         public static async Task<LoginStatusResponse> RequestLogin(string email, string password, int timeoutSeconds) {
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
             var json = SerializeRequestBody(new Dictionary<string, object> {
@@ -318,8 +356,20 @@ namespace SingularityGroup.HotReload {
                 return null;
             }
         }
-        
+
+        internal static async Task<string> SubmitBugReport(BugReport bugReport) {
+            var body = SerializeRequestBody(bugReport);
+            var resp = await PostJson(BugReportLambdaURL + "/report", body, int.MaxValue);
+            if (resp.statusCode != HttpStatusCode.OK) {
+                return $"Failed submitting bug report with status code {resp.statusCode}";
+            }
+            return null;
+        }
+
         internal static async Task RequestEditorEventWithRetry(Stat stat, EditorExtraData extraData = null) {
+            if (MultiplayerPlaymodeHelper.IsClone) {
+                return;
+            }
             int attempt = 0;
             do {
                 var resp = await RequestHelper.RequestEditorEvent(stat, extraData);
@@ -327,6 +377,9 @@ namespace SingularityGroup.HotReload {
                     return;
                 }
                 await Task.Delay(TimeSpan.FromMilliseconds(200));
+                if (CodePatcher.I.disableTelemetry) {
+                    break;
+                }
             } while (attempt++ < 10000);
         }
         
@@ -339,13 +392,23 @@ namespace SingularityGroup.HotReload {
             await ThreadUtility.SwitchToThreadPool();
             await KillServerInternal().ConfigureAwait(false);
         }
+        
+        internal static async Task RegisterClone() {
+            await ThreadUtility.SwitchToThreadPool();
+            try {
+                var body = SerializeRequestBody(new RegisterCloneRequest(Process.GetCurrentProcess().Id));
+                using(await client.PostAsync(CreateUrl(serverInfo) + "/registerClone", new StringContent(body)).ConfigureAwait(false)) { }
+            } catch {
+                //ignored
+            } 
+        }
 
         internal static async Task KillServerInternal() {
             try {
                 using(await client.PostAsync(CreateUrl(serverInfo) + "/kill", new StringContent(origin)).ConfigureAwait(false)) { }
             } catch {
                 //ignored
-            } 
+            }
         }
 
         public static async Task<bool> PingServer(Uri uri) {
@@ -446,10 +509,11 @@ namespace SingularityGroup.HotReload {
             await ThreadUtility.SwitchToThreadPool();
             
             try {
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                using(var resp = await httpClient.PostAsync(uri, content, token).ConfigureAwait(false)) {
-                    var str = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    return new HttpResponse(resp.StatusCode, null, str);
+                using (var content = new StringContent(json, Encoding.UTF8, "application/json")) {
+                    using(var resp = await httpClient.PostAsync(uri, content, token).ConfigureAwait(false)) {
+                        var str = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        return new HttpResponse(resp.StatusCode, null, str);
+                    }
                 }
             } catch(Exception ex) {
                 return new HttpResponse(0, ex, null);

@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Home.State;
 using Home.View;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Home.Service
 {
@@ -22,6 +23,9 @@ namespace Home.Service
 
         // NavMesh再構築用イベント
         public event Action OnObjectPlaced;
+
+        /// Homeシーンへの参照（Instantiate先の指定に使用）
+        public Scene HomeScene => _isoGridSettingsView.gameObject.scene;
 
         public IsoGridService(IsoGridState state, IsoGridSettingsView isoGridSettingsView)
         {

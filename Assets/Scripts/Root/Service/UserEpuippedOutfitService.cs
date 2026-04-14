@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cat.Character;
 using Root.State;
@@ -25,6 +26,11 @@ namespace Root.Service
         public void Unequip(OutfitType type)
         {
             _userEquippedOutfitState.Unequip(type);
+        }
+
+        public IReadOnlyDictionary<OutfitType, uint> GetAllEquippedOutfitIds()
+        {
+            return _userEquippedOutfitState.GetAllEquippedOutfitIds();
         }
 
         public void Save()

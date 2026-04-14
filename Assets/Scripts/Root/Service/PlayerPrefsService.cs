@@ -7,6 +7,8 @@ namespace Root.Service
         Outfit,
         UserEquippedOutfit,
         IsoGrid,
+        UserItemInventory,
+        UserPoint,
     }
 
     public class PlayerPrefsService

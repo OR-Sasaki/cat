@@ -46,18 +46,18 @@ namespace Root.Service
         {
             if (amount <= 0)
             {
-                return ItemInventoryResult.Fail(ItemInventoryErrorCode.InvalidArgument, $"amount must be > 0 (was {amount})");
+                return ItemInventoryResult.Fail(ItemInventoryErrorCode.InvalidArgument);
             }
 
             if (!IsKnownFurnitureId(furnitureId))
             {
-                return ItemInventoryResult.Fail(ItemInventoryErrorCode.UnknownId, $"unknown furnitureId: {furnitureId}");
+                return ItemInventoryResult.Fail(ItemInventoryErrorCode.UnknownId);
             }
 
             var currentCount = _state.GetFurnitureCount(furnitureId);
             if ((long)currentCount + amount > int.MaxValue)
             {
-                return ItemInventoryResult.Fail(ItemInventoryErrorCode.InvalidArgument, "furniture count overflow");
+                return ItemInventoryResult.Fail(ItemInventoryErrorCode.InvalidArgument);
             }
 
             var newCount = currentCount + amount;
@@ -71,7 +71,7 @@ namespace Root.Service
         {
             if (!IsKnownOutfitId(outfitId))
             {
-                return ItemInventoryResult.Fail(ItemInventoryErrorCode.UnknownId, $"unknown outfitId: {outfitId}");
+                return ItemInventoryResult.Fail(ItemInventoryErrorCode.UnknownId);
             }
 
             // 既所持は冪等成功 (通知・保存なし)
@@ -101,6 +101,8 @@ namespace Root.Service
 
         void Load()
         {
+            _state.Clear();
+
             UserItemInventorySnapshot? snapshot;
             try
             {
@@ -109,12 +111,9 @@ namespace Root.Service
             catch (Exception e)
             {
                 Debug.LogError($"[UserItemInventoryService] {e.Message}\n{e.StackTrace}");
-                _state.Clear();
                 EnsureEquippedOutfitsOwned();
                 return;
             }
-
-            _state.Clear();
 
             if (snapshot is null || snapshot.Version != UserItemInventorySnapshot.CurrentVersion)
             {
@@ -161,25 +160,25 @@ namespace Root.Service
             try
             {
                 var counts = _state.GetAllFurnitureCounts();
-                var furnitures = new List<FurnitureHoldingEntry>(counts.Count);
+                var furnitures = new FurnitureHoldingEntry[counts.Count];
+                var fi = 0;
                 foreach (var kvp in counts)
                 {
-                    if (kvp.Value <= 0) continue;
-                    furnitures.Add(new FurnitureHoldingEntry { FurnitureId = kvp.Key, Count = kvp.Value });
+                    furnitures[fi++] = new FurnitureHoldingEntry { FurnitureId = kvp.Key, Count = kvp.Value };
                 }
 
                 var owned = _state.GetAllOwnedOutfitIds();
                 var outfits = new uint[owned.Count];
-                var i = 0;
+                var oi = 0;
                 foreach (var id in owned)
                 {
-                    outfits[i++] = id;
+                    outfits[oi++] = id;
                 }
 
                 var snapshot = new UserItemInventorySnapshot
                 {
                     Version = UserItemInventorySnapshot.CurrentVersion,
-                    Furnitures = furnitures.ToArray(),
+                    Furnitures = furnitures,
                     OwnedOutfitIds = outfits,
                 };
                 _playerPrefsService.Save(PlayerPrefsKey.UserItemInventory, snapshot);

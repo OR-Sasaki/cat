@@ -58,24 +58,21 @@ namespace Root.Service
     {
         InvalidArgument,
         UnknownId,
-        BelowZero,
     }
 
     public readonly struct ItemInventoryResult
     {
         public bool IsSuccess { get; }
         public ItemInventoryErrorCode? Error { get; }
-        public string? Message { get; }
 
-        ItemInventoryResult(bool isSuccess, ItemInventoryErrorCode? error, string? message)
+        ItemInventoryResult(bool isSuccess, ItemInventoryErrorCode? error)
         {
             IsSuccess = isSuccess;
             Error = error;
-            Message = message;
         }
 
-        public static ItemInventoryResult Ok() => new(true, null, null);
+        public static ItemInventoryResult Ok() => new(true, null);
 
-        public static ItemInventoryResult Fail(ItemInventoryErrorCode code, string message) => new(false, code, message);
+        public static ItemInventoryResult Fail(ItemInventoryErrorCode code) => new(false, code);
     }
 }

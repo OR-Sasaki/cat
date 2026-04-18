@@ -133,7 +133,7 @@ namespace Root.Service
                 return;
             }
 
-            if (snapshot is null || snapshot.Version != UserItemInventorySnapshot.CurrentVersion)
+            if (snapshot is not { Version: UserItemInventorySnapshot.CurrentVersion })
             {
                 EnsureEquippedOutfitsOwned();
                 return;

@@ -148,6 +148,7 @@ namespace Root.Service
             var equipped = _userEquippedOutfitService.GetAllEquippedOutfitIds();
             foreach (var kvp in equipped)
             {
+                if (!IsKnownOutfitId(kvp.Value)) continue;
                 if (!_state.HasOutfit(kvp.Value))
                 {
                     _state.AddOwnedOutfit(kvp.Value);

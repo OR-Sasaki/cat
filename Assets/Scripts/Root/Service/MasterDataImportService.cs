@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Root.State;
 using UnityEngine;
@@ -7,6 +8,9 @@ namespace Root.Service
     public class MasterDataImportService
     {
         readonly MasterDataState _masterDataState;
+
+        /// Import 完了時に 1 度だけ発火する (Import は冪等で再発火しない)
+        public event Action Imported;
 
         public MasterDataImportService(MasterDataState masterDataState)
         {
@@ -21,6 +25,7 @@ namespace Root.Service
             ImportFurnitures();
 
             _masterDataState.IsImported = true;
+            Imported?.Invoke();
         }
 
         void ImportOutfits()

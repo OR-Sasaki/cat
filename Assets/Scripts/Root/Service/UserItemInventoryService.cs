@@ -15,6 +15,7 @@ namespace Root.Service
         readonly UserItemInventoryState _state;
         readonly PlayerPrefsService _playerPrefsService;
         readonly MasterDataState _masterDataState;
+        readonly MasterDataImportService _masterDataImportService;
         readonly UserEquippedOutfitService _userEquippedOutfitService;
 
         public event Action<FurnitureChange>? FurnitureChanged;
@@ -25,12 +26,29 @@ namespace Root.Service
             UserItemInventoryState state,
             PlayerPrefsService playerPrefsService,
             MasterDataState masterDataState,
+            MasterDataImportService masterDataImportService,
             UserEquippedOutfitService userEquippedOutfitService)
         {
             _state = state;
             _playerPrefsService = playerPrefsService;
             _masterDataState = masterDataState;
+            _masterDataImportService = masterDataImportService;
             _userEquippedOutfitService = userEquippedOutfitService;
+
+            // 未 import 時に Load すると全 ID が破棄されるため、import 完了を待つ
+            if (_masterDataState.IsImported)
+            {
+                Load();
+            }
+            else
+            {
+                _masterDataImportService.Imported += OnMasterDataImported;
+            }
+        }
+
+        void OnMasterDataImported()
+        {
+            _masterDataImportService.Imported -= OnMasterDataImported;
             Load();
         }
 

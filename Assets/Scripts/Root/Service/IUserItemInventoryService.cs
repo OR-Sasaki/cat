@@ -35,7 +35,7 @@ namespace Root.Service
         /// 着せ替え変更通知 (付与された outfitId)
         event Action<uint> OutfitChanged;
 
-        /// 初期化 (現状はコンストラクタで Load 済みのためノーオペ)
+        /// 初期化 (Load はコンストラクタ側で完結するため現状ノーオペ)
         UniTask InitializeAsync(CancellationToken cancellationToken);
 
         /// 明示的な保存要求 (通常は書き込み操作時に自動保存される)

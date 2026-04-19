@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Home.Service;
 using Home.State;
@@ -26,12 +27,16 @@ namespace Home.View
         {
             _redecorateButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Redecorate));
             _closetButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Closet));
-            _timerButton.onClick.AddListener(() => OnTimerButtonClickedAsync(dialogService, sceneLoader).Forget());
+            _timerButton.onClick.AddListener(() =>
+                OnTimerButtonClickedAsync(dialogService, sceneLoader, destroyCancellationToken).Forget());
         }
 
-        async UniTaskVoid OnTimerButtonClickedAsync(IDialogService dialogService, SceneLoader sceneLoader)
+        async UniTaskVoid OnTimerButtonClickedAsync(
+            IDialogService dialogService,
+            SceneLoader sceneLoader,
+            CancellationToken cancellationToken)
         {
-            var result = await dialogService.OpenAsync<TimerSettingDialog>(destroyCancellationToken);
+            var result = await dialogService.OpenAsync<TimerSettingDialog>(cancellationToken);
             if (result == DialogResult.Ok)
             {
                 sceneLoader.Load(Const.SceneName.Timer);

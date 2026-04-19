@@ -1,0 +1,585 @@
+fileFormatVersion: 2
+guid: 3c96c537da42b49ae94ab102a87cff6c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1568928354782769360
+    second: timer_smallcloud_0
+  - first:
+      213: 6291652783234646509
+    second: timer_smallcloud_1
+  - first:
+      213: -7227884987007953769
+    second: timer_smallcloud_2
+  - first:
+      213: 5899706046356770286
+    second: timer_smallcloud_3
+  - first:
+      213: 2601158905457900771
+    second: timer_smallcloud_4
+  - first:
+      213: -5624840253826669777
+    second: timer_smallcloud_5
+  - first:
+      213: -4796331836794968716
+    second: timer_smallcloud_6
+  - first:
+      213: -4912089299554939691
+    second: timer_smallcloud_7
+  - first:
+      213: -1889138869400747452
+    second: timer_smallcloud_8
+  - first:
+      213: -5801296883702498463
+    second: timer_smallcloud_9
+  - first:
+      213: -2225335172662303538
+    second: timer_smallcloud_10
+  - first:
+      213: 7202820467447645632
+    second: timer_smallcloud_11
+  - first:
+      213: -2816177299442890201
+    second: timer_smallcloud_12
+  - first:
+      213: 3296394764475125472
+    second: timer_smallcloud_13
+  - first:
+      213: 762326892678232730
+    second: timer_smallcloud_14
+  - first:
+      213: -7777266680403412415
+    second: timer_smallcloud_15
+  - first:
+      213: 5820711294337064610
+    second: timer_smallcloud_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: timer_smallcloud_0
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 545
+        width: 394
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03f822f49fb0a3ae0800000000000000
+      internalID: -1568928354782769360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_1
+      rect:
+        serializedVersion: 2
+        x: 1787
+        y: 547
+        width: 685
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de18cca2fd0705750800000000000000
+      internalID: 6291652783234646509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_2
+      rect:
+        serializedVersion: 2
+        x: 2499
+        y: 598
+        width: 129
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 794130836e461bb90800000000000000
+      internalID: -7227884987007953769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_3
+      rect:
+        serializedVersion: 2
+        x: 3845
+        y: 531
+        width: 259
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eedc1542467ffd150800000000000000
+      internalID: 5899706046356770286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_4
+      rect:
+        serializedVersion: 2
+        x: 634
+        y: 519
+        width: 97
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ec79243e3c291420800000000000000
+      internalID: 2601158905457900771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_5
+      rect:
+        serializedVersion: 2
+        x: 3288
+        y: 517
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f23e750479d80f1b0800000000000000
+      internalID: -5624840253826669777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_6
+      rect:
+        serializedVersion: 2
+        x: 492
+        y: 286
+        width: 686
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47560f24b91007db0800000000000000
+      internalID: -4796331836794968716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_7
+      rect:
+        serializedVersion: 2
+        x: 1205
+        y: 336
+        width: 130
+        height: 91
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5dcc703bec0c4dbb0800000000000000
+      internalID: -4912089299554939691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_8
+      rect:
+        serializedVersion: 2
+        x: 3039
+        y: 319
+        width: 455
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4424cf5153e68c5e0800000000000000
+      internalID: -1889138869400747452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_9
+      rect:
+        serializedVersion: 2
+        x: 3494
+        y: 366
+        width: 91
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16bf45a8837ad7fa0800000000000000
+      internalID: -5801296883702498463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_10
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 220
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec4e74763750e11e0800000000000000
+      internalID: -2225335172662303538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_11
+      rect:
+        serializedVersion: 2
+        x: 1485
+        y: 47
+        width: 260
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c5412f8d0f85f360800000000000000
+      internalID: 7202820467447645632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_12
+      rect:
+        serializedVersion: 2
+        x: 2473
+        y: 64
+        width: 394
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72a003abaadeae8d0800000000000000
+      internalID: -2816177299442890201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 22
+        width: 454
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ee4fffb2952fbd20800000000000000
+      internalID: 3296394764475125472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_14
+      rect:
+        serializedVersion: 2
+        x: 454
+        y: 68
+        width: 91
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9a30d81544549a00800000000000000
+      internalID: 762326892678232730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_15
+      rect:
+        serializedVersion: 2
+        x: 2764
+        y: 38
+        width: 98
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14ab21fe829911490800000000000000
+      internalID: -7777266680403412415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: timer_smallcloud_16
+      rect:
+        serializedVersion: 2
+        x: 3472
+        y: 0
+        width: 327
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ae901f251257c050800000000000000
+      internalID: 5820711294337064610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      timer_smallcloud_0: -1568928354782769360
+      timer_smallcloud_1: 6291652783234646509
+      timer_smallcloud_10: -2225335172662303538
+      timer_smallcloud_11: 7202820467447645632
+      timer_smallcloud_12: -2816177299442890201
+      timer_smallcloud_13: 3296394764475125472
+      timer_smallcloud_14: 762326892678232730
+      timer_smallcloud_15: -7777266680403412415
+      timer_smallcloud_16: 5820711294337064610
+      timer_smallcloud_2: -7227884987007953769
+      timer_smallcloud_3: 5899706046356770286
+      timer_smallcloud_4: 2601158905457900771
+      timer_smallcloud_5: -5624840253826669777
+      timer_smallcloud_6: -4796331836794968716
+      timer_smallcloud_7: -4912089299554939691
+      timer_smallcloud_8: -1889138869400747452
+      timer_smallcloud_9: -5801296883702498463
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

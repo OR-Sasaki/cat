@@ -33,7 +33,6 @@ namespace Timer.View
 
         void Start()
         {
-            _focusButton.gameObject.SetActive(false);
             _messageText.gameObject.SetActive(false);
             _resumeButton.gameObject.SetActive(false);
 
@@ -86,8 +85,6 @@ namespace Timer.View
 
         void OnFocusButtonClicked()
         {
-            _focusButton.gameObject.SetActive(false);
-            _messageText.gameObject.SetActive(false);
             _service.TransitionToFocus();
         }
 

@@ -33,7 +33,6 @@ namespace Timer.View
 
         void Start()
         {
-            _breakButton.gameObject.SetActive(false);
             _messageText.gameObject.SetActive(false);
             _resumeButton.gameObject.SetActive(false);
 
@@ -95,8 +94,6 @@ namespace Timer.View
 
         void OnBreakButtonClicked()
         {
-            _breakButton.gameObject.SetActive(false);
-            _messageText.gameObject.SetActive(false);
             _service.TransitionToBreak();
         }
 

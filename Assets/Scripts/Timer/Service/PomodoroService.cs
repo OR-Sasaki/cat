@@ -50,9 +50,9 @@ namespace Timer.Service
         /// 休憩フェーズに遷移する
         public void TransitionToBreak()
         {
-            if (_state.CurrentPhase != PomodoroPhase.Focus || !_state.IsTimerExpired)
+            if (_state.CurrentPhase != PomodoroPhase.Focus)
             {
-                Debug.LogWarning("[PomodoroService] TransitionToBreak: 事前条件不成立（Focus かつ TimerExpired が必要）");
+                Debug.LogWarning("[PomodoroService] TransitionToBreak: 事前条件不成立（Focus が必要）");
                 return;
             }
 
@@ -72,9 +72,9 @@ namespace Timer.Service
         /// 次のセットの集中フェーズに遷移する
         public void TransitionToFocus()
         {
-            if (_state.CurrentPhase != PomodoroPhase.Break || !_state.IsTimerExpired)
+            if (_state.CurrentPhase != PomodoroPhase.Break)
             {
-                Debug.LogWarning("[PomodoroService] TransitionToFocus: 事前条件不成立（Break かつ TimerExpired が必要）");
+                Debug.LogWarning("[PomodoroService] TransitionToFocus: 事前条件不成立（Break が必要）");
                 return;
             }
 

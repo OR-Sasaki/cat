@@ -17,6 +17,12 @@ namespace Root.Scope
             builder.Register<PlayerPrefsService>(Lifetime.Singleton);
             builder.Register<UserEquippedOutfitState>(Lifetime.Singleton);
             builder.Register<UserEquippedOutfitService>(Lifetime.Singleton);
+            builder.Register<UserItemInventoryState>(Lifetime.Singleton);
+            builder.Register<UserItemInventoryService>(Lifetime.Singleton)
+                .As<IUserItemInventoryService>().AsSelf();
+            builder.Register<UserPointState>(Lifetime.Singleton);
+            builder.Register<UserPointService>(Lifetime.Singleton)
+                .As<IUserPointService>().AsSelf();
 
             builder.Register<DialogState>(Lifetime.Singleton);
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();

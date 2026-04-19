@@ -868,10 +868,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af04dfbcce1144ac68946e2355f7fd08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Timer.View.BackgroundScrollView
-  _background1: {fileID: 1126716463}
-  _background2: {fileID: 1665526825}
-  _scrollSpeed: 2
-  _backgroundWidth: 20
+  _elements: []
 --- !u!1 &1024525736
 GameObject:
   m_ObjectHideFlags: 0
@@ -1072,7 +1069,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.4627451}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7372549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1564,7 +1561,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8024852174776459248, guid: c96238de7fbf44bb48e908ba43bb06b4, type: 3}
+  m_Sprite: {fileID: 3542961172857676052, guid: 736be9bc848fd4716ba81407cd802473, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

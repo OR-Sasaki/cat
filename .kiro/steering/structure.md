@@ -23,7 +23,7 @@
 ### Root Services
 **Location**: `Assets/Scripts/Root/`
 **Purpose**: 全シーン共通のグローバルサービス (RootScope)。シーンと同じ層構造 (Service/State/View) を持つ
-**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `MasterDataImportService`, `UserDataImportService`, `UserEpuippedOutfitService`
+**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`
 **Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `SceneLoaderState`
 **Key Views**: `DialogCanvasView`, `BackdropView`, `BaseDialogView` (継承ベースのダイアログ基底クラス), `CommonConfirmDialog`, `CommonMessageDialog`
 
@@ -34,12 +34,12 @@
 
 ### Scene-Integrated Systems
 **Pattern**: 大規模な機能もシーンフォルダ内の層 (Service/State/View) に統合
-**Example**: IsoGrid機能は `Home/Service/IsoGridService.cs`, `Home/State/IsoGridState.cs`, `Home/View/IsoGridGizmo.cs` としてHomeシーンに統合
+**Example**: IsoGrid機能は `Home/Service/IsoGridService.cs`, `Home/State/IsoGridState.cs`, `Home/View/IsoGridGizmo.cs`, `Home/View/FragmentedIsoGrid.cs` としてHomeシーンに統合。Closet/Redecorate機能もHomeシーン内のUI機能として統合
 **Namespace**: `Cat` (プロジェクト共通) または `{SceneName}.{Layer}` (例: `Home.Service`)
 
-### Scene Template
-**Location**: `Assets/Scripts/TemplateScene/`
-**Purpose**: 新規シーン作成時のテンプレート
+### Dialog-based Feature Folders
+**Pattern**: シーンではないがシーン構造に準じたフォルダ (State/View) を持つ機能
+**Example**: `TimerSetting/` - ダイアログベースの設定機能。BaseDialogViewを継承し、独自のState/Viewを持つ
 
 ### Assets Organization
 ```
@@ -87,7 +87,7 @@ Starter    Manager
 
 ### VContainer Registration Pattern
 - **RootScope**: `Lifetime.Singleton` (全シーン共通)
-- **SceneScope**: `Lifetime.Scoped` (シーンローカル)
+- **SceneScope**: 抽象基底 `SceneScope` を継承し `Lifetime.Scoped` で登録。Awake時にMasterDataImport保証
 - **EntryPoint**: `RegisterEntryPoint<TStarter>()` (IStartable)
 
 ### Scene Constants

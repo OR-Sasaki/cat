@@ -2,6 +2,7 @@ using Cat.Furniture;
 using Home.State;
 using Home.View;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Home.Service
 {
@@ -125,8 +126,9 @@ namespace Home.Service
                 return null;
             }
 
-            // プレハブをインスタンス化
+            // プレハブをインスタンス化（アクティブシーンがHomeでない場合に備え、明示的にHomeシーンへ移動）
             var instance = Object.Instantiate(furniture.SceneObject);
+            SceneManager.MoveGameObjectToScene(instance.gameObject, _isoGridService.HomeScene);
             instance.SetUserFurnitureId(userFurnitureId);
             instance.SetPlacementType(PlacementType.Floor);
 
@@ -208,8 +210,9 @@ namespace Home.Service
                 return null;
             }
 
-            // プレハブをインスタンス化
+            // プレハブをインスタンス化（アクティブシーンがHomeでない場合に備え、明示的にHomeシーンへ移動）
             var instance = Object.Instantiate(furniture.SceneObject);
+            SceneManager.MoveGameObjectToScene(instance.gameObject, _isoGridService.HomeScene);
             instance.SetUserFurnitureId(userFurnitureId);
             instance.SetPlacementType(PlacementType.Wall);
             instance.SetWallSide(side);

@@ -40,6 +40,7 @@ namespace Fade.Manager
             {
                 Debug.LogError($"[FadeManager] {e.Message}\n{e.StackTrace}");
                 _state.SetPhase(FadePhase.None);
+                await _service.UnloadFadeScene();
                 throw;
             }
         }

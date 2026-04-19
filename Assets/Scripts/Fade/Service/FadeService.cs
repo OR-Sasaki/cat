@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Fade.View;
+using Root.Service;
 using UnityEngine.SceneManagement;
 
 namespace Fade.Service
@@ -7,10 +8,12 @@ namespace Fade.Service
     public class FadeService
     {
         readonly FadeView _fadeView;
+        readonly SceneLoader _sceneLoader;
 
-        public FadeService(FadeView fadeView)
+        public FadeService(FadeView fadeView, SceneLoader sceneLoader)
         {
             _fadeView = fadeView;
+            _sceneLoader = sceneLoader;
         }
 
         public async Task FadeOut(float duration)
@@ -65,6 +68,8 @@ namespace Fade.Service
             {
                 await Task.Yield();
             }
+
+            _sceneLoader.CompleteLoad();
         }
     }
 }

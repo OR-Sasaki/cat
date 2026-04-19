@@ -7,6 +7,7 @@ namespace Root.Service
         Outfit,
         UserEquippedOutfit,
         IsoGrid,
+        TimerSetting,
         UserItemInventory,
         UserPoint,
     }

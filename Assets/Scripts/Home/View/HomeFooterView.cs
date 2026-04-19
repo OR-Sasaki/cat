@@ -1,6 +1,9 @@
+using Cysharp.Threading.Tasks;
 using Home.Service;
 using Home.State;
 using Root.Service;
+using Root.View;
+using TimerSetting.View;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -16,12 +19,23 @@ namespace Home.View
         [SerializeField] Button _historyButton;
 
         [Inject]
-        public void Init(HomeStateSetService homeStateSetService, SceneLoader sceneLoader)
+        public void Init(
+            HomeStateSetService homeStateSetService,
+            SceneLoader sceneLoader,
+            IDialogService dialogService)
         {
             _redecorateButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Redecorate));
             _closetButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Closet));
-            _timerButton.onClick.AddListener(() => sceneLoader.Load(Const.SceneName.Timer));
+            _timerButton.onClick.AddListener(() => OnTimerButtonClickedAsync(dialogService, sceneLoader).Forget());
+        }
+
+        async UniTaskVoid OnTimerButtonClickedAsync(IDialogService dialogService, SceneLoader sceneLoader)
+        {
+            var result = await dialogService.OpenAsync<TimerSettingDialog>(destroyCancellationToken);
+            if (result == DialogResult.Ok)
+            {
+                sceneLoader.Load(Const.SceneName.Timer);
+            }
         }
     }
 }
-

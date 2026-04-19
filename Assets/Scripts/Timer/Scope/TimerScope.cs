@@ -1,5 +1,7 @@
 using Root.Scope;
+using Timer.View;
 using VContainer;
+using VContainer.Unity;
 
 namespace Timer.Scope
 {
@@ -7,6 +9,7 @@ namespace Timer.Scope
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterComponentInHierarchy<ReturnButtonView>();
         }
     }
 }

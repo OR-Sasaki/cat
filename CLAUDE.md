@@ -54,3 +54,6 @@ Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life
 - Load entire `.kiro/steering/` as project memory
 - Default files: `product.md`, `tech.md`, `structure.md`
 - Custom files are supported (managed via `/kiro:steering-custom`)
+
+## Dependencies
+- DOTween がプロジェクトに導入済み

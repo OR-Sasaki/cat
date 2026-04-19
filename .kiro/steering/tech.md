@@ -7,18 +7,19 @@
 ## Core Technologies
 
 - **Platform**: Unity 6 (6000.x.x)
-- **Render Pipeline**: Universal Render Pipeline (URP) 17.2.0
+- **Render Pipeline**: Universal Render Pipeline (URP) 17.3.0
 - **Language**: C# (.NET Standard 2.1)
 - **DI Framework**: VContainer 1.17.0 (GitHub経由)
 
 ## Key Libraries
 
 - **Async**: UniTask (async/await拡張、UniTaskVoid、CancellationToken対応)
-- **Input System**: New Input System 1.14.2
+- **Tweening**: DOTween / DOTween Pro (`Assets/Plugins/Demigiant/`)。UniTaskとの連携 (`DOTweenAsyncExtensions`) を利用可能
+- **Input System**: New Input System 1.19.0
 - **Navigation**: NavMeshPlus (2D用NavMesh)
-- **Animation**: 2D Animation 12.0.3, Cinemachine 3.1.5
-- **Asset Management**: Addressables 2.7.6
-- **Timeline**: Unity Timeline 1.8.9
+- **Animation**: 2D Animation 13.0.4, Cinemachine 3.1.5
+- **Asset Management**: Addressables 2.9.1
+- **Timeline**: Unity Timeline 1.8.11
 
 ## Development Standards
 
@@ -27,6 +28,10 @@
 - **Field Naming**: privateフィールドは `_fieldName` (アンダースコアプレフィックス)
 - **Readonly**: コンストラクタでのみ初期化されるフィールドは `readonly`
 - **Pattern Matching**: 推奨 - `while (asyncLoad is { isDone: false })`
+- **Nullable**: 利用する場合はファイル先頭に `#nullable enable` を付与
+- **Doc Comments**: `/// <summary>` ブロックは使わず `/// comment` で記述
+- **UniTask**: 非同期メソッドは末尾引数に `CancellationToken` を受け取り、外部キャンセル可能にする
+- **DI Constructors**: VContainerが注入するコンストラクタには `[Inject]` を付与 (IL2CPPでのストリッピング対策)
 
 ### Error Logging
 常にクラスコンテキスト付き:

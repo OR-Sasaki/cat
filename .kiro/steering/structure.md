@@ -44,13 +44,20 @@
 ### Assets Organization
 ```
 Assets/
-├── Fonts/       # フォントアセット
-├── Scenes/      # .unityシーンファイル
-├── Scripts/     # 上記の通り
+├── AddressableAssetsData/  # Addressables 設定
+├── Arts/                   # アート素材
+├── Editor/                 # エディタ拡張
+├── Fonts/                  # フォントアセット
+├── ImportedAssets/         # 外部から取り込んだアセット
+├── Plugins/                # サードパーティ (Demigiant/DOTween, DOTween Pro 等)
+├── Resources/              # Resources.Load 対象 (DOTweenSettings 等)
+├── Scenes/                 # .unityシーンファイル
+├── Scripts/                # 上記の通り
 ├── Settings/
-│   ├── VContainer/  # VContainerSettings.asset
+│   ├── VContainer/         # VContainerSettings.asset
 │   └── UniversalRP.asset
-└── Textures/    # スプライト・テクスチャ
+├── Textures/               # スプライト・テクスチャ
+└── UI/                     # UI関連アセット
 ```
 
 ## Naming Conventions

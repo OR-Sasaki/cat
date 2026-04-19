@@ -52,12 +52,12 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ## Key Technical Decisions
 
 ### VContainer DI Pattern
-- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `MasterDataImportService`, `UserDataImportService`, `UserEpuippedOutfitService` など)
-- **SceneScope**: 各シーンごとのスコープド登録 (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope` など)
+- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService` など)
+- **SceneScope**: 抽象基底クラス `SceneScope` を継承。Awake時にMasterDataImportを保証。各シーンスコープ (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope`, `LogoScope` など)
 - **Lifetime**: `Singleton` (RootScope), `Scoped` (SceneScope)
 
 ### Scene Transition System
-Fadeシーンを加算的にロードし、FadeOut → ターゲットロード → FadeIn → Fadeアンロードの順でシーン遷移を実行
+Fadeシーンを加算的にロードし、FadeOut → ターゲットロード → FadeIn → Fadeアンロードの順でシーン遷移を実行。`SceneLoader._isLoading`フラグによる多重呼び出し防止機構あり
 
 ### Dependency Direction (厳密なルール)
 ```

@@ -37,7 +37,7 @@ namespace Shop.Service
             _state.GachaList.Add(new GachaData(
                 SinglePrice: 300,
                 TenPrice: 2700,
-                RewardFurnitureIds: new List<string> { "chair_01", "table_01", "lamp_01", "sofa_01", "carpet_01" }
+                RewardFurnitureIds: new uint[] { 1u, 2u, 3u, 4u, 5u }
             ));
 
             // アイテムデータ（アイテムタブ用）
@@ -195,9 +195,9 @@ namespace Shop.Service
             );
         }
 
-        List<string> ExecuteGacha(GachaData gachaData, int count)
+        List<uint> ExecuteGacha(GachaData gachaData, int count)
         {
-            var results = new List<string>();
+            var results = new List<uint>();
             var random = new System.Random();
 
             for (int i = 0; i < count; i++)

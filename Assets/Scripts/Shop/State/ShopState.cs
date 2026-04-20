@@ -26,7 +26,7 @@ namespace Shop.State
     public record GachaData(
         int SinglePrice,
         int TenPrice,
-        List<string> RewardFurnitureIds
+        IReadOnlyList<uint> RewardFurnitureIds
     );
 
     public record ProductData(

@@ -199,7 +199,7 @@ namespace Shop.Service
 
             // UnknownId / InvalidArgument は部分失敗として該当 ID のみスキップし、残りの結果処理を継続する
             var grantedNames = new List<string>(furnitureIds.Count);
-            var failedIds = new List<uint>();
+            var failedCount = 0;
             foreach (var furnitureId in furnitureIds)
             {
                 var addResult = _userItemInventoryService.AddFurniture(furnitureId, 1);
@@ -210,11 +210,11 @@ namespace Shop.Service
                 else
                 {
                     Debug.LogError($"[ShopService] AddFurniture failed (id={furnitureId}): {addResult.Error}");
-                    failedIds.Add(furnitureId);
+                    failedCount++;
                 }
             }
 
-            var resultMessage = BuildGachaResultMessage(grantedNames, failedIds);
+            var resultMessage = BuildGachaResultMessage(grantedNames, failedCount);
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
                     Title: "ガチャ結果",
@@ -224,19 +224,14 @@ namespace Shop.Service
             );
         }
 
-        static string BuildGachaResultMessage(List<string> grantedNames, List<uint> failedIds)
+        static string BuildGachaResultMessage(List<string> grantedNames, int failedCount)
         {
-            var hasGranted = grantedNames.Count > 0;
-            var hasFailed = failedIds.Count > 0;
+            if (grantedNames.Count == 0)
+                return "家具の付与に失敗しました。";
 
-            var message = hasGranted
-                ? $"以下の家具を獲得しました！\n{string.Join("\n", grantedNames)}"
-                : "家具の付与に失敗しました。";
-
-            if (hasFailed && hasGranted)
-            {
-                message += $"\n\n以下の家具は付与に失敗しました: {string.Join(", ", failedIds)}";
-            }
+            var message = $"以下の家具を獲得しました！\n{string.Join("\n", grantedNames)}";
+            if (failedCount > 0)
+                message += "\n\n（一部の家具の付与に失敗しました）";
 
             return message;
         }

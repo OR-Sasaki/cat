@@ -15,12 +15,17 @@ namespace Shop.Service
 {
     public class ShopService
     {
+        static readonly System.Random Rng = new();
+
         readonly ShopState _state;
         readonly IUserPointService _userPointService;
         readonly IUserItemInventoryService _userItemInventoryService;
         readonly MasterDataState _masterDataState;
         readonly IDialogService _dialogService;
         readonly SceneLoader _sceneLoader;
+
+        Furniture[]? _cachedFurnitureSource;
+        Dictionary<uint, Furniture>? _furnitureLookup;
 
         [Inject]
         public ShopService(
@@ -46,7 +51,6 @@ namespace Shop.Service
 
         void InitializeMockData()
         {
-            // ガチャデータ（表示用テキスト・画像はシーン上に固定配置）
             _state.GachaList.Clear();
             _state.GachaList.Add(new GachaData(
                 SinglePrice: 300,
@@ -54,7 +58,6 @@ namespace Shop.Service
                 RewardFurnitureIds: new uint[] { 1u, 2u, 3u, 4u, 5u }
             ));
 
-            // アイテムデータ（アイテムタブ用）
             _state.ItemProductList.Clear();
             _state.ItemProductList.Add(new ProductData("経験値ブースト", "ShopProducts/shop_Possession_Paid.png", 100, CurrencyType.Yarn, ProductType.Item));
             _state.ItemProductList.Add(new ProductData("時間短縮チケット", "ShopProducts/shop_Possession_Paid.png", 150, CurrencyType.Yarn, ProductType.Item));
@@ -62,7 +65,6 @@ namespace Shop.Service
             _state.ItemProductList.Add(new ProductData("スタミナ回復薬", "ShopProducts/shop_Possession_Paid.png", 80, CurrencyType.Yarn, ProductType.Item));
             _state.ItemProductList.Add(new ProductData("ゴールドブースト", "ShopProducts/shop_Possession_Paid.png", 120, CurrencyType.Yarn, ProductType.Item));
 
-            // 毛糸パックデータ（ポイントタブ用）
             _state.PointProductList.Clear();
             _state.PointProductList.Add(new ProductData("毛糸パック S", "ShopProducts/shop_Possession_Paid.png", 120, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 100));
             _state.PointProductList.Add(new ProductData("毛糸パック M", "ShopProducts/shop_Possession_Paid.png", 480, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 500));
@@ -81,28 +83,40 @@ namespace Shop.Service
 
             var data = _state.GachaList[index];
             cell.Setup(index);
-            UpdateGachaCellInteractable(cell, data);
+            UpdateGachaCellInteractable(cell, data, _userPointService.GetYarnBalance());
         }
 
         public void SetupProductCell(ProductCellView cell, ProductData data)
         {
             cell.Setup(data);
-            UpdateProductCellInteractable(cell, data);
+            UpdateProductCellInteractable(cell, data, _userPointService.GetYarnBalance());
         }
 
-        void UpdateGachaCellInteractable(GachaCellView cell, GachaData data)
+        // 残高変更時に呼ばれる軽量パス。Setup を再実行するとアドレッサブルアイコンが
+        // リロードされてしまうため、interactable の更新のみに限定する。
+        public void RefreshGachaCellInteractable(GachaCellView cell, int index, int balance)
         {
-            var balance = _userPointService.GetYarnBalance();
-            var canAffordSingle = balance >= data.SinglePrice;
-            var canAffordTen = balance >= data.TenPrice;
-            cell.SetButtonsInteractable(canAffordSingle, canAffordTen);
+            if (index < 0 || index >= _state.GachaList.Count)
+                return;
+
+            UpdateGachaCellInteractable(cell, _state.GachaList[index], balance);
         }
 
-        void UpdateProductCellInteractable(ProductCellView cell, ProductData data)
+        public void RefreshProductCellInteractable(ProductCellView cell, ProductData data, int balance)
         {
-            // 毛糸通貨の場合のみ残高チェック、リアルマネーは常にinteractable
-            var interactable = data.CurrencyType == CurrencyType.RealMoney
-                || _userPointService.GetYarnBalance() >= data.Price;
+            UpdateProductCellInteractable(cell, data, balance);
+        }
+
+        public int GetYarnBalance() => _userPointService.GetYarnBalance();
+
+        void UpdateGachaCellInteractable(GachaCellView cell, GachaData data, int balance)
+        {
+            cell.SetButtonsInteractable(balance >= data.SinglePrice, balance >= data.TenPrice);
+        }
+
+        void UpdateProductCellInteractable(ProductCellView cell, ProductData data, int balance)
+        {
+            var interactable = data.CurrencyType == CurrencyType.RealMoney || balance >= data.Price;
             cell.SetInteractable(interactable);
         }
 
@@ -113,14 +127,12 @@ namespace Shop.Service
 
         public async UniTask OnProductCellTappedAsync(ProductData data, CancellationToken ct)
         {
-            // 毛糸通貨の場合は事前残高チェック
             if (data.CurrencyType == CurrencyType.Yarn && _userPointService.GetYarnBalance() < data.Price)
             {
                 await ShowYarnInsufficientAsync("購入できません", ct);
                 return;
             }
 
-            // 購入確認ダイアログを表示
             var currencyLabel = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "円";
             var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
                 new CommonConfirmDialogArgs(
@@ -133,47 +145,15 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
-            // 毛糸通貨の場合は IUserPointService.SpendYarn で消費
             if (data.CurrencyType == CurrencyType.Yarn)
             {
-                var spendResult = _userPointService.SpendYarn(data.Price);
-                if (!spendResult.IsSuccess)
-                {
-                    if (spendResult.Error == PointOperationErrorCode.Insufficient)
-                    {
-                        await ShowYarnInsufficientAsync("購入できません", ct);
-                    }
-                    else
-                    {
-                        Debug.LogError($"[ShopService] SpendYarn failed: {spendResult.Error}");
-                    }
+                var spendOk = await TrySpendYarnAsync(data.Price, "購入できません", ct);
+                if (!spendOk)
                     return;
-                }
             }
 
-            // 毛糸パックの場合は毛糸を加算
-            var yarnPackAddFailed = false;
-            if (data.ProductType == ProductType.YarnPack)
-            {
-                if (data.YarnAmount.HasValue && data.YarnAmount.Value > 0)
-                {
-                    var addResult = _userPointService.AddYarn(data.YarnAmount.Value);
-                    if (!addResult.IsSuccess)
-                    {
-                        Debug.LogError($"[ShopService] AddYarn failed: {addResult.Error}");
-                        if (addResult.Error == PointOperationErrorCode.Overflow)
-                        {
-                            yarnPackAddFailed = true;
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.LogError($"[ShopService] AddYarn skipped: YarnAmount is null or non-positive ({data.YarnAmount})");
-                }
-            }
+            var yarnPackAddFailed = data.ProductType == ProductType.YarnPack && !TryAddYarnPack(data);
 
-            // 購入完了メッセージを表示
             var completeMessage = yarnPackAddFailed
                 ? $"{data.Name}を購入しました！\n（毛糸の加算に失敗しました）"
                 : $"{data.Name}を購入しました！";
@@ -181,17 +161,6 @@ namespace Shop.Service
                 new CommonMessageDialogArgs(
                     Title: "購入完了",
                     Message: completeMessage
-                ),
-                ct
-            );
-        }
-
-        UniTask ShowYarnInsufficientAsync(string title, CancellationToken ct)
-        {
-            return _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
-                new CommonMessageDialogArgs(
-                    Title: title,
-                    Message: "毛糸が足りません。"
                 ),
                 ct
             );
@@ -205,14 +174,12 @@ namespace Shop.Service
             var gachaData = _state.GachaList[gachaIndex];
             var price = count == 1 ? gachaData.SinglePrice : gachaData.TenPrice;
 
-            // 事前残高チェック
             if (_userPointService.GetYarnBalance() < price)
             {
                 await ShowYarnInsufficientAsync("ガチャを引けません", ct);
                 return;
             }
 
-            // ガチャ確認ダイアログを表示
             var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
                 new CommonConfirmDialogArgs(
                     Title: "ガチャ確認",
@@ -224,25 +191,13 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
-            // 毛糸を消費
-            var spendResult = _userPointService.SpendYarn(price);
-            if (!spendResult.IsSuccess)
-            {
-                if (spendResult.Error == PointOperationErrorCode.Insufficient)
-                {
-                    await ShowYarnInsufficientAsync("ガチャを引けません", ct);
-                }
-                else
-                {
-                    Debug.LogError($"[ShopService] SpendYarn failed: {spendResult.Error}");
-                }
+            var spendOk = await TrySpendYarnAsync(price, "ガチャを引けません", ct);
+            if (!spendOk)
                 return;
-            }
 
-            // ガチャ実行 - ランダムに家具を選出
             var furnitureIds = ExecuteGacha(gachaData, count);
 
-            // 抽選結果ごとに家具インベントリへ加算 (UnknownId / InvalidArgument は部分失敗として継続)
+            // UnknownId / InvalidArgument は部分失敗として該当 ID のみスキップし、残りの結果処理を継続する
             var resultNames = new List<string>(furnitureIds.Count);
             foreach (var furnitureId in furnitureIds)
             {
@@ -254,7 +209,6 @@ namespace Shop.Service
                 resultNames.Add(ResolveFurnitureName(furnitureId));
             }
 
-            // ガチャ結果を表示
             var resultMessage = $"以下の家具を獲得しました！\n{string.Join("\n", resultNames)}";
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
@@ -265,32 +219,86 @@ namespace Shop.Service
             );
         }
 
-        List<uint> ExecuteGacha(GachaData gachaData, int count)
+        async UniTask<bool> TrySpendYarnAsync(int price, string insufficientTitle, CancellationToken ct)
         {
-            var results = new List<uint>();
-            var random = new System.Random();
+            var result = _userPointService.SpendYarn(price);
+            if (result.IsSuccess)
+                return true;
 
-            for (int i = 0; i < count; i++)
+            if (result.Error == PointOperationErrorCode.Insufficient)
             {
-                var index = random.Next(gachaData.RewardFurnitureIds.Count);
-                results.Add(gachaData.RewardFurnitureIds[index]);
+                await ShowYarnInsufficientAsync(insufficientTitle, ct);
+            }
+            else
+            {
+                Debug.LogError($"[ShopService] SpendYarn failed: {result.Error}");
+            }
+            return false;
+        }
+
+        bool TryAddYarnPack(ProductData data)
+        {
+            if (!data.YarnAmount.HasValue || data.YarnAmount.Value <= 0)
+            {
+                Debug.LogError($"[ShopService] AddYarn skipped: YarnAmount is null or non-positive ({data.YarnAmount})");
+                return true;
             }
 
+            var result = _userPointService.AddYarn(data.YarnAmount.Value);
+            if (result.IsSuccess)
+                return true;
+
+            Debug.LogError($"[ShopService] AddYarn failed: {result.Error}");
+            return result.Error != PointOperationErrorCode.Overflow;
+        }
+
+        UniTask ShowYarnInsufficientAsync(string title, CancellationToken ct)
+        {
+            return _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                new CommonMessageDialogArgs(
+                    Title: title,
+                    Message: "毛糸が足りません。"
+                ),
+                ct
+            );
+        }
+
+        List<uint> ExecuteGacha(GachaData gachaData, int count)
+        {
+            var results = new List<uint>(count);
+            for (var i = 0; i < count; i++)
+            {
+                var index = Rng.Next(gachaData.RewardFurnitureIds.Count);
+                results.Add(gachaData.RewardFurnitureIds[index]);
+            }
             return results;
         }
 
         string ResolveFurnitureName(uint furnitureId)
         {
-            var furnitures = _masterDataState.Furnitures;
-            if (furnitures != null)
+            var lookup = GetFurnitureLookup();
+            if (lookup != null && lookup.TryGetValue(furnitureId, out var furniture))
+                return furniture.Name;
+            return furnitureId.ToString();
+        }
+
+        Dictionary<uint, Furniture>? GetFurnitureLookup()
+        {
+            var source = _masterDataState.Furnitures;
+            if (source == null)
+                return null;
+
+            // マスターデータのインポートで配列が再生成された場合に再構築する
+            if (!ReferenceEquals(source, _cachedFurnitureSource))
             {
-                foreach (var furniture in furnitures)
+                _cachedFurnitureSource = source;
+                _furnitureLookup = new Dictionary<uint, Furniture>(source.Length);
+                foreach (var furniture in source)
                 {
-                    if (furniture.Id == furnitureId)
-                        return furniture.Name;
+                    _furnitureLookup[furniture.Id] = furniture;
                 }
             }
-            return furnitureId.ToString();
+            return _furnitureLookup;
         }
     }
 }

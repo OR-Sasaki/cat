@@ -10,11 +10,11 @@
 
 ### Branch: `feature/shop-item-point-migration`
 
-- [ ] 1. ガチャ報酬データを uint 家具 ID 体系へ移行
-  - [ ] 1.1 ガチャデータの報酬家具 ID を `uint` の読み取り専用リストに置き換える
+- [x] 1. ガチャ報酬データを uint 家具 ID 体系へ移行
+  - [x] 1.1 ガチャデータの報酬家具 ID を `uint` の読み取り専用リストに置き換える
     - 既存の文字列 ID (`"chair_01"` など) は廃止し、`IUserItemInventoryService.AddFurniture` が受理する `uint` 型と整合させる
     - データ契約としての列挙を `IReadOnlyList<uint>` に統一する
-  - [ ] 1.2 ショップ起動時のモックデータ投入を uint リテラルに更新する
+  - [x] 1.2 ショップ起動時のモックデータ投入を uint リテラルに更新する
     - 既存のモック商品・ガチャ投入ロジック内のリテラルを uint に差し替える
     - マスター未整備 ID を含み得る前提とし、後続タスクの縮退処理で吸収する
   - _Requirements: 7.1, 7.2_

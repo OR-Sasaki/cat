@@ -198,18 +198,23 @@ namespace Shop.Service
             var furnitureIds = ExecuteGacha(gachaData, count);
 
             // UnknownId / InvalidArgument は部分失敗として該当 ID のみスキップし、残りの結果処理を継続する
-            var resultNames = new List<string>(furnitureIds.Count);
+            var grantedNames = new List<string>(furnitureIds.Count);
+            var failedIds = new List<uint>();
             foreach (var furnitureId in furnitureIds)
             {
                 var addResult = _userItemInventoryService.AddFurniture(furnitureId, 1);
-                if (!addResult.IsSuccess)
+                if (addResult.IsSuccess)
+                {
+                    grantedNames.Add(ResolveFurnitureName(furnitureId));
+                }
+                else
                 {
                     Debug.LogError($"[ShopService] AddFurniture failed (id={furnitureId}): {addResult.Error}");
+                    failedIds.Add(furnitureId);
                 }
-                resultNames.Add(ResolveFurnitureName(furnitureId));
             }
 
-            var resultMessage = $"以下の家具を獲得しました！\n{string.Join("\n", resultNames)}";
+            var resultMessage = BuildGachaResultMessage(grantedNames, failedIds);
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
                     Title: "ガチャ結果",
@@ -217,6 +222,23 @@ namespace Shop.Service
                 ),
                 ct
             );
+        }
+
+        static string BuildGachaResultMessage(List<string> grantedNames, List<uint> failedIds)
+        {
+            var hasGranted = grantedNames.Count > 0;
+            var hasFailed = failedIds.Count > 0;
+
+            var message = hasGranted
+                ? $"以下の家具を獲得しました！\n{string.Join("\n", grantedNames)}"
+                : "家具の付与に失敗しました。";
+
+            if (hasFailed && hasGranted)
+            {
+                message += $"\n\n以下の家具は付与に失敗しました: {string.Join(", ", failedIds)}";
+            }
+
+            return message;
         }
 
         async UniTask<bool> TrySpendYarnAsync(int price, string insufficientTitle, CancellationToken ct)

@@ -91,15 +91,17 @@ namespace Shop.Service
 
         void UpdateGachaCellInteractable(GachaCellView cell, GachaData data)
         {
-            var canAffordSingle = _state.YarnBalance >= data.SinglePrice;
-            var canAffordTen = _state.YarnBalance >= data.TenPrice;
+            var balance = _userPointService.GetYarnBalance();
+            var canAffordSingle = balance >= data.SinglePrice;
+            var canAffordTen = balance >= data.TenPrice;
             cell.SetButtonsInteractable(canAffordSingle, canAffordTen);
         }
 
         void UpdateProductCellInteractable(ProductCellView cell, ProductData data)
         {
             // 毛糸通貨の場合のみ残高チェック、リアルマネーは常にinteractable
-            var interactable = data.CurrencyType == CurrencyType.RealMoney || _state.YarnBalance >= data.Price;
+            var interactable = data.CurrencyType == CurrencyType.RealMoney
+                || _userPointService.GetYarnBalance() >= data.Price;
             cell.SetInteractable(interactable);
         }
 

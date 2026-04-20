@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Root.Service;
+using Root.State;
 using Root.View;
 using Shop.View;
 using Shop.State;
@@ -14,13 +15,25 @@ namespace Shop.Service
     public class ShopService
     {
         readonly ShopState _state;
+        readonly IUserPointService _userPointService;
+        readonly IUserItemInventoryService _userItemInventoryService;
+        readonly MasterDataState _masterDataState;
         readonly IDialogService _dialogService;
         readonly SceneLoader _sceneLoader;
 
         [Inject]
-        public ShopService(ShopState state, IDialogService dialogService, SceneLoader sceneLoader)
+        public ShopService(
+            ShopState state,
+            IUserPointService userPointService,
+            IUserItemInventoryService userItemInventoryService,
+            MasterDataState masterDataState,
+            IDialogService dialogService,
+            SceneLoader sceneLoader)
         {
             _state = state;
+            _userPointService = userPointService;
+            _userItemInventoryService = userItemInventoryService;
+            _masterDataState = masterDataState;
             _dialogService = dialogService;
             _sceneLoader = sceneLoader;
         }

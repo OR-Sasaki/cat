@@ -1,3 +1,4 @@
+using System;
 using Timer.State;
 using UnityEngine;
 using VContainer;
@@ -6,10 +7,7 @@ namespace Timer.View
 {
     public class BackgroundScrollView : MonoBehaviour
     {
-        [SerializeField] Transform _background1;
-        [SerializeField] Transform _background2;
-        [SerializeField] float _scrollSpeed = 2f;
-        [SerializeField] float _backgroundWidth = 20f;
+        [SerializeField] ScrollElement[] _elements;
 
         PomodoroState _state;
         bool _isScrolling = true;
@@ -37,26 +35,9 @@ namespace Timer.View
         {
             if (!_isScrolling) return;
 
-            var delta = _scrollSpeed * Time.deltaTime;
-            _background1.Translate(Vector3.left * delta);
-            _background2.Translate(Vector3.left * delta);
-
-            if (_background1.localPosition.x <= -_backgroundWidth)
+            foreach (var element in _elements)
             {
-                _background1.localPosition = new Vector3(
-                    _background2.localPosition.x + _backgroundWidth,
-                    _background1.localPosition.y,
-                    _background1.localPosition.z
-                );
-            }
-
-            if (_background2.localPosition.x <= -_backgroundWidth)
-            {
-                _background2.localPosition = new Vector3(
-                    _background1.localPosition.x + _backgroundWidth,
-                    _background2.localPosition.y,
-                    _background2.localPosition.z
-                );
+                element.Scroll();
             }
         }
 
@@ -68,6 +49,25 @@ namespace Timer.View
         void OnPauseChanged(bool paused)
         {
             _isScrolling = !paused && _state.CurrentPhase != PomodoroPhase.Complete;
+        }
+
+        [Serializable]
+        class ScrollElement
+        {
+            [SerializeField] Transform _transform;
+            [SerializeField] float _scrollSpeed = 2f;
+            [SerializeField] float _width = 20f;
+
+            public void Scroll()
+            {
+                _transform.Translate(Vector3.right * (_scrollSpeed * Time.deltaTime));
+
+                var pos = _transform.localPosition;
+                if (pos.x >= _width)
+                {
+                    _transform.localPosition = new Vector3(pos.x - _width * 2f, pos.y, pos.z);
+                }
+            }
         }
     }
 }

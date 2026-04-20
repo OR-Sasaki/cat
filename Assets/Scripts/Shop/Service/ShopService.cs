@@ -205,16 +205,10 @@ namespace Shop.Service
             var gachaData = _state.GachaList[gachaIndex];
             var price = count == 1 ? gachaData.SinglePrice : gachaData.TenPrice;
 
-            // 残高チェック
-            if (_state.YarnBalance < price)
+            // 事前残高チェック
+            if (_userPointService.GetYarnBalance() < price)
             {
-                await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
-                    new CommonMessageDialogArgs(
-                        Title: "ガチャを引けません",
-                        Message: "毛糸が足りません。"
-                    ),
-                    ct
-                );
+                await ShowYarnInsufficientAsync("ガチャを引けません", ct);
                 return;
             }
 
@@ -231,13 +225,37 @@ namespace Shop.Service
                 return;
 
             // 毛糸を消費
-            _state.ConsumeYarn(price);
+            var spendResult = _userPointService.SpendYarn(price);
+            if (!spendResult.IsSuccess)
+            {
+                if (spendResult.Error == PointOperationErrorCode.Insufficient)
+                {
+                    await ShowYarnInsufficientAsync("ガチャを引けません", ct);
+                }
+                else
+                {
+                    Debug.LogError($"[ShopService] SpendYarn failed: {spendResult.Error}");
+                }
+                return;
+            }
 
-            // ガチャ実行（モック）- ランダムに家具を選出
-            var results = ExecuteGacha(gachaData, count);
+            // ガチャ実行 - ランダムに家具を選出
+            var furnitureIds = ExecuteGacha(gachaData, count);
+
+            // 抽選結果ごとに家具インベントリへ加算 (UnknownId / InvalidArgument は部分失敗として継続)
+            var resultNames = new List<string>(furnitureIds.Count);
+            foreach (var furnitureId in furnitureIds)
+            {
+                var addResult = _userItemInventoryService.AddFurniture(furnitureId, 1);
+                if (!addResult.IsSuccess)
+                {
+                    Debug.LogError($"[ShopService] AddFurniture failed (id={furnitureId}): {addResult.Error}");
+                }
+                resultNames.Add(ResolveFurnitureName(furnitureId));
+            }
 
             // ガチャ結果を表示
-            var resultMessage = $"以下の家具を獲得しました！\n{string.Join("\n", results)}";
+            var resultMessage = $"以下の家具を獲得しました！\n{string.Join("\n", resultNames)}";
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
                     Title: "ガチャ結果",
@@ -259,6 +277,20 @@ namespace Shop.Service
             }
 
             return results;
+        }
+
+        string ResolveFurnitureName(uint furnitureId)
+        {
+            var furnitures = _masterDataState.Furnitures;
+            if (furnitures != null)
+            {
+                foreach (var furniture in furnitures)
+                {
+                    if (furniture.Id == furnitureId)
+                        return furniture.Name;
+                }
+            }
+            return furnitureId.ToString();
         }
     }
 }

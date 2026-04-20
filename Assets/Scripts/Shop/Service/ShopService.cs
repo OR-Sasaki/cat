@@ -8,6 +8,7 @@ using Root.State;
 using Root.View;
 using Shop.View;
 using Shop.State;
+using UnityEngine;
 using VContainer;
 
 namespace Shop.Service
@@ -112,16 +113,10 @@ namespace Shop.Service
 
         public async UniTask OnProductCellTappedAsync(ProductData data, CancellationToken ct)
         {
-            // 毛糸通貨の場合は残高チェック
-            if (data.CurrencyType == CurrencyType.Yarn && _state.YarnBalance < data.Price)
+            // 毛糸通貨の場合は事前残高チェック
+            if (data.CurrencyType == CurrencyType.Yarn && _userPointService.GetYarnBalance() < data.Price)
             {
-                await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
-                    new CommonMessageDialogArgs(
-                        Title: "購入できません",
-                        Message: "毛糸が足りません。"
-                    ),
-                    ct
-                );
+                await ShowYarnInsufficientAsync("購入できません", ct);
                 return;
             }
 
@@ -138,23 +133,65 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
-            // 購入処理（モック）
+            // 毛糸通貨の場合は IUserPointService.SpendYarn で消費
             if (data.CurrencyType == CurrencyType.Yarn)
             {
-                _state.ConsumeYarn(data.Price);
+                var spendResult = _userPointService.SpendYarn(data.Price);
+                if (!spendResult.IsSuccess)
+                {
+                    if (spendResult.Error == PointOperationErrorCode.Insufficient)
+                    {
+                        await ShowYarnInsufficientAsync("購入できません", ct);
+                    }
+                    else
+                    {
+                        Debug.LogError($"[ShopService] SpendYarn failed: {spendResult.Error}");
+                    }
+                    return;
+                }
             }
 
-            // 毛糸パックの場合は毛糸を追加
-            if (data.ProductType == ProductType.YarnPack && data.YarnAmount.HasValue)
+            // 毛糸パックの場合は毛糸を加算
+            var yarnPackAddFailed = false;
+            if (data.ProductType == ProductType.YarnPack)
             {
-                _state.AddYarn(data.YarnAmount.Value);
+                if (data.YarnAmount.HasValue && data.YarnAmount.Value > 0)
+                {
+                    var addResult = _userPointService.AddYarn(data.YarnAmount.Value);
+                    if (!addResult.IsSuccess)
+                    {
+                        Debug.LogError($"[ShopService] AddYarn failed: {addResult.Error}");
+                        if (addResult.Error == PointOperationErrorCode.Overflow)
+                        {
+                            yarnPackAddFailed = true;
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"[ShopService] AddYarn skipped: YarnAmount is null or non-positive ({data.YarnAmount})");
+                }
             }
 
             // 購入完了メッセージを表示
+            var completeMessage = yarnPackAddFailed
+                ? $"{data.Name}を購入しました！\n（毛糸の加算に失敗しました）"
+                : $"{data.Name}を購入しました！";
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
                     Title: "購入完了",
-                    Message: $"{data.Name}を購入しました！"
+                    Message: completeMessage
+                ),
+                ct
+            );
+        }
+
+        UniTask ShowYarnInsufficientAsync(string title, CancellationToken ct)
+        {
+            return _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                new CommonMessageDialogArgs(
+                    Title: title,
+                    Message: "毛糸が足りません。"
                 ),
                 ct
             );

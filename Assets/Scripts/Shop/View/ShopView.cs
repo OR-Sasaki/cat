@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Root.Service;
 using Shop.Service;
 using Shop.State;
 using TMPro;
@@ -49,13 +50,15 @@ namespace Shop.View
 
         ShopState? _state;
         ShopService? _shopService;
+        IUserPointService? _userPointService;
         bool _isProcessing;
 
         [Inject]
-        public void Construct(ShopState state, ShopService shopService)
+        public void Construct(ShopState state, ShopService shopService, IUserPointService userPointService)
         {
             _state = state;
             _shopService = shopService;
+            _userPointService = userPointService;
         }
 
         void Start()
@@ -142,21 +145,24 @@ namespace Shop.View
 
         void SubscribeToStateEvents()
         {
-            if (_state == null) return;
+            if (_state != null)
+                _state.OnTabChanged += OnTabChanged;
 
-            _state.OnTabChanged += OnTabChanged;
-            _state.OnYarnBalanceChanged += OnYarnBalanceChanged;
-
-            // 初期残高を表示
-            UpdateYarnBalanceDisplay(_state.YarnBalance);
+            if (_userPointService != null)
+            {
+                _userPointService.YarnBalanceChanged += OnYarnBalanceChanged;
+                // 初期残高を表示
+                UpdateYarnBalanceDisplay(_userPointService.GetYarnBalance());
+            }
         }
 
         void UnsubscribeFromStateEvents()
         {
-            if (_state == null) return;
+            if (_state != null)
+                _state.OnTabChanged -= OnTabChanged;
 
-            _state.OnTabChanged -= OnTabChanged;
-            _state.OnYarnBalanceChanged -= OnYarnBalanceChanged;
+            if (_userPointService != null)
+                _userPointService.YarnBalanceChanged -= OnYarnBalanceChanged;
         }
 
         void OnYarnBalanceChanged(int balance)

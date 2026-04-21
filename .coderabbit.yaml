@@ -1,1 +1,6 @@
 language: "ja-JP"
+reviews:
+  path_filters:
+    - "**"
+    - "!.claude/**"
+    - "!.kiro/**"

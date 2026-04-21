@@ -26,7 +26,7 @@ namespace Shop.State
     public record GachaData(
         int SinglePrice,
         int TenPrice,
-        List<string> RewardFurnitureIds
+        IReadOnlyList<uint> RewardFurnitureIds
     );
 
     public record ProductData(
@@ -42,11 +42,7 @@ namespace Shop.State
     {
         public ShopTab CurrentTab { get; private set; } = ShopTab.Item;
 
-        // モック用初期値（開発用）
-        public int YarnBalance { get; private set; } = 10000;
-
         public event Action<ShopTab>? OnTabChanged;
-        public event Action<int>? OnYarnBalanceChanged;
 
         // モックデータリスト - ShopService.Initialize()でテストデータを設定
         public List<GachaData> GachaList { get; } = new();
@@ -60,24 +56,6 @@ namespace Shop.State
 
             CurrentTab = tab;
             OnTabChanged?.Invoke(tab);
-        }
-
-        public void ConsumeYarn(int amount)
-        {
-            if (amount <= 0)
-                return;
-
-            YarnBalance = Math.Max(0, YarnBalance - amount);
-            OnYarnBalanceChanged?.Invoke(YarnBalance);
-        }
-
-        public void AddYarn(int amount)
-        {
-            if (amount <= 0)
-                return;
-
-            YarnBalance += amount;
-            OnYarnBalanceChanged?.Invoke(YarnBalance);
         }
     }
 }

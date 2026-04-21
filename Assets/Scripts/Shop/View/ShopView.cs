@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Root.Service;
 using Shop.Service;
 using Shop.State;
 using TMPro;
@@ -49,13 +50,15 @@ namespace Shop.View
 
         ShopState? _state;
         ShopService? _shopService;
+        IUserPointService? _userPointService;
         bool _isProcessing;
 
         [Inject]
-        public void Construct(ShopState state, ShopService shopService)
+        public void Construct(ShopState state, ShopService shopService, IUserPointService userPointService)
         {
             _state = state;
             _shopService = shopService;
+            _userPointService = userPointService;
         }
 
         void Start()
@@ -142,49 +145,49 @@ namespace Shop.View
 
         void SubscribeToStateEvents()
         {
-            if (_state == null) return;
+            if (_state != null)
+                _state.OnTabChanged += OnTabChanged;
 
-            _state.OnTabChanged += OnTabChanged;
-            _state.OnYarnBalanceChanged += OnYarnBalanceChanged;
-
-            // 初期残高を表示
-            UpdateYarnBalanceDisplay(_state.YarnBalance);
+            if (_userPointService != null)
+            {
+                _userPointService.YarnBalanceChanged += OnYarnBalanceChanged;
+                // 初期残高を表示
+                UpdateYarnBalanceDisplay(_userPointService.GetYarnBalance());
+            }
         }
 
         void UnsubscribeFromStateEvents()
         {
-            if (_state == null) return;
+            if (_state != null)
+                _state.OnTabChanged -= OnTabChanged;
 
-            _state.OnTabChanged -= OnTabChanged;
-            _state.OnYarnBalanceChanged -= OnYarnBalanceChanged;
+            if (_userPointService != null)
+                _userPointService.YarnBalanceChanged -= OnYarnBalanceChanged;
         }
 
         void OnYarnBalanceChanged(int balance)
         {
             UpdateYarnBalanceDisplay(balance);
-            UpdateAllCellsInteractable();
+            UpdateAllCellsInteractable(balance);
         }
 
-        void UpdateAllCellsInteractable()
+        void UpdateAllCellsInteractable(int balance)
         {
             if (_shopService == null || _state == null) return;
 
-            // ガチャセルを再セットアップ（interactable状態を更新）
             for (var i = 0; i < _gachaCells.Count; i++)
             {
-                _shopService.SetupGachaCell(_gachaCells[i], i);
+                _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            // アイテムセルを再セットアップ
             for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
             {
-                _shopService.SetupProductCell(_itemCells[i], _state.ItemProductList[i]);
+                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.ItemProductList[i], balance);
             }
 
-            // 毛糸パックセルを再セットアップ
             for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
             {
-                _shopService.SetupProductCell(_pointCells[i], _state.PointProductList[i]);
+                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.PointProductList[i], balance);
             }
         }
 

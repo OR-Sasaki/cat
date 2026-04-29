@@ -257,8 +257,43 @@ namespace Shop.Service
 
         void UpdateProductCellInteractable(ProductCellView cell, ProductData data, int balance)
         {
-            var interactable = data.CurrencyType == CurrencyType.RealMoney || balance >= data.Price;
+            var interactable = !IsSoldOut(data) && IsAffordable(data, balance);
             cell.SetInteractable(interactable);
+        }
+
+        public bool IsAffordable(ProductData data, int balance)
+        {
+            return data.CurrencyType switch
+            {
+                CurrencyType.Yarn => balance >= data.Price,
+                CurrencyType.RealMoney => true,
+                CurrencyType.RewardAd => false,
+                _ => false,
+            };
+        }
+
+        public bool IsSoldOut(ProductData data)
+        {
+            return data.ItemType switch
+            {
+                ItemType.Outfit => data.ItemId.HasValue && _userItemInventoryService.HasOutfit(data.ItemId.Value),
+                ItemType.Furniture => false,
+                ItemType.Point => false,
+                _ => false,
+            };
+        }
+
+        public bool IsTimedShopProduct(ProductData data)
+        {
+            for (var i = 0; i < _state.TimedFurnitureProductList.Count; i++)
+            {
+                if (ReferenceEquals(_state.TimedFurnitureProductList[i], data)) return true;
+            }
+            for (var i = 0; i < _state.TimedOutfitProductList.Count; i++)
+            {
+                if (ReferenceEquals(_state.TimedOutfitProductList[i], data)) return true;
+            }
+            return false;
         }
 
         public void GoBack()
@@ -268,10 +303,20 @@ namespace Shop.Service
 
         public async UniTask OnProductCellTappedAsync(ProductData data, CancellationToken ct)
         {
-            if (data.CurrencyType == CurrencyType.Yarn && _userPointService.GetYarnBalance() < data.Price)
+            if (data.CurrencyType == CurrencyType.RewardAd)
             {
+                // 本フェーズ未対応。将来の Unity Ads 統合点として分岐を残す。
                 return;
             }
+
+            if (data.CurrencyType == CurrencyType.Yarn && _userPointService.GetYarnBalance() < data.Price)
+                return;
+
+            if (IsSoldOut(data))
+                return;
+
+            var isTimed = IsTimedShopProduct(data);
+            var cycleAtTap = isTimed ? _state.CurrentCycleId : 0L;
 
             var currencyLabel = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "円";
             var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
@@ -285,6 +330,18 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
+            if (isTimed && cycleAtTap != _state.CurrentCycleId)
+            {
+                await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                    new CommonMessageDialogArgs(
+                        Title: "購入できません",
+                        Message: "時限ショップが更新されました。"
+                    ),
+                    ct
+                );
+                return;
+            }
+
             if (data.CurrencyType == CurrencyType.Yarn)
             {
                 var spendOk = TrySpendYarn(data.Price);
@@ -292,11 +349,17 @@ namespace Shop.Service
                     return;
             }
 
+            var grantFailed = !TryGrantPurchasedItem(data);
             var yarnPackAddFailed = data.ProductType == ProductType.YarnPack && !TryAddYarnPack(data);
 
-            var completeMessage = yarnPackAddFailed
-                ? $"{data.Name}を購入しました！\n（毛糸の加算に失敗しました）"
-                : $"{data.Name}を購入しました！";
+            string completeMessage;
+            if (grantFailed)
+                completeMessage = $"{data.Name}を購入しました！\n（アイテムの付与に失敗しました）";
+            else if (yarnPackAddFailed)
+                completeMessage = $"{data.Name}を購入しました！\n（毛糸の加算に失敗しました）";
+            else
+                completeMessage = $"{data.Name}を購入しました！";
+
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
                     Title: "購入完了",
@@ -304,6 +367,32 @@ namespace Shop.Service
                 ),
                 ct
             );
+        }
+
+        bool TryGrantPurchasedItem(ProductData data)
+        {
+            if (!data.ItemId.HasValue)
+                return true;
+
+            switch (data.ItemType)
+            {
+                case ItemType.Furniture:
+                {
+                    var result = _userItemInventoryService.AddFurniture(data.ItemId.Value, 1);
+                    if (!result.IsSuccess)
+                        Debug.LogError($"[ShopService] AddFurniture failed (id={data.ItemId.Value}): {result.Error}");
+                    return result.IsSuccess;
+                }
+                case ItemType.Outfit:
+                {
+                    var result = _userItemInventoryService.GrantOutfit(data.ItemId.Value);
+                    if (!result.IsSuccess)
+                        Debug.LogError($"[ShopService] GrantOutfit failed (id={data.ItemId.Value}): {result.Error}");
+                    return result.IsSuccess;
+                }
+                default:
+                    return true;
+            }
         }
 
         public async UniTask OnGachaTappedAsync(int gachaIndex, int count, CancellationToken ct)

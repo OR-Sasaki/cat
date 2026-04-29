@@ -10,10 +10,11 @@ using Shop.View;
 using Shop.State;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace Shop.Service
 {
-    public class ShopService
+    public class ShopService : ITickable
     {
         const int NormalFurnitureSlotCount = 6;
         const int NormalOutfitSlotCount = 6;
@@ -26,11 +27,14 @@ namespace Shop.Service
         readonly MasterDataState _masterDataState;
         readonly IDialogService _dialogService;
         readonly SceneLoader _sceneLoader;
+        readonly IClock _clock;
 
         Furniture[]? _cachedFurnitureSource;
         Dictionary<uint, Furniture>? _furnitureLookup;
         Outfit[]? _cachedOutfitSource;
         Dictionary<uint, Outfit>? _outfitLookup;
+
+        bool _isInitialized;
 
         [Inject]
         public ShopService(
@@ -39,7 +43,8 @@ namespace Shop.Service
             IUserItemInventoryService userItemInventoryService,
             MasterDataState masterDataState,
             IDialogService dialogService,
-            SceneLoader sceneLoader)
+            SceneLoader sceneLoader,
+            IClock clock)
         {
             _state = state;
             _userPointService = userPointService;
@@ -47,11 +52,74 @@ namespace Shop.Service
             _masterDataState = masterDataState;
             _dialogService = dialogService;
             _sceneLoader = sceneLoader;
+            _clock = clock;
         }
 
         public void Initialize()
         {
             BuildNormalCategoryLists();
+
+            var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
+            RebuildTimedShop(snapshot);
+            _isInitialized = true;
+        }
+
+        public void Tick()
+        {
+            if (!_isInitialized) return;
+
+            var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
+            if (snapshot.CycleId == _state.CurrentCycleId) return;
+
+            RebuildTimedShop(snapshot);
+        }
+
+        public TimedShopCycleSnapshot GetCurrentCycleSnapshot()
+        {
+            return TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
+        }
+
+        void RebuildTimedShop(TimedShopCycleSnapshot snapshot)
+        {
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+
+            var furnitureSource = new List<ShopProduct>();
+            var outfitSource = new List<ShopProduct>();
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                var product = shopProducts[i];
+                if (product.CurrencyType == CurrencyType.RewardAd)
+                    continue;
+
+                if (product.ItemType == ItemType.Furniture) furnitureSource.Add(product);
+                else if (product.ItemType == ItemType.Outfit) outfitSource.Add(product);
+            }
+
+            if (furnitureSource.Count == 0)
+                Debug.LogWarning("[ShopService] No timed-shop furniture master rows.");
+            if (outfitSource.Count == 0)
+                Debug.LogWarning("[ShopService] No timed-shop outfit master rows.");
+
+            var drawnFurniture = TimedShopLottery.DrawTimedProducts(
+                furnitureSource, TimedShopConstants.TimedFurnitureSlotCount, snapshot.Seed);
+            var drawnOutfit = TimedShopLottery.DrawTimedProducts(
+                outfitSource, TimedShopConstants.TimedOutfitSlotCount, snapshot.Seed);
+
+            var timedFurniture = ProjectToProductDataList(drawnFurniture);
+            var timedOutfit = ProjectToProductDataList(drawnOutfit);
+
+            _state.ApplyTimedShopUpdate(snapshot.CycleId, snapshot.NextUpdateAtUtc, timedFurniture, timedOutfit);
+        }
+
+        List<ProductData> ProjectToProductDataList(IReadOnlyList<ShopProduct> products)
+        {
+            var result = new List<ProductData>(products.Count);
+            for (var i = 0; i < products.Count; i++)
+            {
+                var data = BuildProductDataFromShopProduct(products[i]);
+                if (data != null) result.Add(data);
+            }
+            return result;
         }
 
         void BuildNormalCategoryLists()

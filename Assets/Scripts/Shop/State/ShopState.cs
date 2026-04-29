@@ -36,6 +36,9 @@ namespace Shop.State
         int Price,
         CurrencyType CurrencyType,
         ProductType ProductType,
+        ItemType ItemType,
+        uint? ProductId,
+        uint? ItemId,
         int? YarnAmount = null // 毛糸パックの場合のみ使用
     );
 
@@ -45,10 +48,18 @@ namespace Shop.State
 
         public event Action<ShopTab>? OnTabChanged;
 
-        // モックデータリスト - ShopService.Initialize()でテストデータを設定
         public List<GachaData> GachaList { get; } = new();
-        public List<ProductData> ItemProductList { get; } = new();
-        public List<ProductData> PointProductList { get; } = new();
+
+        public List<ProductData> FurnitureProductList { get; } = new();
+        public List<ProductData> OutfitProductList { get; } = new();
+        public List<ProductData> RewardAdProductList { get; } = new();
+        public List<ProductData> TimedFurnitureProductList { get; } = new();
+        public List<ProductData> TimedOutfitProductList { get; } = new();
+
+        public long CurrentCycleId { get; private set; }
+        public DateTimeOffset NextUpdateAt { get; private set; }
+
+        public event Action? OnTimedShopUpdated;
 
         public void SetCurrentTab(ShopTab tab)
         {
@@ -57,6 +68,26 @@ namespace Shop.State
 
             CurrentTab = tab;
             OnTabChanged?.Invoke(tab);
+        }
+
+        public void ApplyTimedShopUpdate(
+            long cycleId,
+            DateTimeOffset nextUpdateAt,
+            IReadOnlyList<ProductData> timedFurniture,
+            IReadOnlyList<ProductData> timedOutfit)
+        {
+            TimedFurnitureProductList.Clear();
+            for (var i = 0; i < timedFurniture.Count; i++)
+                TimedFurnitureProductList.Add(timedFurniture[i]);
+
+            TimedOutfitProductList.Clear();
+            for (var i = 0; i < timedOutfit.Count; i++)
+                TimedOutfitProductList.Add(timedOutfit[i]);
+
+            CurrentCycleId = cycleId;
+            NextUpdateAt = nextUpdateAt;
+
+            OnTimedShopUpdated?.Invoke();
         }
     }
 }

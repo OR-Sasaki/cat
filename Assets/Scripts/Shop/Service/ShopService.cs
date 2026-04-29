@@ -15,6 +15,9 @@ namespace Shop.Service
 {
     public class ShopService
     {
+        const int NormalFurnitureSlotCount = 6;
+        const int NormalOutfitSlotCount = 6;
+
         static readonly System.Random Rng = new();
 
         readonly ShopState _state;
@@ -26,6 +29,8 @@ namespace Shop.Service
 
         Furniture[]? _cachedFurnitureSource;
         Dictionary<uint, Furniture>? _furnitureLookup;
+        Outfit[]? _cachedOutfitSource;
+        Dictionary<uint, Outfit>? _outfitLookup;
 
         [Inject]
         public ShopService(
@@ -46,29 +51,99 @@ namespace Shop.Service
 
         public void Initialize()
         {
-            InitializeMockData();
+            BuildNormalCategoryLists();
         }
 
-        void InitializeMockData()
+        void BuildNormalCategoryLists()
         {
-            _state.GachaList.Clear();
-            _state.GachaList.Add(new GachaData(
-                SinglePrice: 300,
-                TenPrice: 2700,
-                RewardFurnitureIds: new uint[] { 1u, 2u, 3u, 4u, 5u }
-            ));
+            _state.FurnitureProductList.Clear();
+            _state.OutfitProductList.Clear();
+            _state.RewardAdProductList.Clear();
 
-            _state.ItemProductList.Clear();
-            _state.ItemProductList.Add(new ProductData("経験値ブースト", "ShopProducts/shop_Possession_Paid.png", 100, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("時間短縮チケット", "ShopProducts/shop_Possession_Paid.png", 150, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("レアドロップUP", "ShopProducts/shop_Possession_Paid.png", 200, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("スタミナ回復薬", "ShopProducts/shop_Possession_Paid.png", 80, CurrencyType.Yarn, ProductType.Item));
-            _state.ItemProductList.Add(new ProductData("ゴールドブースト", "ShopProducts/shop_Possession_Paid.png", 120, CurrencyType.Yarn, ProductType.Item));
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
 
-            _state.PointProductList.Clear();
-            _state.PointProductList.Add(new ProductData("毛糸パック S", "ShopProducts/shop_Possession_Paid.png", 120, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 100));
-            _state.PointProductList.Add(new ProductData("毛糸パック M", "ShopProducts/shop_Possession_Paid.png", 480, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 500));
-            _state.PointProductList.Add(new ProductData("毛糸パック L", "ShopProducts/shop_Possession_Paid.png", 960, CurrencyType.RealMoney, ProductType.YarnPack, YarnAmount: 1200));
+            var furnitureCount = 0;
+            var outfitCount = 0;
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                var product = shopProducts[i];
+                if (product.ItemType == ItemType.Furniture && furnitureCount < NormalFurnitureSlotCount)
+                {
+                    var data = BuildProductDataFromShopProduct(product);
+                    if (data != null)
+                    {
+                        _state.FurnitureProductList.Add(data);
+                        furnitureCount++;
+                    }
+                }
+                else if (product.ItemType == ItemType.Outfit && outfitCount < NormalOutfitSlotCount)
+                {
+                    var data = BuildProductDataFromShopProduct(product);
+                    if (data != null)
+                    {
+                        _state.OutfitProductList.Add(data);
+                        outfitCount++;
+                    }
+                }
+            }
+        }
+
+        ProductData? BuildProductDataFromShopProduct(ShopProduct product)
+        {
+            string iconPath;
+            string displayName;
+
+            switch (product.ItemType)
+            {
+                case ItemType.Furniture:
+                {
+                    var lookup = GetFurnitureLookup();
+                    if (lookup == null || !lookup.TryGetValue(product.ItemId, out var furniture))
+                    {
+                        Debug.LogWarning($"[ShopService] Furniture master not found for item_id={product.ItemId} (product_id={product.Id})");
+                        return null;
+                    }
+                    displayName = string.IsNullOrEmpty(product.Name) ? furniture.Name : product.Name;
+                    iconPath = ResolveFurnitureIconPath(furniture);
+                    break;
+                }
+                case ItemType.Outfit:
+                {
+                    var lookup = GetOutfitLookup();
+                    if (lookup == null || !lookup.TryGetValue(product.ItemId, out var outfit))
+                    {
+                        Debug.LogWarning($"[ShopService] Outfit master not found for item_id={product.ItemId} (product_id={product.Id})");
+                        return null;
+                    }
+                    displayName = string.IsNullOrEmpty(product.Name) ? outfit.Name : product.Name;
+                    iconPath = ResolveOutfitIconPath(outfit);
+                    break;
+                }
+                default:
+                    Debug.LogWarning($"[ShopService] Unsupported ItemType={product.ItemType} (product_id={product.Id})");
+                    return null;
+            }
+
+            return new ProductData(
+                Name: displayName,
+                IconPath: iconPath,
+                Price: product.Price,
+                CurrencyType: product.CurrencyType,
+                ProductType: ProductType.Item,
+                ItemType: product.ItemType,
+                ProductId: product.Id,
+                ItemId: product.ItemId
+            );
+        }
+
+        static string ResolveFurnitureIconPath(Furniture furniture)
+        {
+            return $"Furnitures/{furniture.Name}";
+        }
+
+        static string ResolveOutfitIconPath(Outfit outfit)
+        {
+            return $"Outfits/{outfit.Name}";
         }
 
         public void SetCurrentTab(ShopTab tab)
@@ -92,8 +167,6 @@ namespace Shop.Service
             UpdateProductCellInteractable(cell, data, _userPointService.GetYarnBalance());
         }
 
-        // 残高変更時に呼ばれる軽量パス。Setup を再実行するとアドレッサブルアイコンが
-        // リロードされてしまうため、interactable の更新のみに限定する。
         public void RefreshGachaCellInteractable(GachaCellView cell, int index, int balance)
         {
             if (index < 0 || index >= _state.GachaList.Count)
@@ -129,7 +202,6 @@ namespace Shop.Service
         {
             if (data.CurrencyType == CurrencyType.Yarn && _userPointService.GetYarnBalance() < data.Price)
             {
-                await ShowYarnInsufficientAsync("購入できません", ct);
                 return;
             }
 
@@ -147,7 +219,7 @@ namespace Shop.Service
 
             if (data.CurrencyType == CurrencyType.Yarn)
             {
-                var spendOk = await TrySpendYarnAsync(data.Price, "購入できません", ct);
+                var spendOk = TrySpendYarn(data.Price);
                 if (!spendOk)
                     return;
             }
@@ -176,7 +248,6 @@ namespace Shop.Service
 
             if (_userPointService.GetYarnBalance() < price)
             {
-                await ShowYarnInsufficientAsync("ガチャを引けません", ct);
                 return;
             }
 
@@ -191,13 +262,12 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
-            var spendOk = await TrySpendYarnAsync(price, "ガチャを引けません", ct);
+            var spendOk = TrySpendYarn(price);
             if (!spendOk)
                 return;
 
             var furnitureIds = ExecuteGacha(gachaData, count);
 
-            // UnknownId / InvalidArgument は部分失敗として該当 ID のみスキップし、残りの結果処理を継続する
             var grantedNames = new List<string>(furnitureIds.Count);
             var failedCount = 0;
             foreach (var furnitureId in furnitureIds)
@@ -236,20 +306,13 @@ namespace Shop.Service
             return message;
         }
 
-        async UniTask<bool> TrySpendYarnAsync(int price, string insufficientTitle, CancellationToken ct)
+        bool TrySpendYarn(int price)
         {
             var result = _userPointService.SpendYarn(price);
             if (result.IsSuccess)
                 return true;
 
-            if (result.Error == PointOperationErrorCode.Insufficient)
-            {
-                await ShowYarnInsufficientAsync(insufficientTitle, ct);
-            }
-            else
-            {
-                Debug.LogError($"[ShopService] SpendYarn failed: {result.Error}");
-            }
+            Debug.LogError($"[ShopService] SpendYarn failed: {result.Error}");
             return false;
         }
 
@@ -267,17 +330,6 @@ namespace Shop.Service
 
             Debug.LogError($"[ShopService] AddYarn failed: {result.Error}");
             return result.Error != PointOperationErrorCode.Overflow;
-        }
-
-        UniTask ShowYarnInsufficientAsync(string title, CancellationToken ct)
-        {
-            return _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
-                new CommonMessageDialogArgs(
-                    Title: title,
-                    Message: "毛糸が足りません。"
-                ),
-                ct
-            );
         }
 
         List<uint> ExecuteGacha(GachaData gachaData, int count)
@@ -305,7 +357,6 @@ namespace Shop.Service
             if (source == null)
                 return null;
 
-            // マスターデータのインポートで配列が再生成された場合に再構築する
             if (!ReferenceEquals(source, _cachedFurnitureSource))
             {
                 _cachedFurnitureSource = source;
@@ -316,6 +367,24 @@ namespace Shop.Service
                 }
             }
             return _furnitureLookup;
+        }
+
+        Dictionary<uint, Outfit>? GetOutfitLookup()
+        {
+            var source = _masterDataState.Outfits;
+            if (source == null)
+                return null;
+
+            if (!ReferenceEquals(source, _cachedOutfitSource))
+            {
+                _cachedOutfitSource = source;
+                _outfitLookup = new Dictionary<uint, Outfit>(source.Length);
+                foreach (var outfit in source)
+                {
+                    _outfitLookup[outfit.Id] = outfit;
+                }
+            }
+            return _outfitLookup;
         }
     }
 }

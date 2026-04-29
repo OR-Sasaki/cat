@@ -130,15 +130,14 @@ namespace Shop.View
             // アイテムセルをセットアップ
             if (_state != null)
             {
-                for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
+                for (var i = 0; i < _itemCells.Count && i < _state.FurnitureProductList.Count; i++)
                 {
-                    _shopService.SetupProductCell(_itemCells[i], _state.ItemProductList[i]);
+                    _shopService.SetupProductCell(_itemCells[i], _state.FurnitureProductList[i]);
                 }
 
-                // 毛糸パックセルをセットアップ
-                for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+                for (var i = 0; i < _pointCells.Count && i < _state.OutfitProductList.Count; i++)
                 {
-                    _shopService.SetupProductCell(_pointCells[i], _state.PointProductList[i]);
+                    _shopService.SetupProductCell(_pointCells[i], _state.OutfitProductList[i]);
                 }
             }
         }
@@ -180,14 +179,14 @@ namespace Shop.View
                 _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
+            for (var i = 0; i < _itemCells.Count && i < _state.FurnitureProductList.Count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.ItemProductList[i], balance);
+                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.FurnitureProductList[i], balance);
             }
 
-            for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+            for (var i = 0; i < _pointCells.Count && i < _state.OutfitProductList.Count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.PointProductList[i], balance);
+                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.OutfitProductList[i], balance);
             }
         }
 

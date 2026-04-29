@@ -137,7 +137,7 @@
 
 ### Branch: `feature/timed-shop-view`
 
-- [ ] 10. (P) `ProductCellView` を暗め表示と売り切れ表示に対応させる
+- [x] 10. (P) `ProductCellView` を暗め表示と売り切れ表示に対応させる
   - `_canvasGroup` / `_soldOutOverlay` / `_dimmedAlpha` を `[SerializeField]` で受ける
   - `SetDimmed(bool)` で `CanvasGroup.alpha` を切り替える（標準時 1.0、暗め時は `_dimmedAlpha`）
   - `SetSoldOut(bool)` でオーバーレイ `GameObject` の `SetActive` を切り替え、`Button.interactable` を `false` に固定する
@@ -146,7 +146,7 @@
   - 既存 `Setup` / `SetInteractable` / `OnTapped` API は変更しない
   - _Requirements: 7.2, 7.3, 7.4, 7.9, 9.4, 9.5_
 
-- [ ] 11. (P) `TimedShopTimerView` を新設する
+- [x] 11. (P) `TimedShopTimerView` を新設する
   - `MonoBehaviour` ＋ `TextMeshProUGUI` ＋ `Update()` の最小構成で実装する
   - `Construct(IClock, ShopState)` メソッドインジェクションで依存を受け取る
   - `Update()` で `state.NextUpdateAt - clock.UtcNow` を再計算し、負値は 0 にクランプする
@@ -156,27 +156,27 @@
   - GameObject 非アクティブ時は `Update()` が呼ばれず更新が止まる Unity 標準挙動を活用する
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.6, 6.7_
 
-- [ ] 12. `ShopView` をタブ撤去後のカテゴリ縦並び構成に改修する
-  - [ ] 12.1 カテゴリ別セルリストとタイマー参照の `[SerializeField]` を整備する
+- [x] 12. `ShopView` をタブ撤去後のカテゴリ縦並び構成に改修する
+  - [x] 12.1 カテゴリ別セルリストとタイマー参照の `[SerializeField]` を整備する
     - `_rewardAdCells` / `_timedFurnitureCells` / `_timedOutfitCells` / `_timerView` / `_yarnBalanceText` を追加する
     - 既存タブ関連 `[SerializeField]` および通常カテゴリ用 `_itemCells` / `_pointCells` はコード上残置し、シーン側で参照解除されてもヌル安全に動作する
     - `_gachaCells` も既存どおり残置する（UI 起動から呼出は行わない）
-  - [ ] 12.2 起動時のセル Setup フローをマスタ駆動に置き換える
+  - [x] 12.2 起動時のセル Setup フローをマスタ駆動に置き換える
     - `Start()` 系のフローから `UpdateTabVisuals` / `ShowContent` の呼出を撤去する
     - 各カテゴリのセルを対応する `ShopState` リストの要素で `ProductCellView.Setup` する
     - 母集合不足や空リストの場合に該当セル GameObject を `SetActive(false)` でフォールバックする
-  - [ ] 12.3 状態変更イベントを購読してセル状態を再評価する
+  - [x] 12.3 状態変更イベントを購読してセル状態を再評価する
     - `IUserPointService.YarnBalanceChanged` を購読し、各セルの暗め表示とタップ可否を `ShopService.IsAffordable` に基づき更新する
     - `IUserItemInventoryService.OutfitChanged` を購読し、衣装セル全体の売り切れ表示を `ShopService.IsSoldOut` で再評価する（同一 outfitId が複数表示される場合を含む）
     - `ShopState.OnTimedShopUpdated` を購読し、時限カテゴリのセル再 Setup と全カテゴリの可否再評価を実行する
     - 暗め判定と売り切れ判定は独立に評価し、売り切れセルでも残高十分なら暗めにしない
     - 残高不足ルールは時限ショップの `Yarn` 商品すべてに一律適用する
-  - [ ] 12.4 タップハンドラとシーン遷移を整える
+  - [x] 12.4 タップハンドラとシーン遷移を整える
     - 各セルの `OnTapped` で `ShopService.OnProductCellTappedAsync` を呼ぶ
     - 既存の戻るボタン / シーン遷移ハンドリングを維持する
   - _Requirements: 2.1, 2.3, 2.4, 3.1, 3.2, 3.3, 3.5, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10, 10.7_
 
-- [ ] 13. `ShopScope` に `TimedShopTimerView` のコンポーネント登録を追加する
+- [x] 13. `ShopScope` に `TimedShopTimerView` のコンポーネント登録を追加する
   - `ShopView` と同じく `[SerializeField]` で `_timerView` を受け、非 null のとき `builder.RegisterComponent(_timerView)` を呼ぶ
   - 既存 `ShopView` の `RegisterComponent` パターンに揃える
   - シーン上に TimerView が未配置の場合でもエラーにならないよう null チェックを徹底する

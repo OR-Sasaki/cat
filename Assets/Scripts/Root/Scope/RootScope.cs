@@ -13,6 +13,7 @@ namespace Root.Scope
             builder.Register<SceneLoaderState>(Lifetime.Singleton);
             builder.Register<MasterDataState>(Lifetime.Singleton);
             builder.Register<MasterDataImportService>(Lifetime.Singleton);
+            builder.Register<SystemClock>(Lifetime.Singleton).As<IClock>();
             builder.Register<UserState>(Lifetime.Singleton);
             builder.Register<PlayerPrefsService>(Lifetime.Singleton);
             builder.Register<UserEquippedOutfitState>(Lifetime.Singleton);

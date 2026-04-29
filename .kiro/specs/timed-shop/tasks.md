@@ -79,14 +79,15 @@
     - 既存呼出箇所（モック初期化など）はビルドが通らなくなるため、後続タスク 6 で同時に整理する前提で追加する
     - `CurrencyType == RewardAd` で広告視聴商品を識別する方針を維持する
   - [x] 5.2 `Shop.State.ShopState` に時限ショップ用のフィールドとイベントを追加する
-    - 表示中商品リスト: `FurnitureProductList` / `OutfitProductList` / `RewardAdProductList` / `TimedFurnitureProductList` / `TimedOutfitProductList`
+    - 表示中商品リスト: `RewardAdProductList` / `TimedFurnitureProductList` / `TimedOutfitProductList`
     - サイクル情報: `CurrentCycleId`（初期値 0）、`NextUpdateAt`
     - イベント: `OnTimedShopUpdated`
     - 状態更新 API: `ApplyTimedShopUpdate(cycleId, nextUpdateAt, timedFurniture, timedOutfit)`（リスト差し替え後にイベント発火）
     - 既存 `ShopTab` / `CurrentTab` / `OnTabChanged` / `SetCurrentTab` / `GachaList` は残置する
     - 既存 `ItemProductList` / `PointProductList` は本タスクで削除する（`InitializeMockData` の撤去と同時に消費者がなくなる前提）
+    - 通常カテゴリ家具・衣装は廃止し、対応するリストを ShopState に追加しない
     - 通貨残高や所持情報を保持しない既存方針を維持する
-  - _Requirements: 1.3, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
+  - _Requirements: 1.3, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
 
 - [x] 6. `ShopService` をマスタ駆動初期化に切り替える
   - [x] 6.1 既存のモック初期化と毛糸不足ダイアログ呼出を撤去する
@@ -96,11 +97,8 @@
   - [x] 6.2 `ShopProduct` から `ProductData` への射影ヘルパーを追加する
     - `ItemType` 別に `Outfit` / `Furniture` マスタを引いて `Name` / `IconPath` を解決する
     - 参照解決失敗（マスタに該当 ID なし）はクラスコンテキスト付きで警告ログを出しスキップする
-  - [x] 6.3 通常カテゴリ（家具・衣装）の表示リストをマスタ駆動で初期化する
-    - `Initialize()` でマスタ `ShopProducts` を `ItemType` で絞り、家具 6 件・衣装 6 件を `ShopState.FurnitureProductList` / `OutfitProductList` に投入する
-    - `RewardAdProductList` は本フェーズでは投入しない（プレースホルダー）
     - コンストラクタには `[Inject]` を付与し IL2CPP のストリッピングを防ぐ
-  - _Requirements: 2.7, 2.8, 2.11, 2.12, 2.13_
+  - _Requirements: 2.7, 2.8_
 
 - [x] 7. `ShopService` にサイクル管理と再抽選フローを実装する
   - [x] 7.1 `ShopService` を `VContainer.Unity.ITickable` 実装に変更する
@@ -121,7 +119,6 @@
   - [x] 8.2 `OnProductCellTappedAsync` で購入確認フローとサイクル切替検知を実装する
     - タップ時点の `CycleId` をローカル保持し、時限商品の場合のみ確認後に `_state.CurrentCycleId` と再比較する
     - サイクルが切り替わっていた場合は `CommonMessageDialog` で「時限ショップが更新されました」を表示して購入を中止する
-    - 通常カテゴリ家具・衣装の購入はサイクル切替検知の対象外とする
     - 購入確認は既存 `CommonConfirmDialog` を使用し、「いいえ」選択時はキャンセルする
   - [x] 8.3 通貨消費と所持品付与を実装する
     - `IUserPointService.SpendYarn(price)` を呼び、`Insufficient` 戻り値の場合は毛糸不足ダイアログを出さずクラスコンテキスト付きでログ出力して中断する
@@ -130,7 +127,7 @@
     - async API は `CancellationToken` を末尾引数として受け取る
   - [x] 8.4 `RewardAd` 商品向けのスタブ分岐を残す
     - `CurrencyType == RewardAd` の場合は本フェーズでは即 return とし、将来の Unity Ads 統合点が分岐として確認できる状態にする
-  - _Requirements: 7.1, 7.5, 7.7, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.7, 9.8, 9.9, 10.7, 10.8_
+  - _Requirements: 7.1, 7.5, 7.7, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.7, 9.8, 9.9, 10.6, 10.7_
 
 - [x] 9. `ShopScope` の DI 登録を `ITickable` 対応に更新する
   - `ShopService` を `AsSelf().As<ITickable>()` の複数登録に変更する
@@ -161,8 +158,8 @@
 
 - [ ] 12. `ShopView` をタブ撤去後のカテゴリ縦並び構成に改修する
   - [ ] 12.1 カテゴリ別セルリストとタイマー参照の `[SerializeField]` を整備する
-    - `_furnitureCells` / `_outfitCells` / `_rewardAdCells` / `_timedFurnitureCells` / `_timedOutfitCells` / `_timerView` / `_yarnBalanceText` を追加する
-    - 既存タブ関連 `[SerializeField]` はコード上残置し、シーン側で参照解除されてもヌル安全に動作する
+    - `_rewardAdCells` / `_timedFurnitureCells` / `_timedOutfitCells` / `_timerView` / `_yarnBalanceText` を追加する
+    - 既存タブ関連 `[SerializeField]` および通常カテゴリ用 `_itemCells` / `_pointCells` はコード上残置し、シーン側で参照解除されてもヌル安全に動作する
     - `_gachaCells` も既存どおり残置する（UI 起動から呼出は行わない）
   - [ ] 12.2 起動時のセル Setup フローをマスタ駆動に置き換える
     - `Start()` 系のフローから `UpdateTabVisuals` / `ShowContent` の呼出を撤去する
@@ -173,11 +170,11 @@
     - `IUserItemInventoryService.OutfitChanged` を購読し、衣装セル全体の売り切れ表示を `ShopService.IsSoldOut` で再評価する（同一 outfitId が複数表示される場合を含む）
     - `ShopState.OnTimedShopUpdated` を購読し、時限カテゴリのセル再 Setup と全カテゴリの可否再評価を実行する
     - 暗め判定と売り切れ判定は独立に評価し、売り切れセルでも残高十分なら暗めにしない
-    - 残高不足ルールは時限・家具・衣装の `Yarn` 商品すべてに一律適用する
+    - 残高不足ルールは時限ショップの `Yarn` 商品すべてに一律適用する
   - [ ] 12.4 タップハンドラとシーン遷移を整える
     - 各セルの `OnTapped` で `ShopService.OnProductCellTappedAsync` を呼ぶ
     - 既存の戻るボタン / シーン遷移ハンドリングを維持する
-  - _Requirements: 2.1, 2.3, 2.4, 2.5, 2.6, 3.1, 3.2, 3.3, 3.5, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10, 10.8_
+  - _Requirements: 2.1, 2.3, 2.4, 3.1, 3.2, 3.3, 3.5, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10, 10.7_
 
 - [ ] 13. `ShopScope` に `TimedShopTimerView` のコンポーネント登録を追加する
   - `ShopView` と同じく `[SerializeField]` で `_timerView` を受け、非 null のとき `builder.RegisterComponent(_timerView)` を呼ぶ

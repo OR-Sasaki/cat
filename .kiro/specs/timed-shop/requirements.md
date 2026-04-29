@@ -10,7 +10,7 @@
 主な変更点は以下の通り。
 
 1. **ショップ商品マスターデータの追加**: furniture / outfit / リワード広告視聴商品 を CSV で定義し、`MasterDataState` に統合する（既存 outfit/furniture マスターと同様の読み込みパターン）。
-2. **既存ショップの再構成**: タブは 1 つだけとし、カテゴリは「家具（furniture）」「衣装（outfit）」「リワード広告視聴商品」の 3 つに統一する。ガチャカテゴリは表示上オミットする（コード自体は削除しない）。furniture / outfit は各 6 商品を表示する。
+2. **既存ショップの再構成**: タブは 1 つだけとし、カテゴリは「時限ショップ」「リワード広告視聴商品」の 2 つに統一する。ガチャカテゴリは表示上オミットする（コード自体は削除しない）。家具・衣装の通常カテゴリは廃止し、時限ショップへ統合する（家具・衣装は時限ショップ経由でのみ販売）。
 3. **時限カテゴリの追加**: 上記ショップ内に「時限ショップ」を追加。30 分ごと（定数化）に内容が更新され、更新タイミングは全端末で一致する決定論的抽選とする。次回更新までのカウントダウンタイマーを表示する。outfit は既所持なら売り切れ表示（抽選からは除外しない）、furniture は制限なく購入可能。
 
 本フェーズではリワード広告視聴カテゴリの表示および購入処理は実装対象外（マスターデータ上のカラム定義と将来拡張余地の確保のみ）とする。サーバー連携は行わず、マスターデータ化された商品を端末時間ベースで決定論的に抽選する。
@@ -53,31 +53,26 @@
 12. The ショップ商品マスター shall `item_type` と `item_id` の組み合わせにより、既存の `Outfit` または `Furniture` マスターと紐付け可能となる
 
 ### Requirement 2: 既存ショップの構造再構成
-**Objective:** As a プレイヤー, I want ショップ画面が家具・衣装・広告視聴商品のカテゴリに整理されていること, so that 目的の商品カテゴリへ迷わずアクセスできる
+**Objective:** As a プレイヤー, I want ショップ画面が時限ショップとリワード広告視聴商品のカテゴリに整理されていること, so that 目的の商品カテゴリへ迷わずアクセスできる
 
 #### Acceptance Criteria
 1. The ShopView shall ショップ画面 UI 上からタブ要素（アイテムタブ／毛糸タブのボタン・切替表示・関連ビジュアル）を削除する
 2. The Shop 実装 shall タブ切替に関連するコード（`ShopTab` enum、`ShopState.CurrentTab` / `OnTabChanged`、`ShopService.SetCurrentTab`、`ShopView.UpdateTabVisuals` / `ShowContent` 等）は削除せず、UI から呼び出されない状態で残置する
-3. The ShopView shall タブを介さず、「家具」「衣装」「リワード広告視聴商品」「時限ショップ」のカテゴリを単一スクロール領域内に縦並びで表示する
-4. The ShopView shall 「家具」カテゴリに 6 件の商品セルを手動配置する
-5. The ShopView shall 「衣装」カテゴリに 6 件の商品セルを手動配置する
-6. The ShopView shall 「リワード広告視聴商品」カテゴリをレイアウト上は配置するが、本フェーズでは表示・購入処理を実装しない（プレースホルダーとして存在を確保する）
-7. The ShopService shall 家具カテゴリの商品表示内容（アイコン、商品名、価格、通貨種別）を、ショップ商品マスターから取得して各セルに設定する
-8. The ShopService shall 衣装カテゴリの商品表示内容をショップ商品マスターから取得して各セルに設定する
-9. The Shop 実装 shall 既存のガチャカテゴリのコード（`GachaCellView`、`GachaData`、`ShopService.OnGachaTappedAsync` 等）は削除せず、ショップ画面上の表示・機能呼び出しのみオミットする
-10. The Shop Scene shall 既存の単一シーン（`Assets/Scenes/Shop.unity`）を再利用し、新規シーン追加は行わない
-11. The ShopService shall 既存の `InitializeMockData()` に含まれるハードコードされたモック商品データ（`ItemProductList` / `PointProductList` / `GachaList` への `new ProductData(...)` / `new GachaData(...)` 列挙）を削除し、ショップ商品マスターデータ駆動の初期化に置き換える
-12. The ShopService shall 家具カテゴリ・衣装カテゴリの表示商品リストを、ショップ起動時にマスターデータからロードする（モックデータをフォールバックとして残さない）
-13. While ガチャカテゴリが UI 上でオミットされている間, the ShopService shall `GachaList` をモックデータで初期化せず、空のまま保持する（抽選ロジック・型定義は残置）
+3. The ShopView shall タブを介さず、「時限ショップ」「リワード広告視聴商品」のカテゴリを単一スクロール領域内に縦並びで表示する
+4. The ShopView shall 「リワード広告視聴商品」カテゴリをレイアウト上は配置するが、本フェーズでは表示・購入処理を実装しない（プレースホルダーとして存在を確保する）
+5. The Shop 実装 shall 既存のガチャカテゴリのコード（`GachaCellView`、`GachaData`、`ShopService.OnGachaTappedAsync` 等）は削除せず、ショップ画面上の表示・機能呼び出しのみオミットする
+6. The Shop Scene shall 既存の単一シーン（`Assets/Scenes/Shop.unity`）を再利用し、新規シーン追加は行わない
+7. The ShopService shall 既存の `InitializeMockData()` に含まれるハードコードされたモック商品データ（`ItemProductList` / `PointProductList` / `GachaList` への `new ProductData(...)` / `new GachaData(...)` 列挙）を削除し、ショップ商品マスターデータ駆動の初期化に置き換える
+8. While ガチャカテゴリが UI 上でオミットされている間, the ShopService shall `GachaList` をモックデータで初期化せず、空のまま保持する（抽選ロジック・型定義は残置）
 
 ### Requirement 3: 時限ショップカテゴリの配置
 **Objective:** As a プレイヤー, I want ショップ画面で時限ショップを閲覧できること, so that 期間ごとに更新される特別な商品を購入できる
 
 #### Acceptance Criteria
-1. The ShopView shall ショップ画面内に時限ショップ用のセル領域を持ち、家具／衣装／広告視聴カテゴリと同じスクロール領域内で配置する
+1. The ShopView shall ショップ画面内に時限ショップ用のセル領域を持ち、リワード広告視聴カテゴリと同じスクロール領域内で配置する
 2. The ShopView shall 時限ショップカテゴリの商品セルを手動配置する（動的生成は行わない）
 3. The ShopView shall 時限ショップセルに商品アイコン、商品名、価格、通貨種別の情報を表示する
-4. The ShopView shall 時限ショップセルに「時限であること」を示す専用バッジ・装飾・枠・カテゴリ見出しラベルなどの視覚要素を**表示しない**（通常カテゴリのセルと同一の見た目とし、時限性は更新タイマー UI のみで示す）
+4. The ShopView shall 時限ショップセルに「時限であること」を示す専用バッジ・装飾・枠・カテゴリ見出しラベルなどの視覚要素を**表示しない**（時限性は更新タイマー UI のみで示す）
 5. The ShopService shall 時限ショップに表示される各セルの内容を、ショップ商品マスターから抽選された結果に基づいてコードから設定する
 
 ### Requirement 4: 時限ショップの更新サイクル
@@ -157,7 +152,7 @@
 7. If 購入確認ダイアログを開いている間に更新サイクルが切り替わった場合, the ShopService shall 購入を中止し、更新されたことを通知するメッセージを表示する
 8. If `IUserPointService.SpendYarn` が `Insufficient` を返した場合（購入確認中に他経路で残高が変動したケース）, the ShopService shall 毛糸不足ダイアログを表示せず、購入処理を中断してクラスコンテキスト付きでログ出力し、セル表示を最新残高に基づき再評価する
 9. The ShopService shall `currency_type = reward_ad` の商品に対する購入処理は本フェーズでは実装せず、将来の Unity Ads 統合に備えてインターフェース上の分岐を残す
-10. The 残高不足時の暗め表示・タップ無効ルール shall 時限ショップセルだけでなく、家具カテゴリ・衣装カテゴリの通常セル（`currency_type = yarn` のもの）にも一律適用する
+10. The 残高不足時の暗め表示・タップ無効ルール shall 時限ショップの `currency_type = yarn` の全セルに一律適用する
 
 ### Requirement 10: 状態管理とデータ構造
 **Objective:** As a 開発者, I want 時限ショップ関連の状態が既存の ShopState パターンに統合されていること, so that 後続機能拡張（マスターデータ拡張・サーバー連携）で構造を崩さず拡張できる
@@ -168,6 +163,5 @@
 3. The ShopState shall 時限ショップ更新イベント（内容更新時に発火）を提供する
 4. The ShopState shall 次回更新までの残り時間を算出可能な API を提供する
 5. The ShopState shall ショップ商品マスターの型に基づく商品データ構造を保持する（`id`, `name`, `type`, `item_id`, `price`, `currency_type` を含む）
-6. The ShopState shall 既存カテゴリ（家具 6 件・衣装 6 件）の表示中商品リストも保持する
-7. The ShopState shall 通貨残高・アイテム所持情報を自身の状態として保持しない（これらは `IUserPointService` / `IUserItemInventoryService` の責務）
-8. The ShopService shall 時限ショップ関連の状態更新は ShopState を介して行い、View は ShopState のイベントおよび `IUserPointService` / `IUserItemInventoryService` のイベントを購読して表示を更新する（依存方向: View → Service → State を維持）
+6. The ShopState shall 通貨残高・アイテム所持情報を自身の状態として保持しない（これらは `IUserPointService` / `IUserItemInventoryService` の責務）
+7. The ShopService shall 時限ショップ関連の状態更新は ShopState を介して行い、View は ShopState のイベントおよび `IUserPointService` / `IUserItemInventoryService` のイベントを購読して表示を更新する（依存方向: View → Service → State を維持）

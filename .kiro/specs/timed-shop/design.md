@@ -2,9 +2,9 @@
 
 ## Overview
 
-**Purpose**: 既存ショップ画面に「時限ショップ」カテゴリを追加し、家具・衣装の通常カテゴリを CSV マスタ駆動に再構成する。
-**Users**: 本機能のエンドユーザーはプレイヤーで、30 分ごとに更新される時限商品とマスタ駆動の通常商品をショップ画面で閲覧・購入する。
-**Impact**: 既存の `ShopService` / `ShopState` / `ShopView` を拡張し、`MasterDataImportService` にショップ商品マスタ読込を追加する。`Root.Service.IClock` を新規導入してサイクル算出の時刻取得を抽象化する。タブ UI はシーン上から撤去するが、コードは残置する（要件 2.2）。
+**Purpose**: 既存ショップ画面を「時限ショップ」と「リワード広告視聴商品」の 2 カテゴリ構成に再構成し、家具・衣装の販売は時限ショップ経由のみに統合する。
+**Users**: 本機能のエンドユーザーはプレイヤーで、30 分ごとに更新される時限商品をショップ画面で閲覧・購入する。
+**Impact**: 既存の `ShopService` / `ShopState` / `ShopView` を拡張し、`MasterDataImportService` にショップ商品マスタ読込を追加する。`Root.Service.IClock` を新規導入してサイクル算出の時刻取得を抽象化する。タブ UI と通常カテゴリ家具・衣装はシーン上から撤去するが、タブ関連コードは残置する（要件 2.2）。
 
 ### Goals
 - 30 分間隔で全端末同一内容となる決定論的時限ショップを実装する。
@@ -170,10 +170,10 @@ sequenceDiagram
 | 1.2, 1.3, 1.4, 1.5, 1.6 | マスタカラムと型 | `Shop.State.ShopProduct` | `ShopProduct` レコード | — |
 | 1.7, 1.8 | `currency_type` と enum 拡張 | `Shop.State.CurrencyType` | enum `Yarn / RealMoney / RewardAd` | — |
 | 1.9, 1.12 | `MasterDataState.ShopProducts` | `Root.State.MasterDataState` | `ShopProduct[] ShopProducts` | — |
-| 2.1, 2.3, 2.4, 2.5, 2.6 | タブ UI 撤去・カテゴリ縦並び | `ShopView` (シーン編集はユーザー側) | `[SerializeField]` セルリスト追加 | — |
-| 2.2, 2.9, 2.13 | タブ・ガチャの API 残置 | `ShopState` / `ShopService` / `GachaCellView` | 既存 API 据置 | — |
-| 2.7, 2.8, 2.11, 2.12 | マスタ駆動初期化 | `ShopService.Initialize` | `BuildShopProductsFromMaster` | — |
-| 2.10 | 既存 Shop シーン再利用 | — (Unity 作業) | — | — |
+| 2.1, 2.3, 2.4 | タブ UI 撤去・カテゴリ縦並び | `ShopView` (シーン編集はユーザー側) | `[SerializeField]` セルリスト追加 | — |
+| 2.2, 2.5, 2.8 | タブ・ガチャの API 残置 | `ShopState` / `ShopService` / `GachaCellView` | 既存 API 据置 | — |
+| 2.7 | マスタ駆動初期化（モック撤去） | `ShopService.Initialize` | — | — |
+| 2.6 | 既存 Shop シーン再利用 | — (Unity 作業) | — | — |
 | 3.1, 3.2, 3.3, 3.5 | 時限セル領域 | `ShopView` / `ProductCellView` | `_timedFurnitureCells` / `_timedOutfitCells` | — |
 | 3.4 | 時限バッジを表示しない | `ShopView` (Unity 作業) | — | — |
 | 4.1 | 更新間隔定数 | `TimedShopConstants.UpdateInterval` | `TimeSpan UpdateInterval` | — |
@@ -195,9 +195,9 @@ sequenceDiagram
 | 9.7 | サイクル切替時の購入中止 | `ShopService.OnProductCellTappedAsync` | — | 購入確認中のサイクル切替検知 |
 | 9.8 | Insufficient 時にダイアログ非表示 | `ShopService.TrySpendYarnAsync` | — | 購入確認中のサイクル切替検知 |
 | 9.9 | reward_ad 商品のスタブ | `ShopService.OnProductCellTappedAsync` | — | — |
-| 10.1, 10.2, 10.3, 10.4, 10.6 | ShopState 拡張 | `Shop.State.ShopState` | フィールド・イベント追加 | — |
+| 10.1, 10.2, 10.3, 10.4 | ShopState 拡張 | `Shop.State.ShopState` | フィールド・イベント追加 | — |
 | 10.5 | マスタ型に基づく商品データ | `Root.State.ShopProduct` / `Shop.State.ProductData` | レコード | — |
-| 10.7, 10.8 | 通貨/所持情報を State 外で管理・依存方向維持 | `ShopService` / `ShopView` | 既存 Root サービス購読 | — |
+| 10.6, 10.7 | 通貨/所持情報を State 外で管理・依存方向維持 | `ShopService` / `ShopView` | 既存 Root サービス購読 | — |
 
 ## Components and Interfaces
 
@@ -212,12 +212,12 @@ sequenceDiagram
 | `Shop.State.CurrencyType` 拡張 | Shop.State | RewardAd 値追加 | 1.7, 1.8 | — | State |
 | `Shop.State.ItemType` 新設 | Shop.State | 付与アイテム種別（Furniture/Outfit/Point） | 1.3 | — | State |
 | `Shop.State.ProductData` 拡張 | Shop.State | 表示行（ItemType / ProductId 追加） | 1.3, 10.5 | `Shop.State.ShopProduct` (P0) | State |
-| `Shop.State.ShopState` 拡張 | Shop.State | 時限ショップ状態保持 | 10.1–10.4, 10.6, 10.8 | — | State, Event |
-| `Shop.Service.ShopService` 拡張 | Shop.Service | サイクル管理・抽選・購入分岐 | 2.7, 2.8, 2.11–2.13, 4.4, 5.1–5.10, 6.5, 7.6, 8.3–8.6, 9.1–9.10 | IClock (P0), MasterDataState (P0), IUserPointService (P0), IUserItemInventoryService (P0), IDialogService (P0), TimedShopCycleCalculator (P0), TimedShopLottery (P0), ShopState (P0) | Service, Event subscriber |
+| `Shop.State.ShopState` 拡張 | Shop.State | 時限ショップ状態保持 | 10.1–10.4, 10.6, 10.7 | — | State, Event |
+| `Shop.Service.ShopService` 拡張 | Shop.Service | サイクル管理・抽選・購入分岐 | 2.7, 2.8, 4.4, 5.1–5.10, 6.5, 7.6, 8.3–8.6, 9.1–9.10 | IClock (P0), MasterDataState (P0), IUserPointService (P0), IUserItemInventoryService (P0), IDialogService (P0), TimedShopCycleCalculator (P0), TimedShopLottery (P0), ShopState (P0) | Service, Event subscriber |
 | `Shop.Service.TimedShopCycleCalculator` | Shop.Service (純粋関数) | サイクル ID / 残り時間 / シード算出 | 4.2, 4.3, 4.5, 4.6, 5.4 | — | Service (Pure) |
 | `Shop.Service.TimedShopLottery` | Shop.Service (純粋関数) | 決定論的非復元/復元抽出 | 5.3, 5.4, 5.6, 5.7, 5.8, 5.9 | — | Service (Pure) |
 | `Shop.Service.TimedShopConstants` | Shop.Service | 定数（更新間隔・抽選枠数） | 4.1, 5.5 | — | Constants |
-| `Shop.View.ShopView` 改修 | Shop.View | 時限/家具/衣装セル管理・再評価 | 2.1, 2.3–2.6, 3.1, 3.3, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10 | ShopState (P0), ShopService (P0), IUserPointService (P0), IUserItemInventoryService (P0) | View |
+| `Shop.View.ShopView` 改修 | Shop.View | 時限カテゴリのセル管理・再評価 | 2.1, 2.3, 2.4, 3.1, 3.3, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10 | ShopState (P0), ShopService (P0), IUserPointService (P0), IUserItemInventoryService (P0) | View |
 | `Shop.View.ProductCellView` 拡張 | Shop.View | 暗め/売り切れ表示 API | 7.2, 7.3, 7.4, 9.4, 9.5 | — | View |
 | `Shop.View.TimedShopTimerView` | Shop.View | 残り時間表示専用 View | 6.1–6.4, 6.6, 6.7 | IClock (P0), ShopState (P0) | View |
 
@@ -459,14 +459,15 @@ namespace Shop.State
 | Field | Detail |
 |-------|--------|
 | Intent | 時限ショップの状態とイベントを保持 |
-| Requirements | 10.1, 10.2, 10.3, 10.4, 10.6, 10.7, 10.8 |
+| Requirements | 10.1, 10.2, 10.3, 10.4, 10.6, 10.7 |
 
 **Responsibilities & Constraints**
-- 通貨残高・所持情報は保持しない（既存制約、要件 10.7）。
+- 通貨残高・所持情報は保持しない（既存制約、要件 10.6）。
 - 既存 `ShopTab` / `CurrentTab` / `OnTabChanged` / `SetCurrentTab` はそのまま残置（要件 2.2）。
-- `GachaList` は型・初期化のみ残置し、本機能では空のまま保持する（要件 2.13、`OnGachaTappedAsync` の動作担保）。
-- 既存 `ItemProductList` / `PointProductList` は本機能で完全廃止する（モック削除と共に消費者が消えるため、要件 2.11 / 10.6 に整合する形で除去）。
-- 時限ショップ用フィールドは `ShopService` 経由でのみ更新される（依存方向、要件 10.8）。
+- `GachaList` は型・初期化のみ残置し、本機能では空のまま保持する（要件 2.8、`OnGachaTappedAsync` の動作担保）。
+- 既存 `ItemProductList` / `PointProductList` は本機能で完全廃止する（モック削除と共に消費者が消えるため、要件 2.7 に整合する形で除去）。
+- 通常カテゴリ家具・衣装は時限ショップへ統合され廃止されるため、ShopState には通常カテゴリ用の表示中商品リストは持たない。
+- 時限ショップ用フィールドは `ShopService` 経由でのみ更新される（依存方向、要件 10.7）。
 
 **Contracts**: State [x] / Event [x]
 
@@ -479,12 +480,10 @@ namespace Shop.State
         // 既存（残置：API 表面とガチャ状態のみ）
         public ShopTab CurrentTab { get; private set; } = ShopTab.Item;
         public event Action<ShopTab>? OnTabChanged;
-        public List<GachaData> GachaList { get; } = new(); // 要件 2.13: 空のまま保持
+        public List<GachaData> GachaList { get; } = new(); // 要件 2.8: 空のまま保持
         public void SetCurrentTab(ShopTab tab);
 
         // 新規（本機能で導入する表示中商品リスト）
-        public List<ProductData> FurnitureProductList { get; } = new();        // 通常カテゴリ家具（最大 6 件、マスタ先頭から取得）
-        public List<ProductData> OutfitProductList { get; } = new();           // 通常カテゴリ衣装（最大 6 件、マスタ先頭から取得）
         public List<ProductData> RewardAdProductList { get; } = new();         // 表示プレースホルダー（本フェーズは空のまま）
         public List<ProductData> TimedFurnitureProductList { get; } = new();   // 時限・家具
         public List<ProductData> TimedOutfitProductList { get; } = new();      // 時限・衣装
@@ -503,10 +502,10 @@ namespace Shop.State
 ```
 - `ApplyTimedShopUpdate` は内部で `TimedFurnitureProductList` / `TimedOutfitProductList` を差し替え、`CurrentCycleId` / `NextUpdateAt` を更新し、`OnTimedShopUpdated` を発火する。
 - `CurrentCycleId` の初期値 `0` はサービス起動前を意味し、最初の Tick で必ず差し替わる。
-- `RewardAdProductList` は本フェーズでは `ShopService` で populate しない（要件 2.6 / 9.9）。シーン上のセル枠（`_rewardAdCells`）はゼロ件運用とし、フィールドは将来拡張のためだけに用意する。
+- `RewardAdProductList` は本フェーズでは `ShopService` で populate しない（要件 2.4 / 9.9）。シーン上のセル枠（`_rewardAdCells`）はゼロ件運用とし、フィールドは将来拡張のためだけに用意する。
 
 **Implementation Notes**
-- Integration: `ItemProductList` / `PointProductList` は本機能で削除する（設計レビュー指摘 2 への対応）。`InitializeMockData()` の削除に伴って外部参照も無くなるため、後方互換のための残置は不要。
+- Integration: `ItemProductList` / `PointProductList` は本機能で削除する。`InitializeMockData()` の削除に伴って外部参照も無くなるため、後方互換のための残置は不要。
 - Risks: 既存コードで `ItemProductList` / `PointProductList` を参照している箇所が gap-analysis 時点では `InitializeMockData()` のみであるため、当該メソッド除去と同時に削除可能。Inspector 経由の参照は存在しない。
 
 ### Shop.Service
@@ -623,13 +622,14 @@ namespace Shop.Service
 
 | Field | Detail |
 |-------|--------|
-| Intent | サイクル管理 + マスタ駆動初期化 + 時限/家具/衣装の購入分岐を集約する Service |
-| Requirements | 2.7, 2.8, 2.11, 2.12, 2.13, 4.4, 5.1, 5.2, 5.10, 5.11, 6.5, 7.1, 7.5, 7.7, 8.3–8.6, 9.1–9.10 |
+| Intent | サイクル管理 + マスタ駆動初期化 + 時限ショップ購入分岐を集約する Service |
+| Requirements | 2.7, 2.8, 4.4, 5.1, 5.2, 5.10, 5.11, 6.5, 7.1, 7.5, 7.7, 8.3–8.6, 9.1–9.10 |
 
 **Responsibilities & Constraints**
 - `VContainer.Unity.ITickable` を実装し、`Tick()` でサイクル切替を検知する（research.md: Decision「Tickable 集約」）。
-- 既存の `OnGachaTappedAsync` / `SetCurrentTab` / `RefreshGachaCellInteractable` 等の API は残置（要件 2.2 / 2.9）。
-- 既存 `InitializeMockData()` / `ShowYarnInsufficientAsync()` は削除（要件 2.11, 9.5, 9.10）。
+- 既存の `OnGachaTappedAsync` / `SetCurrentTab` / `RefreshGachaCellInteractable` 等の API は残置（要件 2.2 / 2.5）。
+- 既存 `InitializeMockData()` / `ShowYarnInsufficientAsync()` は削除（要件 2.7, 9.5, 9.10）。
+- 通常カテゴリ家具・衣装は廃止し、家具/衣装の販売は時限ショップ経由のみとする。
 
 **Dependencies**
 - Inbound: `ShopStarter`（P0）、`ShopView`（P0）
@@ -678,12 +678,12 @@ namespace Shop.Service
   - `Initialize()` は `MasterDataImportService.Import()` 完了後に呼ばれる（既存 `SceneScope.Awake` で保証）。
   - `OnProductCellTappedAsync` の `data.ItemType` が `Furniture` / `Outfit` / `RewardAdReward` のいずれか。
 - Postconditions:
-  - `Initialize()` 後、`ShopState.FurnitureProductList` / `OutfitProductList` / `TimedFurnitureProductList` / `TimedOutfitProductList` がマスタ由来の値で埋まる。`GachaList` は空のまま（要件 2.13）。
+  - `Initialize()` 後、`ShopState.TimedFurnitureProductList` / `TimedOutfitProductList` が抽選結果で埋まる。`GachaList` / `RewardAdProductList` は空のまま（要件 2.4 / 2.8）。
   - `Tick()` でサイクル境界を越えた場合、`ApplyTimedShopUpdate` が呼ばれ `OnTimedShopUpdated` が発火する。
   - `OnProductCellTappedAsync` 完了後、購入成功なら `IUserPointService.SpendYarn` + `IUserItemInventoryService.GrantOutfit/AddFurniture` が実行され、購入完了メッセージが表示される。
 - Invariants:
   - `_state.CurrentCycleId` は `Initialize()` 後常に最新サイクル ID と一致する。
-  - 通貨残高・所持情報を `ShopState` に書き戻さない（要件 10.7）。
+  - 通貨残高・所持情報を `ShopState` に書き戻さない（要件 10.6）。
 
 ##### Event Contract
 - Subscribed: `IUserPointService.YarnBalanceChanged`（暗め表示再評価のため View が直接購読、ServiceConfigure 不要）。`IUserItemInventoryService.OutfitChanged`（売り切れ再評価のため View が直接購読）。
@@ -691,9 +691,8 @@ namespace Shop.Service
 
 **Implementation Notes**
 - Integration:
-  - 通常カテゴリ（家具/衣装）の表示リストは `BuildShopProductsFromMaster(ItemType.Furniture, take: 6)` のような単純取得で構築。先頭 6 件 / 全件のいずれかは設計確認事項だが、要件 2.4 / 2.5 で「6 件の手動配置」と定められているため、マスタの先頭 6 件を採用する。
   - 時限カテゴリは `RebuildTimedShop(seed)` で `TimedShopLottery` を呼び、`ShopProduct` → `ProductData` への射影を `BuildProductDataFromShopProduct(...)` で行う（マスタ参照で `IconPath` / `Name` を解決）。
-  - サイクル ID 一致比較は `IsTimedShopProduct(data) == true` の場合のみ実行（要件 9.7、シーケンス図参照）。通常カテゴリ家具/衣装の購入はサイクル切替の影響を受けない。
+  - サイクル ID 一致比較は `IsTimedShopProduct(data) == true` の場合のみ実行（要件 9.7、シーケンス図参照）。
 - Validation:
   - `data.CurrencyType == CurrencyType.RewardAd` の場合は要件 9.9 のスタブとして即 `return`（本フェーズでは表示すらしない方針のため、原理上到達しない防御コード）。将来 Unity Ads 統合時にここへ広告再生分岐を追加する。
   - `data.ItemType == Outfit` で `IUserItemInventoryService.HasOutfit(data.ItemId)` が true の場合、購入処理を実行せず（売り切れセルは `Button.interactable = false` であるため通常は到達しないが、競合状態の防御として）。
@@ -708,7 +707,7 @@ namespace Shop.Service
 | Field | Detail |
 |-------|--------|
 | Intent | カテゴリ縦並び表示・タイマー連携・残高/所持変動による再評価 |
-| Requirements | 2.1, 2.3–2.6, 3.1, 3.3, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10 |
+| Requirements | 2.1, 2.3, 2.4, 3.1, 3.3, 6.5, 7.6, 7.8, 9.4, 9.5, 9.6, 9.10 |
 
 **Responsibilities & Constraints**
 - 既存タブ関連 `[SerializeField]`（`_itemTabButton` / `_pointTabButton` / `_itemContent` / `_pointContent` / `_itemTabImage` 等）はコード上残置可能だが、シーン側で参照解除されることを前提に `null` 安全に保つ（既存実装どおり）。
@@ -733,12 +732,6 @@ namespace Shop.View
 
         [Header("Gacha Cells (kept for legacy)")]
         [SerializeField] List<GachaCellView> _gachaCells = new();
-
-        [Header("Furniture Cells (6 cells)")]
-        [SerializeField] List<ProductCellView> _furnitureCells = new();
-
-        [Header("Outfit Cells (6 cells)")]
-        [SerializeField] List<ProductCellView> _outfitCells = new();
 
         [Header("Reward-Ad Cells (placeholder, 0 cells in this phase)")]
         [SerializeField] List<ProductCellView> _rewardAdCells = new();

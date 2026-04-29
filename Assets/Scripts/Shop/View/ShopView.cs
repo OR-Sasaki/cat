@@ -145,7 +145,10 @@ namespace Shop.View
         void SubscribeToStateEvents()
         {
             if (_state != null)
+            {
                 _state.OnTabChanged += OnTabChanged;
+                _state.OnTimedShopUpdated += OnTimedShopUpdated;
+            }
 
             if (_userPointService != null)
             {
@@ -158,7 +161,10 @@ namespace Shop.View
         void UnsubscribeFromStateEvents()
         {
             if (_state != null)
+            {
                 _state.OnTabChanged -= OnTabChanged;
+                _state.OnTimedShopUpdated -= OnTimedShopUpdated;
+            }
 
             if (_userPointService != null)
                 _userPointService.YarnBalanceChanged -= OnYarnBalanceChanged;
@@ -168,6 +174,13 @@ namespace Shop.View
         {
             UpdateYarnBalanceDisplay(balance);
             UpdateAllCellsInteractable(balance);
+        }
+
+        void OnTimedShopUpdated()
+        {
+            SetupCells();
+            if (_userPointService != null)
+                UpdateAllCellsInteractable(_userPointService.GetYarnBalance());
         }
 
         void UpdateAllCellsInteractable(int balance)

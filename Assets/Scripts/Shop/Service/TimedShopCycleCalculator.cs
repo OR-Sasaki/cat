@@ -34,15 +34,15 @@ namespace Shop.Service
             if (interval <= TimeSpan.Zero)
                 throw new ArgumentOutOfRangeException(nameof(interval), interval, "interval must be positive.");
 
-            var intervalSeconds = (long)interval.TotalSeconds;
-            var epochSeconds = utcNow.ToUnixTimeSeconds();
+            // 秒単位で割ると 1 秒未満の interval が 0 へ切り捨てられゼロ除算になるため tick で計算する
+            var intervalTicks = interval.Ticks;
+            var elapsedTicks = (utcNow - DateTimeOffset.UnixEpoch).Ticks;
 
-            var cycleId = epochSeconds >= 0
-                ? epochSeconds / intervalSeconds
-                : -((-epochSeconds + intervalSeconds - 1) / intervalSeconds);
+            var cycleId = elapsedTicks >= 0
+                ? elapsedTicks / intervalTicks
+                : -((-elapsedTicks + intervalTicks - 1) / intervalTicks);
 
-            var cycleStartSeconds = cycleId * intervalSeconds;
-            var cycleStart = DateTimeOffset.FromUnixTimeSeconds(cycleStartSeconds);
+            var cycleStart = DateTimeOffset.UnixEpoch + TimeSpan.FromTicks(cycleId * intervalTicks);
             var nextUpdate = cycleStart + interval;
 
             var remaining = nextUpdate - utcNow;

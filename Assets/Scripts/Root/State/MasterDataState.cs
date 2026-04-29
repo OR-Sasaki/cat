@@ -1,4 +1,5 @@
 using System;
+using Shop.State;
 
 namespace Root.State
 {
@@ -7,6 +8,7 @@ namespace Root.State
         public bool IsImported { get; set; }
         public Outfit[] Outfits;
         public Furniture[] Furnitures;
+        public ShopProduct[] ShopProducts = Array.Empty<ShopProduct>();
     }
 
     [Serializable]

@@ -13,7 +13,8 @@ namespace Shop.State
     public enum CurrencyType
     {
         Yarn,
-        RealMoney
+        RealMoney,
+        RewardAd
     }
 
     public enum ProductType

@@ -281,6 +281,13 @@ namespace Shop.Service
                 return;
             }
 
+            if (data.CurrencyType == CurrencyType.RealMoney)
+            {
+                // 課金フローは本機能の対象外。CSV では yarn / reward_ad のみ許容しているため通常は到達しない防御コード。
+                Debug.LogWarning("[ShopService] RealMoney purchase flow is not implemented in this phase.");
+                return;
+            }
+
             if (data.CurrencyType == CurrencyType.Yarn && _userPointService.GetYarnBalance() < data.Price)
                 return;
 

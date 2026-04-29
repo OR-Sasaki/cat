@@ -51,16 +51,16 @@
 
 ### Branch: `feature/timed-shop-logic`
 
-- [ ] 4. 時限ショップの定数と決定論的計算用の純粋関数を実装する
-  - [ ] 4.1 `Shop.Service.TimedShopConstants` を新設する
+- [x] 4. 時限ショップの定数と決定論的計算用の純粋関数を実装する
+  - [x] 4.1 `Shop.Service.TimedShopConstants` を新設する
     - 更新間隔（30 分）、家具抽選枠数（6）、衣装抽選枠数（6）を定数として定義する
     - マジックナンバーを使わない構造にする
-  - [ ] 4.2 (P) `TimedShopCycleCalculator` を純粋関数として実装する
+  - [x] 4.2 (P) `TimedShopCycleCalculator` を純粋関数として実装する
     - `Calculate(utcNow, interval)` がサイクル ID・開始時刻・次回更新時刻・残り時間・抽選シードを `TimedShopCycleSnapshot` で返す
     - サイクル ID は Unix エポック秒 / 更新間隔秒の整数除算で算出する
     - シードは サイクル ID の高 32 ビットと低 32 ビットを XOR 折り畳みして `int` 化する
     - `interval <= TimeSpan.Zero` を `ArgumentOutOfRangeException` で弾く
-  - [ ] 4.3 (P) `TimedShopLottery` を純粋関数として実装する
+  - [x] 4.3 (P) `TimedShopLottery` を純粋関数として実装する
     - `DrawTimedProducts(source, slotCount, seed)` を `System.Random(int seed)` で実装する
     - `source.Count == 0` は空配列を返す
     - `source.Count >= slotCount` は Fisher-Yates シャッフルの先頭 `slotCount` を返す（非復元抽出）
@@ -73,12 +73,12 @@
     - 受入基準 4.2 / 4.3 / 4.5 / 4.6 / 5.3 / 5.4 / 5.6 / 5.7 / 5.8 / 5.9 を直接被覆する補助テストとして MVP 後に着手可能
   - _Requirements: 4.1, 4.2, 4.3, 4.5, 4.6, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9_
 
-- [ ] 5. `ProductData` と `ShopState` を時限ショップ向けに拡張する
-  - [ ] 5.1 `Shop.State.ProductData` レコードに付与アイテム種別とマスタ参照 ID を追加する
+- [x] 5. `ProductData` と `ShopState` を時限ショップ向けに拡張する
+  - [x] 5.1 `Shop.State.ProductData` レコードに付与アイテム種別とマスタ参照 ID を追加する
     - `ItemType`、`ProductId`（`ShopProduct.Id`）、`ItemId`（`Outfit.Id` / `Furniture.Id`）を追加する
     - 既存呼出箇所（モック初期化など）はビルドが通らなくなるため、後続タスク 6 で同時に整理する前提で追加する
     - `CurrencyType == RewardAd` で広告視聴商品を識別する方針を維持する
-  - [ ] 5.2 `Shop.State.ShopState` に時限ショップ用のフィールドとイベントを追加する
+  - [x] 5.2 `Shop.State.ShopState` に時限ショップ用のフィールドとイベントを追加する
     - 表示中商品リスト: `FurnitureProductList` / `OutfitProductList` / `RewardAdProductList` / `TimedFurnitureProductList` / `TimedOutfitProductList`
     - サイクル情報: `CurrentCycleId`（初期値 0）、`NextUpdateAt`
     - イベント: `OnTimedShopUpdated`
@@ -88,51 +88,51 @@
     - 通貨残高や所持情報を保持しない既存方針を維持する
   - _Requirements: 1.3, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
 
-- [ ] 6. `ShopService` をマスタ駆動初期化に切り替える
-  - [ ] 6.1 既存のモック初期化と毛糸不足ダイアログ呼出を撤去する
+- [x] 6. `ShopService` をマスタ駆動初期化に切り替える
+  - [x] 6.1 既存のモック初期化と毛糸不足ダイアログ呼出を撤去する
     - `InitializeMockData()` を削除する
     - `ShowYarnInsufficientAsync()` を削除する（残高不足はタップ無効化で防ぐ方針へ移行）
     - `GachaList` はモック投入を行わず空のまま保持する
-  - [ ] 6.2 `ShopProduct` から `ProductData` への射影ヘルパーを追加する
+  - [x] 6.2 `ShopProduct` から `ProductData` への射影ヘルパーを追加する
     - `ItemType` 別に `Outfit` / `Furniture` マスタを引いて `Name` / `IconPath` を解決する
     - 参照解決失敗（マスタに該当 ID なし）はクラスコンテキスト付きで警告ログを出しスキップする
-  - [ ] 6.3 通常カテゴリ（家具・衣装）の表示リストをマスタ駆動で初期化する
+  - [x] 6.3 通常カテゴリ（家具・衣装）の表示リストをマスタ駆動で初期化する
     - `Initialize()` でマスタ `ShopProducts` を `ItemType` で絞り、家具 6 件・衣装 6 件を `ShopState.FurnitureProductList` / `OutfitProductList` に投入する
     - `RewardAdProductList` は本フェーズでは投入しない（プレースホルダー）
     - コンストラクタには `[Inject]` を付与し IL2CPP のストリッピングを防ぐ
   - _Requirements: 2.7, 2.8, 2.11, 2.12, 2.13_
 
-- [ ] 7. `ShopService` にサイクル管理と再抽選フローを実装する
-  - [ ] 7.1 `ShopService` を `VContainer.Unity.ITickable` 実装に変更する
+- [x] 7. `ShopService` にサイクル管理と再抽選フローを実装する
+  - [x] 7.1 `ShopService` を `VContainer.Unity.ITickable` 実装に変更する
     - `Initialize()` 末尾で初回サイクル算出と `RebuildTimedShop` を呼び、`ApplyTimedShopUpdate` で State へ反映する
     - `Tick()` 内で `IClock.UtcNow` から最新スナップショットを算出し、`ShopState.CurrentCycleId` と異なる場合のみ再抽選を実行する
-  - [ ] 7.2 サイクル切替時の再抽選と State 反映を実装する
+  - [x] 7.2 サイクル切替時の再抽選と State 反映を実装する
     - `RebuildTimedShop(seed)` 内でマスタを `ItemType` ごとに分け、`TimedShopLottery.DrawTimedProducts` を 2 回（家具・衣装）呼ぶ
     - 抽選結果を `ProductData` 列に射影して `ApplyTimedShopUpdate` で State に反映する
     - 母集合 0 件の場合はクラスコンテキスト付きで警告ログを出し、対応リストを空のまま反映する
     - 家具と衣装はそれぞれ独立に抽選し、跨ぎユニーク制約は課さない
   - _Requirements: 4.4, 5.1, 5.2, 5.5, 5.6, 5.9, 5.10, 5.11, 6.5_
 
-- [ ] 8. 時限ショップの購入分岐と購入確認フローを実装する
-  - [ ] 8.1 売り切れ・残高不足・時限由来かを判定する API を追加する
+- [x] 8. 時限ショップの購入分岐と購入確認フローを実装する
+  - [x] 8.1 売り切れ・残高不足・時限由来かを判定する API を追加する
     - `IsSoldOut(data)`: `ItemType == Outfit` のとき `IUserItemInventoryService.HasOutfit(data.ItemId)` で判定する。家具は常に `false`
     - `IsAffordable(data, balance)`: `CurrencyType == Yarn` の商品で `balance >= price` を判定する。`RewardAd` 商品は本フェーズでは常に `false`
     - `IsTimedShopProduct(data)`: `_state.TimedFurnitureProductList` / `TimedOutfitProductList` への参照等価で判定する
-  - [ ] 8.2 `OnProductCellTappedAsync` で購入確認フローとサイクル切替検知を実装する
+  - [x] 8.2 `OnProductCellTappedAsync` で購入確認フローとサイクル切替検知を実装する
     - タップ時点の `CycleId` をローカル保持し、時限商品の場合のみ確認後に `_state.CurrentCycleId` と再比較する
     - サイクルが切り替わっていた場合は `CommonMessageDialog` で「時限ショップが更新されました」を表示して購入を中止する
     - 通常カテゴリ家具・衣装の購入はサイクル切替検知の対象外とする
     - 購入確認は既存 `CommonConfirmDialog` を使用し、「いいえ」選択時はキャンセルする
-  - [ ] 8.3 通貨消費と所持品付与を実装する
+  - [x] 8.3 通貨消費と所持品付与を実装する
     - `IUserPointService.SpendYarn(price)` を呼び、`Insufficient` 戻り値の場合は毛糸不足ダイアログを出さずクラスコンテキスト付きでログ出力して中断する
     - 成功時は `ItemType` に応じて `IUserItemInventoryService.GrantOutfit(itemId)` または `AddFurniture(itemId, 1)` を呼ぶ
     - 購入完了メッセージを `CommonMessageDialog` で表示する
     - async API は `CancellationToken` を末尾引数として受け取る
-  - [ ] 8.4 `RewardAd` 商品向けのスタブ分岐を残す
+  - [x] 8.4 `RewardAd` 商品向けのスタブ分岐を残す
     - `CurrencyType == RewardAd` の場合は本フェーズでは即 return とし、将来の Unity Ads 統合点が分岐として確認できる状態にする
   - _Requirements: 7.1, 7.5, 7.7, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.7, 9.8, 9.9, 10.7, 10.8_
 
-- [ ] 9. `ShopScope` の DI 登録を `ITickable` 対応に更新する
+- [x] 9. `ShopScope` の DI 登録を `ITickable` 対応に更新する
   - `ShopService` を `AsSelf().As<ITickable>()` の複数登録に変更する
   - `ShopState` の登録は既存どおり `Lifetime.Scoped` を維持する
   - 既存 `ShopStarter` 等のエントリポイント登録に影響を与えない

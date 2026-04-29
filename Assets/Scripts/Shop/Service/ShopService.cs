@@ -257,13 +257,17 @@ namespace Shop.Service
 
         public bool IsTimedShopProduct(ProductData data)
         {
+            // 通常カテゴリ廃止後はサイクル更新で ProductData が再生成される前提のため、
+            // 参照等価ではなく ProductId（マスタ ID）で同定する。
+            if (!data.ProductId.HasValue) return false;
+
             for (var i = 0; i < _state.TimedFurnitureProductList.Count; i++)
             {
-                if (ReferenceEquals(_state.TimedFurnitureProductList[i], data)) return true;
+                if (_state.TimedFurnitureProductList[i].ProductId == data.ProductId) return true;
             }
             for (var i = 0; i < _state.TimedOutfitProductList.Count; i++)
             {
-                if (ReferenceEquals(_state.TimedOutfitProductList[i], data)) return true;
+                if (_state.TimedOutfitProductList[i].ProductId == data.ProductId) return true;
             }
             return false;
         }
@@ -294,7 +298,9 @@ namespace Shop.Service
             if (IsSoldOut(data))
                 return;
 
-            long? cycleAtTap = IsTimedShopProduct(data) ? _state.CurrentCycleId : null;
+            // タップ時刻直近の最新サイクル ID を保持し、確認ダイアログ後に再評価することで
+            // Tick() 反映前の境界跨ぎでも更新を検知できるようにする。
+            long? cycleAtTap = IsTimedShopProduct(data) ? GetCurrentCycleSnapshot().CycleId : null;
 
             var currencyLabel = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "円";
             var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
@@ -308,7 +314,7 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
-            if (cycleAtTap.HasValue && cycleAtTap.Value != _state.CurrentCycleId)
+            if (cycleAtTap.HasValue && cycleAtTap.Value != GetCurrentCycleSnapshot().CycleId)
             {
                 await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                     new CommonMessageDialogArgs(

@@ -13,7 +13,7 @@ namespace Shop.Service
             int slotCount,
             int seed)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source is null) throw new ArgumentNullException(nameof(source));
             if (slotCount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(slotCount), slotCount, "slotCount must be positive.");
 

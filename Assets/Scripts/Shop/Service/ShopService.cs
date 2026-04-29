@@ -138,7 +138,7 @@ namespace Shop.Service
                 case ItemType.Furniture:
                 {
                     var lookup = GetFurnitureLookup();
-                    if (lookup == null || !lookup.TryGetValue(product.ItemId, out var furniture))
+                    if (lookup is null || !lookup.TryGetValue(product.ItemId, out var furniture))
                     {
                         Debug.LogWarning($"[ShopService] Furniture master not found for item_id={product.ItemId} (product_id={product.Id})");
                         return null;
@@ -150,7 +150,7 @@ namespace Shop.Service
                 case ItemType.Outfit:
                 {
                     var lookup = GetOutfitLookup();
-                    if (lookup == null || !lookup.TryGetValue(product.ItemId, out var outfit))
+                    if (lookup is null || !lookup.TryGetValue(product.ItemId, out var outfit))
                     {
                         Debug.LogWarning($"[ShopService] Outfit master not found for item_id={product.ItemId} (product_id={product.Id})");
                         return null;
@@ -509,7 +509,7 @@ namespace Shop.Service
             ref Dictionary<uint, T>? cachedLookup,
             System.Func<T, uint> keySelector)
         {
-            if (source == null) return null;
+            if (source is null) return null;
 
             if (!ReferenceEquals(source, cachedSource))
             {

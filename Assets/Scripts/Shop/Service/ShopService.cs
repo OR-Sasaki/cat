@@ -67,6 +67,8 @@ namespace Shop.Service
         public void Tick()
         {
             if (!_isInitialized) return;
+            // 毎フレームのコストを抑える: 次回更新時刻に到達するまでスナップショット計算を省略する
+            if (_clock.UtcNow < _state.NextUpdateAt) return;
 
             var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
             if (snapshot.CycleId == _state.CurrentCycleId) return;
@@ -81,19 +83,7 @@ namespace Shop.Service
 
         void RebuildTimedShop(TimedShopCycleSnapshot snapshot)
         {
-            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
-
-            var furnitureSource = new List<ShopProduct>();
-            var outfitSource = new List<ShopProduct>();
-            for (var i = 0; i < shopProducts.Length; i++)
-            {
-                var product = shopProducts[i];
-                if (product.CurrencyType == CurrencyType.RewardAd)
-                    continue;
-
-                if (product.ItemType == ItemType.Furniture) furnitureSource.Add(product);
-                else if (product.ItemType == ItemType.Outfit) outfitSource.Add(product);
-            }
+            SplitShopProductsForTimedShop(out var furnitureSource, out var outfitSource);
 
             if (furnitureSource.Count == 0)
                 Debug.LogWarning("[ShopService] No timed-shop furniture master rows.");
@@ -109,6 +99,25 @@ namespace Shop.Service
             var timedOutfit = ProjectToProductDataList(drawnOutfit);
 
             _state.ApplyTimedShopUpdate(snapshot.CycleId, snapshot.NextUpdateAtUtc, timedFurniture, timedOutfit);
+        }
+
+        void SplitShopProductsForTimedShop(out List<ShopProduct> furniture, out List<ShopProduct> outfit)
+        {
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+            furniture = new List<ShopProduct>();
+            outfit = new List<ShopProduct>();
+
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                var product = shopProducts[i];
+                if (product.CurrencyType == CurrencyType.RewardAd) continue;
+
+                switch (product.ItemType)
+                {
+                    case ItemType.Furniture: furniture.Add(product); break;
+                    case ItemType.Outfit: outfit.Add(product); break;
+                }
+            }
         }
 
         List<ProductData> ProjectToProductDataList(IReadOnlyList<ShopProduct> products)
@@ -128,31 +137,18 @@ namespace Shop.Service
             _state.OutfitProductList.Clear();
             _state.RewardAdProductList.Clear();
 
-            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+            SplitShopProductsForTimedShop(out var furnitureSource, out var outfitSource);
 
-            var furnitureCount = 0;
-            var outfitCount = 0;
-            for (var i = 0; i < shopProducts.Length; i++)
+            FillNormalCategoryList(furnitureSource, _state.FurnitureProductList, NormalFurnitureSlotCount);
+            FillNormalCategoryList(outfitSource, _state.OutfitProductList, NormalOutfitSlotCount);
+        }
+
+        void FillNormalCategoryList(IReadOnlyList<ShopProduct> source, List<ProductData> dst, int slotCount)
+        {
+            for (var i = 0; i < source.Count && dst.Count < slotCount; i++)
             {
-                var product = shopProducts[i];
-                if (product.ItemType == ItemType.Furniture && furnitureCount < NormalFurnitureSlotCount)
-                {
-                    var data = BuildProductDataFromShopProduct(product);
-                    if (data != null)
-                    {
-                        _state.FurnitureProductList.Add(data);
-                        furnitureCount++;
-                    }
-                }
-                else if (product.ItemType == ItemType.Outfit && outfitCount < NormalOutfitSlotCount)
-                {
-                    var data = BuildProductDataFromShopProduct(product);
-                    if (data != null)
-                    {
-                        _state.OutfitProductList.Add(data);
-                        outfitCount++;
-                    }
-                }
+                var data = BuildProductDataFromShopProduct(source[i]);
+                if (data != null) dst.Add(data);
             }
         }
 
@@ -315,8 +311,7 @@ namespace Shop.Service
             if (IsSoldOut(data))
                 return;
 
-            var isTimed = IsTimedShopProduct(data);
-            var cycleAtTap = isTimed ? _state.CurrentCycleId : 0L;
+            long? cycleAtTap = IsTimedShopProduct(data) ? _state.CurrentCycleId : null;
 
             var currencyLabel = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "円";
             var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
@@ -330,7 +325,7 @@ namespace Shop.Service
             if (confirmResult != DialogResult.Ok)
                 return;
 
-            if (isTimed && cycleAtTap != _state.CurrentCycleId)
+            if (cycleAtTap.HasValue && cycleAtTap.Value != _state.CurrentCycleId)
             {
                 await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                     new CommonMessageDialogArgs(
@@ -510,38 +505,33 @@ namespace Shop.Service
 
         Dictionary<uint, Furniture>? GetFurnitureLookup()
         {
-            var source = _masterDataState.Furnitures;
-            if (source == null)
-                return null;
-
-            if (!ReferenceEquals(source, _cachedFurnitureSource))
-            {
-                _cachedFurnitureSource = source;
-                _furnitureLookup = new Dictionary<uint, Furniture>(source.Length);
-                foreach (var furniture in source)
-                {
-                    _furnitureLookup[furniture.Id] = furniture;
-                }
-            }
-            return _furnitureLookup;
+            return EnsureLookup(_masterDataState.Furnitures, ref _cachedFurnitureSource, ref _furnitureLookup, f => f.Id);
         }
 
         Dictionary<uint, Outfit>? GetOutfitLookup()
         {
-            var source = _masterDataState.Outfits;
-            if (source == null)
-                return null;
+            return EnsureLookup(_masterDataState.Outfits, ref _cachedOutfitSource, ref _outfitLookup, o => o.Id);
+        }
 
-            if (!ReferenceEquals(source, _cachedOutfitSource))
+        // マスターデータが再インポートされて配列参照が差し替わった場合のみ Lookup を再構築する
+        static Dictionary<uint, T>? EnsureLookup<T>(
+            T[]? source,
+            ref T[]? cachedSource,
+            ref Dictionary<uint, T>? cachedLookup,
+            System.Func<T, uint> keySelector)
+        {
+            if (source == null) return null;
+
+            if (!ReferenceEquals(source, cachedSource))
             {
-                _cachedOutfitSource = source;
-                _outfitLookup = new Dictionary<uint, Outfit>(source.Length);
-                foreach (var outfit in source)
+                cachedSource = source;
+                cachedLookup = new Dictionary<uint, T>(source.Length);
+                foreach (var item in source)
                 {
-                    _outfitLookup[outfit.Id] = outfit;
+                    cachedLookup[keySelector(item)] = item;
                 }
             }
-            return _outfitLookup;
+            return cachedLookup;
         }
     }
 }

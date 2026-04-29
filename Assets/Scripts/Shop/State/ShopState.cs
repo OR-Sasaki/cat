@@ -77,12 +77,10 @@ namespace Shop.State
             IReadOnlyList<ProductData> timedOutfit)
         {
             TimedFurnitureProductList.Clear();
-            for (var i = 0; i < timedFurniture.Count; i++)
-                TimedFurnitureProductList.Add(timedFurniture[i]);
+            TimedFurnitureProductList.AddRange(timedFurniture);
 
             TimedOutfitProductList.Clear();
-            for (var i = 0; i < timedOutfit.Count; i++)
-                TimedOutfitProductList.Add(timedOutfit[i]);
+            TimedOutfitProductList.AddRange(timedOutfit);
 
             CurrentCycleId = cycleId;
             NextUpdateAt = nextUpdateAt;

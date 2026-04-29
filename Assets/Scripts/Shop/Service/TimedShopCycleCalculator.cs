@@ -37,7 +37,6 @@ namespace Shop.Service
             var intervalSeconds = (long)interval.TotalSeconds;
             var epochSeconds = utcNow.ToUnixTimeSeconds();
 
-            // Floor division (handle negative epoch correctly though irrelevant for current dates)
             var cycleId = epochSeconds >= 0
                 ? epochSeconds / intervalSeconds
                 : -((-epochSeconds + intervalSeconds - 1) / intervalSeconds);

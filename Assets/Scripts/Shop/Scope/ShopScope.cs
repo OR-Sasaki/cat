@@ -27,7 +27,7 @@ namespace Shop.Scope
             builder.Register<ShopState>(Lifetime.Scoped);
 
             // Service
-            builder.Register<ShopService>(Lifetime.Scoped);
+            builder.Register<ShopService>(Lifetime.Scoped).AsImplementedInterfaces().AsSelf();
 
             // EntryPoint
             builder.RegisterEntryPoint<ShopStarter>();

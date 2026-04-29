@@ -130,15 +130,14 @@ namespace Shop.View
             // アイテムセルをセットアップ
             if (_state != null)
             {
-                for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
+                for (var i = 0; i < _itemCells.Count && i < _state.TimedFurnitureProductList.Count; i++)
                 {
-                    _shopService.SetupProductCell(_itemCells[i], _state.ItemProductList[i]);
+                    _shopService.SetupProductCell(_itemCells[i], _state.TimedFurnitureProductList[i]);
                 }
 
-                // 毛糸パックセルをセットアップ
-                for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+                for (var i = 0; i < _pointCells.Count && i < _state.TimedOutfitProductList.Count; i++)
                 {
-                    _shopService.SetupProductCell(_pointCells[i], _state.PointProductList[i]);
+                    _shopService.SetupProductCell(_pointCells[i], _state.TimedOutfitProductList[i]);
                 }
             }
         }
@@ -146,7 +145,10 @@ namespace Shop.View
         void SubscribeToStateEvents()
         {
             if (_state != null)
+            {
                 _state.OnTabChanged += OnTabChanged;
+                _state.OnTimedShopUpdated += OnTimedShopUpdated;
+            }
 
             if (_userPointService != null)
             {
@@ -159,7 +161,10 @@ namespace Shop.View
         void UnsubscribeFromStateEvents()
         {
             if (_state != null)
+            {
                 _state.OnTabChanged -= OnTabChanged;
+                _state.OnTimedShopUpdated -= OnTimedShopUpdated;
+            }
 
             if (_userPointService != null)
                 _userPointService.YarnBalanceChanged -= OnYarnBalanceChanged;
@@ -171,6 +176,13 @@ namespace Shop.View
             UpdateAllCellsInteractable(balance);
         }
 
+        void OnTimedShopUpdated()
+        {
+            SetupCells();
+            if (_userPointService != null)
+                UpdateAllCellsInteractable(_userPointService.GetYarnBalance());
+        }
+
         void UpdateAllCellsInteractable(int balance)
         {
             if (_shopService == null || _state == null) return;
@@ -180,14 +192,14 @@ namespace Shop.View
                 _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
+            for (var i = 0; i < _itemCells.Count && i < _state.TimedFurnitureProductList.Count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.ItemProductList[i], balance);
+                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.TimedFurnitureProductList[i], balance);
             }
 
-            for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+            for (var i = 0; i < _pointCells.Count && i < _state.TimedOutfitProductList.Count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.PointProductList[i], balance);
+                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.TimedOutfitProductList[i], balance);
             }
         }
 

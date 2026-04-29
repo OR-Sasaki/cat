@@ -50,8 +50,6 @@ namespace Shop.State
 
         public List<GachaData> GachaList { get; } = new();
 
-        public List<ProductData> FurnitureProductList { get; } = new();
-        public List<ProductData> OutfitProductList { get; } = new();
         public List<ProductData> RewardAdProductList { get; } = new();
         public List<ProductData> TimedFurnitureProductList { get; } = new();
         public List<ProductData> TimedOutfitProductList { get; } = new();

@@ -130,14 +130,14 @@ namespace Shop.View
             // アイテムセルをセットアップ
             if (_state != null)
             {
-                for (var i = 0; i < _itemCells.Count && i < _state.FurnitureProductList.Count; i++)
+                for (var i = 0; i < _itemCells.Count && i < _state.TimedFurnitureProductList.Count; i++)
                 {
-                    _shopService.SetupProductCell(_itemCells[i], _state.FurnitureProductList[i]);
+                    _shopService.SetupProductCell(_itemCells[i], _state.TimedFurnitureProductList[i]);
                 }
 
-                for (var i = 0; i < _pointCells.Count && i < _state.OutfitProductList.Count; i++)
+                for (var i = 0; i < _pointCells.Count && i < _state.TimedOutfitProductList.Count; i++)
                 {
-                    _shopService.SetupProductCell(_pointCells[i], _state.OutfitProductList[i]);
+                    _shopService.SetupProductCell(_pointCells[i], _state.TimedOutfitProductList[i]);
                 }
             }
         }
@@ -179,14 +179,14 @@ namespace Shop.View
                 _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            for (var i = 0; i < _itemCells.Count && i < _state.FurnitureProductList.Count; i++)
+            for (var i = 0; i < _itemCells.Count && i < _state.TimedFurnitureProductList.Count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.FurnitureProductList[i], balance);
+                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.TimedFurnitureProductList[i], balance);
             }
 
-            for (var i = 0; i < _pointCells.Count && i < _state.OutfitProductList.Count; i++)
+            for (var i = 0; i < _pointCells.Count && i < _state.TimedOutfitProductList.Count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.OutfitProductList[i], balance);
+                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.TimedOutfitProductList[i], balance);
             }
         }
 

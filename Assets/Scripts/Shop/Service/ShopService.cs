@@ -16,9 +16,6 @@ namespace Shop.Service
 {
     public class ShopService : ITickable
     {
-        const int NormalFurnitureSlotCount = 6;
-        const int NormalOutfitSlotCount = 6;
-
         static readonly System.Random Rng = new();
 
         readonly ShopState _state;
@@ -57,7 +54,7 @@ namespace Shop.Service
 
         public void Initialize()
         {
-            BuildNormalCategoryLists();
+            _state.RewardAdProductList.Clear();
 
             var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
             RebuildTimedShop(snapshot);
@@ -129,27 +126,6 @@ namespace Shop.Service
                 if (data != null) result.Add(data);
             }
             return result;
-        }
-
-        void BuildNormalCategoryLists()
-        {
-            _state.FurnitureProductList.Clear();
-            _state.OutfitProductList.Clear();
-            _state.RewardAdProductList.Clear();
-
-            SplitShopProductsForTimedShop(out var furnitureSource, out var outfitSource);
-
-            FillNormalCategoryList(furnitureSource, _state.FurnitureProductList, NormalFurnitureSlotCount);
-            FillNormalCategoryList(outfitSource, _state.OutfitProductList, NormalOutfitSlotCount);
-        }
-
-        void FillNormalCategoryList(IReadOnlyList<ShopProduct> source, List<ProductData> dst, int slotCount)
-        {
-            for (var i = 0; i < source.Count && dst.Count < slotCount; i++)
-            {
-                var data = BuildProductDataFromShopProduct(source[i]);
-                if (data != null) dst.Add(data);
-            }
         }
 
         ProductData? BuildProductDataFromShopProduct(ShopProduct product)

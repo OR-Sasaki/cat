@@ -16,6 +16,8 @@ namespace Shop.View
         [SerializeField] TMP_Text? _nameText;
         [SerializeField] TMP_Text? _priceText;
         [SerializeField] Button? _button;
+        [SerializeField] GameObject? _dimOverlay;
+        [SerializeField] GameObject? _soldOutOverlay;
 
         public ProductData? Data { get; private set; }
 
@@ -23,6 +25,12 @@ namespace Shop.View
         public event Action<ProductData>? OnTapped;
 
         AsyncOperationHandle<Sprite>? _iconHandle;
+        bool _isSoldOut;
+        bool? _lastDimmed;
+        bool? _lastSoldOut;
+        bool? _lastInteractable;
+        bool _hasWarnedMissingDimOverlay;
+        bool _hasWarnedMissingSoldOutOverlay;
 
         void Start()
         {
@@ -54,10 +62,53 @@ namespace Shop.View
             LoadIconAsync(data.IconPath);
         }
 
+        // 売り切れ ＞ タップ無効の優先度を保証するため、interactable は _isSoldOut で常に上書きされる。
+        // 呼出側は SetSoldOut の後に SetInteractable を呼ぶ契約。
         public void SetInteractable(bool interactable)
         {
+            var effective = interactable && !_isSoldOut;
+            if (_lastInteractable == effective) return;
+            _lastInteractable = effective;
+
             if (_button != null)
-                _button.interactable = interactable;
+                _button.interactable = effective;
+        }
+
+        public void SetDimmed(bool isDimmed)
+        {
+            if (_lastDimmed == isDimmed) return;
+            _lastDimmed = isDimmed;
+
+            if (_dimOverlay == null)
+            {
+                if (!_hasWarnedMissingDimOverlay)
+                {
+                    Debug.LogWarning("[ProductCellView] _dimOverlay is not assigned. SetDimmed is ignored.");
+                    _hasWarnedMissingDimOverlay = true;
+                }
+                return;
+            }
+
+            _dimOverlay.SetActive(isDimmed);
+        }
+
+        public void SetSoldOut(bool isSoldOut)
+        {
+            if (_lastSoldOut == isSoldOut) return;
+            _lastSoldOut = isSoldOut;
+            _isSoldOut = isSoldOut;
+
+            if (_soldOutOverlay == null)
+            {
+                if (!_hasWarnedMissingSoldOutOverlay)
+                {
+                    Debug.LogWarning("[ProductCellView] _soldOutOverlay is not assigned. SetSoldOut overlay update is ignored.");
+                    _hasWarnedMissingSoldOutOverlay = true;
+                }
+                return;
+            }
+
+            _soldOutOverlay.SetActive(isSoldOut);
         }
 
         void OnButtonClicked()

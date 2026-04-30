@@ -13,18 +13,18 @@ namespace Shop.View
 {
     public class ShopView : MonoBehaviour
     {
-        [Header("Tab Buttons")]
+        [Header("Tab Buttons (legacy, kept for scene compatibility)")]
         [SerializeField] Button? _itemTabButton;
         [SerializeField] Button? _pointTabButton;
 
-        [Header("Tab Content")]
+        [Header("Tab Content (legacy, kept for scene compatibility)")]
         [SerializeField] GameObject? _itemContent;
         [SerializeField] GameObject? _pointContent;
 
         [Header("Navigation")]
         [SerializeField] Button? _backButton;
 
-        [Header("Tab Visual")]
+        [Header("Tab Visual (legacy, kept for scene compatibility)")]
         [SerializeField] Image? _itemTabImage;
         [SerializeField] Image? _pointTabImage;
         [SerializeField] Sprite? _tabSelectedSprite;
@@ -40,38 +40,48 @@ namespace Shop.View
         [Header("Gacha Cells")]
         [SerializeField] List<GachaCellView> _gachaCells = new();
 
-        [Header("Item Cells")]
+        [Header("Item Cells (legacy, kept for scene compatibility)")]
         [SerializeField] List<ProductCellView> _itemCells = new();
 
-        [Header("Point Cells")]
+        [Header("Point Cells (legacy, kept for scene compatibility)")]
         [SerializeField] List<ProductCellView> _pointCells = new();
+
+        [Header("Reward-Ad Cells (placeholder, 0 cells in this phase)")]
+        [SerializeField] List<ProductCellView> _rewardAdCells = new();
+
+        [Header("Timed Shop Furniture Cells")]
+        [SerializeField] List<ProductCellView> _timedFurnitureCells = new();
+
+        [Header("Timed Shop Outfit Cells")]
+        [SerializeField] List<ProductCellView> _timedOutfitCells = new();
 
         public event Action? OnBackButtonClicked;
 
         ShopState? _state;
         ShopService? _shopService;
         IUserPointService? _userPointService;
+        IUserItemInventoryService? _userItemInventoryService;
         bool _isProcessing;
 
         [Inject]
-        public void Construct(ShopState state, ShopService shopService, IUserPointService userPointService)
+        public void Construct(
+            ShopState state,
+            ShopService shopService,
+            IUserPointService userPointService,
+            IUserItemInventoryService userItemInventoryService)
         {
             _state = state;
             _shopService = shopService;
             _userPointService = userPointService;
+            _userItemInventoryService = userItemInventoryService;
         }
 
         void Start()
         {
-            SetupTabButtons();
             SetupBackButton();
             SetupCells();
             SubscribeToStateEvents();
             SubscribeToCellEvents();
-
-            // デフォルトでアイテムタブを選択
-            UpdateTabVisuals(ShopTab.Item);
-            ShowContent(ShopTab.Item);
         }
 
         void OnDestroy()
@@ -79,36 +89,14 @@ namespace Shop.View
             UnsubscribeFromStateEvents();
             UnsubscribeFromCellEvents();
 
-            if (_itemTabButton != null)
-                _itemTabButton.onClick.RemoveListener(OnItemTabClicked);
-            if (_pointTabButton != null)
-                _pointTabButton.onClick.RemoveListener(OnPointTabClicked);
             if (_backButton != null)
                 _backButton.onClick.RemoveListener(OnBackClicked);
-        }
-
-        void SetupTabButtons()
-        {
-            if (_itemTabButton != null)
-                _itemTabButton.onClick.AddListener(OnItemTabClicked);
-            if (_pointTabButton != null)
-                _pointTabButton.onClick.AddListener(OnPointTabClicked);
         }
 
         void SetupBackButton()
         {
             if (_backButton != null)
                 _backButton.onClick.AddListener(OnBackClicked);
-        }
-
-        void OnItemTabClicked()
-        {
-            _shopService?.SetCurrentTab(ShopTab.Item);
-        }
-
-        void OnPointTabClicked()
-        {
-            _shopService?.SetCurrentTab(ShopTab.Point);
         }
 
         void OnBackClicked()
@@ -121,24 +109,36 @@ namespace Shop.View
         {
             if (_shopService == null) return;
 
-            // ガチャセルをセットアップ
             for (var i = 0; i < _gachaCells.Count; i++)
             {
                 _shopService.SetupGachaCell(_gachaCells[i], i);
             }
 
-            // アイテムセルをセットアップ
-            if (_state != null)
-            {
-                for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
-                {
-                    _shopService.SetupProductCell(_itemCells[i], _state.ItemProductList[i]);
-                }
+            if (_state == null) return;
 
-                // 毛糸パックセルをセットアップ
-                for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+            SetupCategoryCells(_rewardAdCells, _state.RewardAdProductList);
+            SetupCategoryCells(_timedFurnitureCells, _state.TimedFurnitureProductList);
+            SetupCategoryCells(_timedOutfitCells, _state.TimedOutfitProductList);
+
+            RefreshAllCellsAppearance();
+        }
+
+        void SetupCategoryCells(List<ProductCellView> cells, IReadOnlyList<ProductData> list)
+        {
+            var dataCount = list.Count;
+            for (var i = 0; i < cells.Count; i++)
+            {
+                var cell = cells[i];
+                if (cell == null) continue;
+
+                if (i < dataCount)
                 {
-                    _shopService.SetupProductCell(_pointCells[i], _state.PointProductList[i]);
+                    cell.gameObject.SetActive(true);
+                    cell.Setup(list[i]);
+                }
+                else
+                {
+                    cell.gameObject.SetActive(false);
                 }
             }
         }
@@ -146,48 +146,88 @@ namespace Shop.View
         void SubscribeToStateEvents()
         {
             if (_state != null)
-                _state.OnTabChanged += OnTabChanged;
+            {
+                _state.OnTimedShopUpdated += OnTimedShopUpdated;
+            }
 
             if (_userPointService != null)
             {
                 _userPointService.YarnBalanceChanged += OnYarnBalanceChanged;
-                // 初期残高を表示
                 UpdateYarnBalanceDisplay(_userPointService.GetYarnBalance());
+            }
+
+            if (_userItemInventoryService != null)
+            {
+                _userItemInventoryService.OutfitChanged += OnOutfitChanged;
             }
         }
 
         void UnsubscribeFromStateEvents()
         {
             if (_state != null)
-                _state.OnTabChanged -= OnTabChanged;
+            {
+                _state.OnTimedShopUpdated -= OnTimedShopUpdated;
+            }
 
             if (_userPointService != null)
                 _userPointService.YarnBalanceChanged -= OnYarnBalanceChanged;
+
+            if (_userItemInventoryService != null)
+                _userItemInventoryService.OutfitChanged -= OnOutfitChanged;
         }
 
         void OnYarnBalanceChanged(int balance)
         {
             UpdateYarnBalanceDisplay(balance);
-            UpdateAllCellsInteractable(balance);
+            RefreshAllCellsAppearance();
         }
 
-        void UpdateAllCellsInteractable(int balance)
+        void OnOutfitChanged(uint _)
         {
-            if (_shopService == null || _state == null) return;
+            RefreshAllCellsAppearance();
+        }
+
+        void OnTimedShopUpdated()
+        {
+            SetupCells();
+        }
+
+        void RefreshAllCellsAppearance()
+        {
+            if (_shopService == null || _state == null || _userPointService == null) return;
+
+            var balance = _userPointService.GetYarnBalance();
 
             for (var i = 0; i < _gachaCells.Count; i++)
             {
                 _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            for (var i = 0; i < _itemCells.Count && i < _state.ItemProductList.Count; i++)
-            {
-                _shopService.RefreshProductCellInteractable(_itemCells[i], _state.ItemProductList[i], balance);
-            }
+            RefreshCategoryAppearance(_rewardAdCells, _state.RewardAdProductList, balance);
+            RefreshCategoryAppearance(_timedFurnitureCells, _state.TimedFurnitureProductList, balance);
+            RefreshCategoryAppearance(_timedOutfitCells, _state.TimedOutfitProductList, balance);
+        }
 
-            for (var i = 0; i < _pointCells.Count && i < _state.PointProductList.Count; i++)
+        void RefreshCategoryAppearance(
+            List<ProductCellView> cells,
+            IReadOnlyList<ProductData> list,
+            int balance)
+        {
+            if (_shopService == null) return;
+
+            var count = Math.Min(cells.Count, list.Count);
+            for (var i = 0; i < count; i++)
             {
-                _shopService.RefreshProductCellInteractable(_pointCells[i], _state.PointProductList[i], balance);
+                var cell = cells[i];
+                if (cell == null) continue;
+
+                var data = list[i];
+                var isSoldOut = _shopService.IsSoldOut(data);
+                var isAffordable = _shopService.IsAffordable(data, balance);
+
+                cell.SetSoldOut(isSoldOut);
+                cell.SetDimmed(!isAffordable);
+                cell.SetInteractable(isAffordable);
             }
         }
 
@@ -196,11 +236,20 @@ namespace Shop.View
             foreach (var cell in _gachaCells)
                 cell.OnGachaTapped += OnGachaCellTapped;
 
-            foreach (var cell in _itemCells)
-                cell.OnTapped += OnProductCellTapped;
+            foreach (var cell in _rewardAdCells)
+            {
+                if (cell != null) cell.OnTapped += OnProductCellTapped;
+            }
 
-            foreach (var cell in _pointCells)
-                cell.OnTapped += OnProductCellTapped;
+            foreach (var cell in _timedFurnitureCells)
+            {
+                if (cell != null) cell.OnTapped += OnProductCellTapped;
+            }
+
+            foreach (var cell in _timedOutfitCells)
+            {
+                if (cell != null) cell.OnTapped += OnProductCellTapped;
+            }
         }
 
         void UnsubscribeFromCellEvents()
@@ -208,11 +257,20 @@ namespace Shop.View
             foreach (var cell in _gachaCells)
                 cell.OnGachaTapped -= OnGachaCellTapped;
 
-            foreach (var cell in _itemCells)
-                cell.OnTapped -= OnProductCellTapped;
+            foreach (var cell in _rewardAdCells)
+            {
+                if (cell != null) cell.OnTapped -= OnProductCellTapped;
+            }
 
-            foreach (var cell in _pointCells)
-                cell.OnTapped -= OnProductCellTapped;
+            foreach (var cell in _timedFurnitureCells)
+            {
+                if (cell != null) cell.OnTapped -= OnProductCellTapped;
+            }
+
+            foreach (var cell in _timedOutfitCells)
+            {
+                if (cell != null) cell.OnTapped -= OnProductCellTapped;
+            }
         }
 
         async void OnGachaCellTapped(int index, int count)
@@ -257,35 +315,6 @@ namespace Shop.View
             {
                 _isProcessing = false;
             }
-        }
-
-        void OnTabChanged(ShopTab tab)
-        {
-            UpdateTabVisuals(tab);
-            ShowContent(tab);
-        }
-
-        void UpdateTabVisuals(ShopTab tab)
-        {
-            var isItemTab = tab == ShopTab.Item;
-
-            if (_itemTabImage != null)
-                _itemTabImage.sprite = isItemTab ? _tabSelectedSprite : _tabUnselectedSprite;
-            if (_pointTabImage != null)
-                _pointTabImage.sprite = isItemTab ? _tabUnselectedSprite : _tabSelectedSprite;
-
-            if (_itemTabText != null)
-                _itemTabText.color = isItemTab ? _tabSelectedTextColor : _tabUnselectedTextColor;
-            if (_pointTabText != null)
-                _pointTabText.color = isItemTab ? _tabUnselectedTextColor : _tabSelectedTextColor;
-        }
-
-        void ShowContent(ShopTab tab)
-        {
-            if (_itemContent != null)
-                _itemContent.SetActive(tab == ShopTab.Item);
-            if (_pointContent != null)
-                _pointContent.SetActive(tab == ShopTab.Point);
         }
 
         void UpdateYarnBalanceDisplay(int balance)

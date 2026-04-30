@@ -9,7 +9,6 @@ using VContainer;
 
 namespace Shop.View
 {
-    /// 時限ショップの残り時間カウントダウン UI
     public class TimedShopTimerView : MonoBehaviour
     {
         const string PlaceholderText = "--:--";

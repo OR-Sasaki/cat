@@ -25,9 +25,8 @@ namespace Shop.View
         public event Action<ProductData>? OnTapped;
 
         AsyncOperationHandle<Sprite>? _iconHandle;
-        bool _isSoldOut;
+        bool? _isSoldOut;
         bool? _lastDimmed;
-        bool? _lastSoldOut;
         bool? _lastInteractable;
         bool _hasWarnedMissingDimOverlay;
         bool _hasWarnedMissingSoldOutOverlay;
@@ -66,7 +65,7 @@ namespace Shop.View
         // 呼出側は SetSoldOut の後に SetInteractable を呼ぶ契約。
         public void SetInteractable(bool interactable)
         {
-            var effective = interactable && !_isSoldOut;
+            var effective = interactable && !_isSoldOut.GetValueOrDefault();
             if (_lastInteractable == effective) return;
             _lastInteractable = effective;
 
@@ -94,8 +93,7 @@ namespace Shop.View
 
         public void SetSoldOut(bool isSoldOut)
         {
-            if (_lastSoldOut == isSoldOut) return;
-            _lastSoldOut = isSoldOut;
+            if (_isSoldOut == isSoldOut) return;
             _isSoldOut = isSoldOut;
 
             if (_soldOutOverlay == null)

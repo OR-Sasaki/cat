@@ -78,7 +78,7 @@ namespace Root.Service
         void ImportShopProducts()
         {
             var csv = Resources.Load<TextAsset>("shop_products");
-            if (csv is null)
+            if (csv == null)
             {
                 Debug.LogError("[MasterDataImportService] shop_products.csv not found");
                 _masterDataState.ShopProducts = Array.Empty<ShopProduct>();

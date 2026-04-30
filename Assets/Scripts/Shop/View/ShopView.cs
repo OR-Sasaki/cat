@@ -109,7 +109,6 @@ namespace Shop.View
         {
             if (_shopService == null) return;
 
-            // ガチャセル（残置：UI 起動から呼出は行わないがマスタ駆動でないため SetupGachaCell の呼出はそのまま許容）
             for (var i = 0; i < _gachaCells.Count; i++)
             {
                 _shopService.SetupGachaCell(_gachaCells[i], i);
@@ -124,7 +123,6 @@ namespace Shop.View
             RefreshAllCellsAppearance();
         }
 
-        // データバインドのみを行い、interactable / 暗め / 売り切れの appearance は RefreshCategoryAppearance に一任する。
         void SetupCategoryCells(List<ProductCellView> cells, IReadOnlyList<ProductData> list)
         {
             var dataCount = list.Count;

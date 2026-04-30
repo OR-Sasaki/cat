@@ -113,6 +113,7 @@ namespace Shop.Service
                 {
                     case ItemType.Furniture: furniture.Add(product); break;
                     case ItemType.Outfit: outfit.Add(product); break;
+                    case ItemType.Point: break;
                 }
             }
         }
@@ -159,6 +160,9 @@ namespace Shop.Service
                     iconPath = ResolveOutfitIconPath(outfit);
                     break;
                 }
+                case ItemType.Point:
+                    Debug.LogWarning($"[ShopService] ItemType.Point is not supported in this phase (product_id={product.Id})");
+                    return null;
                 default:
                     Debug.LogWarning($"[ShopService] Unsupported ItemType={product.ItemType} (product_id={product.Id})");
                     return null;
@@ -374,6 +378,8 @@ namespace Shop.Service
                         Debug.LogError($"[ShopService] GrantOutfit failed (id={data.ItemId.Value}): {result.Error}");
                     return result.IsSuccess;
                 }
+                case ItemType.Point:
+                    return true;
                 default:
                     return true;
             }

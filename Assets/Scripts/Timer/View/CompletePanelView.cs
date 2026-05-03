@@ -26,6 +26,11 @@ namespace Timer.View
         {
             _homeButton.onClick.AddListener(OnHomeButtonClicked);
             _state.OnPhaseChanged += OnPhaseChanged;
+
+            if (_state.CurrentPhase == PomodoroPhase.Complete)
+            {
+                UpdateTotalFocusTimeText();
+            }
         }
 
         void OnDestroy()
@@ -37,7 +42,11 @@ namespace Timer.View
         void OnPhaseChanged(PomodoroPhase phase)
         {
             if (phase != PomodoroPhase.Complete) return;
+            UpdateTotalFocusTimeText();
+        }
 
+        void UpdateTotalFocusTimeText()
+        {
             var totalMinutes = Mathf.FloorToInt(_state.TotalFocusTime / 60f);
             var totalSeconds = Mathf.FloorToInt(_state.TotalFocusTime % 60f);
             _totalFocusTimeText.text = $"{totalMinutes:D2}:{totalSeconds:D2}";

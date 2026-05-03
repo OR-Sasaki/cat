@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Timer.Service;
 using UnityEngine;
 using VContainer;
@@ -9,18 +10,20 @@ namespace Timer.Starter
     public class TimerStarter : IStartable
     {
         readonly PomodoroService _pomodoroService;
+        readonly CancellationToken _cancellationToken;
 
         [Inject]
-        public TimerStarter(PomodoroService pomodoroService)
+        public TimerStarter(PomodoroService pomodoroService, CancellationToken cancellationToken)
         {
             _pomodoroService = pomodoroService;
+            _cancellationToken = cancellationToken;
         }
 
         public async void Start()
         {
             try
             {
-                await _pomodoroService.StartAsync();
+                await _pomodoroService.StartAsync(_cancellationToken);
             }
             catch (OperationCanceledException)
             {

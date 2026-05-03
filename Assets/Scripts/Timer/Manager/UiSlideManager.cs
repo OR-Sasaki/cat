@@ -18,6 +18,7 @@ namespace Timer.Manager
         float _screenWidth;
         RectTransform _currentPanel;
         CancellationToken _cancellationToken;
+        CancellationTokenSource _slideCts;
 
         [Inject]
         public void Construct(PomodoroState state, CancellationToken cancellationToken)
@@ -28,7 +29,8 @@ namespace Timer.Manager
 
         void Start()
         {
-            _screenWidth = ((RectTransform)_focusPanel.parent).rect.width;
+            var parentRt = _focusPanel.parent as RectTransform;
+            _screenWidth = parentRt != null ? parentRt.rect.width : 1080f;
             if (_screenWidth <= 0f) _screenWidth = 1080f;
 
             // 初期配置: 集中パネルが画面内、他は画面外（右側）
@@ -44,6 +46,8 @@ namespace Timer.Manager
         {
             if (_state == null) return;
             _state.OnPhaseChanged -= OnPhaseChanged;
+            _slideCts?.Cancel();
+            _slideCts?.Dispose();
         }
 
         void OnPhaseChanged(PomodoroPhase phase)
@@ -58,7 +62,10 @@ namespace Timer.Manager
 
             if (nextPanel == _currentPanel) return;
 
-            SlideAsync(_currentPanel, nextPanel, _cancellationToken).Forget();
+            _slideCts?.Cancel();
+            _slideCts?.Dispose();
+            _slideCts = CancellationTokenSource.CreateLinkedTokenSource(_cancellationToken);
+            SlideAsync(_currentPanel, nextPanel, _slideCts.Token).Forget();
             _currentPanel = nextPanel;
         }
 

@@ -27,7 +27,7 @@ namespace Timer.Service
         }
 
         /// タイマー設定を読み込み、集中フェーズでタイマーを開始する
-        public async UniTask StartAsync()
+        public async UniTask StartAsync(CancellationToken cancellationToken)
         {
             var settings = _playerPrefsService.Load<TimerSettingData>(PlayerPrefsKey.TimerSetting);
             if (settings == null)
@@ -44,7 +44,7 @@ namespace Timer.Service
             _state.SetTimerExpired(false);
 
             _isRunning = true;
-            await RunTimerLoopAsync();
+            await RunTimerLoopAsync(cancellationToken);
         }
 
         /// 休憩フェーズに遷移する
@@ -96,18 +96,17 @@ namespace Timer.Service
             _state.SetPaused(false);
         }
 
-        async UniTask RunTimerLoopAsync()
+        async UniTask RunTimerLoopAsync(CancellationToken cancellationToken)
         {
-            while (_isRunning && !_cancellationToken.IsCancellationRequested)
+            while (_isRunning && !cancellationToken.IsCancellationRequested)
             {
-                await UniTask.Yield(PlayerLoopTiming.Update, _cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
                 if (_state.IsPaused) continue;
                 if (_state.CurrentPhase == PomodoroPhase.Complete) break;
 
                 var delta = Time.deltaTime;
                 var remaining = _state.RemainingSeconds - delta;
-                _state.SetRemainingSeconds(remaining);
 
                 // 集中フェーズ中は合計集中時間を累算
                 if (_state.CurrentPhase == PomodoroPhase.Focus)
@@ -115,11 +114,13 @@ namespace Timer.Service
                     _state.SetTotalFocusTime(_state.TotalFocusTime + delta);
                 }
 
-                // タイマー0到達の検知
+                // タイマー0到達の検知（残時間更新より先に判定し、ビュー側のちらつきを防止）
                 if (!_state.IsTimerExpired && remaining <= 0f)
                 {
                     _state.SetTimerExpired(true);
                 }
+
+                _state.SetRemainingSeconds(remaining);
             }
         }
     }

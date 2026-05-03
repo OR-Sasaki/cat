@@ -53,6 +53,10 @@ namespace Timer.State
         {
             TotalSets = totalSets;
             CurrentSet = 1;
+            TotalFocusTime = 0f;
+            RemainingSeconds = 0f;
+            IsTimerExpired = false;
+            IsPaused = false;
         }
 
         public void SetPhase(PomodoroPhase phase)

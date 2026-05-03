@@ -39,10 +39,11 @@ namespace Timer.Scope
             builder.RegisterEntryPoint<TimerStarter>();
         }
 
-        void OnDestroy()
+        protected override void OnDestroy()
         {
             _cts?.Cancel();
             _cts?.Dispose();
+            base.OnDestroy();
         }
     }
 }

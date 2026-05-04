@@ -57,12 +57,19 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ## Key Technical Decisions
 
 ### VContainer DI Pattern
-- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService` など)
+- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService`, `UserItemInventoryService`, `IClock` (`SystemClock`) など)
 - **SceneScope**: 抽象基底クラス `SceneScope` を継承。Awake時にMasterDataImportを保証。各シーンスコープ (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope`, `LogoScope` など)
 - **Lifetime**: `Singleton` (RootScope), `Scoped` (SceneScope)
+- **ITickable**: VContainerの毎フレーム更新インターフェース。継続的な状態更新が必要なサービスに採用 (例: `ShopService` が時限ショップのサイクル監視に使用、`DialogContainer`、`Home/Service/IsoInputService`、`Home/Service/RedecorateCameraService`)。コンストラクタDIに加え `RegisterEntryPoint` も併用
 
 ### Scene Transition System
 Fadeシーンを加算的にロードし、FadeOut → ターゲットロード → FadeIn → Fadeアンロードの順でシーン遷移を実行。`SceneLoader._isLoading`フラグによる多重呼び出し防止機構あり
+
+### Time Abstraction
+`IClock` (実装: `SystemClock`) 経由で `DateTimeOffset.UtcNow` を取得。テスト容易性および時限機能 (時限ショップのサイクル決定論など) の決定的計算のために `DateTimeOffset.UtcNow` を直接呼ばず常に `IClock` を経由する
+
+### State Snapshot Pattern
+`UserPointSnapshot`, `UserItemInventorySnapshot` のようにユーザー資産系サービスは「現在状態のイミュータブルなスナップショット」を返すアクセサを提供。Viewへ渡す際の参照整合性とテスト容易性を確保
 
 ### Dependency Direction (厳密なルール)
 ```

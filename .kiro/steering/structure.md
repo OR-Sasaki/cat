@@ -23,8 +23,9 @@
 ### Root Services
 **Location**: `Assets/Scripts/Root/`
 **Purpose**: 全シーン共通のグローバルサービス (RootScope)。シーンと同じ層構造 (Service/State/View) を持つ
-**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`
+**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `IClock` (`SystemClock`)
 **Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `SceneLoaderState`
+**Key Snapshots**: `UserPointSnapshot`, `UserItemInventorySnapshot` (ユーザー資産系サービスのイミュータブル戻り値)
 **Key Views**: `DialogCanvasView`, `BackdropView`, `BaseDialogView` (継承ベースのダイアログ基底クラス), `CommonConfirmDialog`, `CommonMessageDialog`
 
 ### Utilities
@@ -38,8 +39,12 @@
 **Namespace**: `Cat` (プロジェクト共通) または `{SceneName}.{Layer}` (例: `Home.Service`)
 
 ### Dialog-based Feature Folders
-**Pattern**: シーンではないがシーン構造に準じたフォルダ (State/View) を持つ機能
-**Example**: `TimerSetting/` - ダイアログベースの設定機能。BaseDialogViewを継承し、独自のState/Viewを持つ
+**Pattern**: シーンではないがシーン構造に準じたフォルダ (State/View) を持つ機能。標準の6層フォルダを用意しつつ、必要な層のみにファイルを配置 (空フォルダは将来拡張用)
+**Example**: `TimerSetting/` - ダイアログベースの設定機能。`BaseDialogView<TArgs>` (`IDialogWithArgs<TArgs>` 契約) を継承し、`State/TimerSettingData.cs` と `View/TimerSettingDialog.cs` のみを持つ
+
+### Thin Scenes
+**Pattern**: 機能の薄いシーンも標準の6層フォルダを用意するが、必要な層のみにファイルを配置
+**Example**: `History/` - `Scope/HistoryScope.cs` と `View/ReturnButtonView.cs` のみ。Service/State/Manager/Starter は空
 
 ### Assets Organization
 ```

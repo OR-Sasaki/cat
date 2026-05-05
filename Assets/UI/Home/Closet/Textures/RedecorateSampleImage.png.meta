@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 39c00000f706243f684a26ff56282680
+guid: e97f239d0f6094fa7b50a89e8b5284bd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9011697187381762015
-    second: dressup_background_0
+      213: 226608909474324521
+    second: "\u30B9\u30AF\u30EA\u30FC\u30F3\u30B7\u30E7\u30C3\u30C8 2026-05-05 16.12.53_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,27 +96,53 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dressup_background_0
+      name: "\u30B9\u30AF\u30EA\u30FC\u30F3\u30B7\u30E7\u30C3\u30C8 2026-05-05 16.12.53_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1080
-        height: 1025
+        width: 852
+        height: 1510
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 67, y: 0, z: 180, w: 304}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fd7d64d88daff0d70800000000000000
-      internalID: 9011697187381762015
+      spriteID: 920e7204a93152300800000000000000
+      internalID: 226608909474324521
       vertices: []
       indices: 
       edges: []
@@ -125,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7d2f7d5d5d5dd4c8c933cbe41ec05883
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dressup_background_0: 9011697187381762015
+      "\u30B9\u30AF\u30EA\u30FC\u30F3\u30B7\u30E7\u30C3\u30C8 2026-05-05 16.12.53_0": 226608909474324521
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

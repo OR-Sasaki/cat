@@ -34,11 +34,13 @@ namespace Home.Scope
             builder.Register<OutfitAssetState>(Lifetime.Scoped);
             builder.Register<FurnitureAssetState>(Lifetime.Scoped);
             builder.Register<IsoGridState>(Lifetime.Scoped);
+            builder.Register<ClosetTabState>(Lifetime.Scoped);
 
             // Service
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
             builder.Register<IsoGridService>(Lifetime.Scoped);
             builder.Register<FurniturePlacementService>(Lifetime.Scoped);
+            builder.Register<ClosetTabService>(Lifetime.Scoped);
 
             // EntryPoint & Service
             // 本来であれば、EntryPointとなるServiceは、他のServiceなどから参照されるべきではない

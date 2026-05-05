@@ -11,6 +11,8 @@ namespace Cat.Character
         HeadAccessory,
         LegAccessory,
         Tail,
+        FaceMakeup,
+        Effect,
     }
 
     public abstract class Outfit : ScriptableObject

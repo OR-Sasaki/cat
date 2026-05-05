@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 5189759815015715787}
   - component: {fileID: 4964344444906266187}
   - component: {fileID: 606373122728450665}
+  - component: {fileID: 8558849962061660713}
   m_Layer: 5
   m_Name: HeadingItem
   m_TagString: Untagged
@@ -196,3 +197,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8558849962061660713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2512831280573516993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b3c4d5f6a7b8c9d0e1f2a3b4c5d6e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Home.View.ClosetMinorTabItemView
+  _button: {fileID: 606373122728450665}
+  _backgroundImage: {fileID: 4964344444906266187}
+  _iconImage: {fileID: 4911962636051287887}

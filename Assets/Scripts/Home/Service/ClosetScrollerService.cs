@@ -8,6 +8,7 @@ using Root.Service;
 using Root.State;
 using UnityEngine;
 using UnityEngine.Events;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -20,16 +21,22 @@ namespace Home.Service
         readonly UserEquippedOutfitService _userEquippedOutfitService;
         readonly MasterDataState _masterDataState;
         readonly OutfitAssetState _outfitAssetState;
+        readonly ClosetTabState _closetTabState;
+        readonly ClosetTabService _closetTabService;
         readonly UnityEvent<ClosetRowCellView> _cellSelectedEvent = new();
         SmallList<ClosetOutfitData> _data = new();
+        bool _suppressMinorReload;
 
+        [Inject]
         public ClosetScrollerService(
             CharacterView characterView,
             ClosetUiView closetUiView,
             UserEquippedOutfitState UserEquippedOutfitState,
             UserEquippedOutfitService userEquippedOutfitService,
             MasterDataState masterDataState,
-            OutfitAssetState outfitAssetState)
+            OutfitAssetState outfitAssetState,
+            ClosetTabState closetTabState,
+            ClosetTabService closetTabService)
         {
             _characterView = characterView;
             _closetUiView = closetUiView;
@@ -37,12 +44,31 @@ namespace Home.Service
             _userEquippedOutfitService = userEquippedOutfitService;
             _masterDataState = masterDataState;
             _outfitAssetState = outfitAssetState;
+            _closetTabState = closetTabState;
+            _closetTabService = closetTabService;
         }
 
         public void Start()
         {
-            _closetUiView.OnOpen.AddListener(Initialize);
+            _closetUiView.OnOpen.AddListener(OnOpen);
+            _closetTabState.MinorChanged.AddListener(OnMinorChanged);
             _cellSelectedEvent.AddListener(OnCellViewSelected);
+        }
+
+        void OnOpen()
+        {
+            // ResetToDefault が走らせる MinorChanged は Initialize 内の LoadData と二重実行になるため抑止する
+            try
+            {
+                _suppressMinorReload = true;
+                _closetTabService.ResetToDefault();
+            }
+            finally
+            {
+                _suppressMinorReload = false;
+            }
+
+            Initialize();
         }
 
         void Initialize()
@@ -58,6 +84,14 @@ namespace Home.Service
             {
                 _outfitAssetState.OnLoaded += LoadData;
             }
+        }
+
+        void OnMinorChanged(OutfitType minor)
+        {
+            if (_suppressMinorReload) return;
+            if (!_closetUiView.gameObject.activeInHierarchy) return;
+
+            LoadData();
         }
 
         void LoadData()
@@ -77,11 +111,15 @@ namespace Home.Service
             }
 
             var equippedOutfitIds = _userEquippedOutfitState.GetAllEquippedOutfitIds();
+            var currentMinor = _closetTabState.Minor;
 
             foreach (var masterOutfit in _masterDataState.Outfits)
             {
                 var outfit = _outfitAssetState.Get(masterOutfit.Name);
                 if (outfit is null) continue;
+
+                // 現在選択中の小タブ (OutfitType) に該当しないものはスキップ
+                if (outfit.OutfitType != currentMinor) continue;
 
                 var closetData = new ClosetOutfitData(outfit);
 
@@ -94,7 +132,8 @@ namespace Home.Service
                 _data.Add(closetData);
             }
 
-            _closetUiView.Scroller.ReloadData();
+            // フィルタ後にスクロール位置を先頭へリセットしつつ ReloadData
+            _closetUiView.Scroller.ReloadData(0f);
         }
 
         void OnCellViewSelected(ClosetRowCellView cellView)
@@ -171,4 +210,3 @@ namespace Home.Service
         #endregion
     }
 }
-

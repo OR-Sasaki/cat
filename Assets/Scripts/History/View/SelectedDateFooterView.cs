@@ -9,9 +9,9 @@ namespace History.View
     /// 履歴カレンダーのフッター。選択日 / 選択日集中時間 / 選択月合計を分単位で表示する。
     public class SelectedDateFooterView : MonoBehaviour
     {
-        [SerializeField] TextMeshProUGUI _selectedDateText;   // "11/14" 形式
-        [SerializeField] TextMeshProUGUI _selectedFocusText;  // 選択日の集中時間 (分)
-        [SerializeField] TextMeshProUGUI _monthTotalText;     // 選択月の合計集中時間 (分)
+        [SerializeField] TextMeshProUGUI _selectedDateText = null!;   // "11/14" 形式
+        [SerializeField] TextMeshProUGUI _selectedFocusText = null!;  // 選択日の集中時間 (分)
+        [SerializeField] TextMeshProUGUI _monthTotalText = null!;     // 選択月の合計集中時間 (分)
 
         History.State.HistoryCalendarState? _state;
         Root.Service.ITimerRecordService? _records;
@@ -32,7 +32,7 @@ namespace History.View
             _state.OnSelectedDateChanged += OnSelectedDateChanged;
             _state.OnDisplayMonthChanged += OnDisplayMonthChanged;
 
-            /// 初期描画: HistoryStarter で SelectedDate / DisplayMonth が初期化済みのため、現在値で全項目を更新する。
+            // 初期描画: HistoryStarter で SelectedDate / DisplayMonth が初期化済みのため、現在値で全項目を更新する。
             Refresh();
         }
 

@@ -25,9 +25,17 @@ namespace Home.View
             {
                 _bodyTabItem.Bind(() => _closetTabService.SelectMajorTab(MajorTab.Body));
             }
+            else
+            {
+                Debug.LogError("[ClosetMajorTabsView] _bodyTabItem is not assigned");
+            }
             if (_clothTabItem is not null)
             {
                 _clothTabItem.Bind(() => _closetTabService.SelectMajorTab(MajorTab.Cloth));
+            }
+            else
+            {
+                Debug.LogError("[ClosetMajorTabsView] _clothTabItem is not assigned");
             }
 
             _onMajorChanged = OnMajorChanged;

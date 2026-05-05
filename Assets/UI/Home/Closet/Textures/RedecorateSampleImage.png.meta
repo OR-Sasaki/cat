@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 41a18c04ecfe1466db98f565a4bd18a6
+guid: e97f239d0f6094fa7b50a89e8b5284bd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7109652004157229870
-    second: dressup_tab_0
+      213: 226608909474324521
+    second: "\u30B9\u30AF\u30EA\u30FC\u30F3\u30B7\u30E7\u30C3\u30C8 2026-05-05 16.12.53_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,17 +96,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dressup_tab_0
+      name: "\u30B9\u30AF\u30EA\u30FC\u30F3\u30B7\u30E7\u30C3\u30C8 2026-05-05 16.12.53_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 165
-        height: 113
+        width: 852
+        height: 1510
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e2b8f6844de8aa260800000000000000
-      internalID: 7109652004157229870
+      spriteID: 920e7204a93152300800000000000000
+      internalID: 226608909474324521
       vertices: []
       indices: 
       edges: []
@@ -135,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dressup_tab_0: 7109652004157229870
+      "\u30B9\u30AF\u30EA\u30FC\u30F3\u30B7\u30E7\u30C3\u30C8 2026-05-05 16.12.53_0": 226608909474324521
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -24,6 +24,9 @@ namespace Root.Scope
             builder.Register<UserPointState>(Lifetime.Singleton);
             builder.Register<UserPointService>(Lifetime.Singleton)
                 .As<IUserPointService>().AsSelf();
+            builder.Register<TimerRecordState>(Lifetime.Singleton);
+            builder.Register<TimerRecordService>(Lifetime.Singleton)
+                .As<ITimerRecordService>().AsSelf();
 
             builder.Register<DialogState>(Lifetime.Singleton);
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();

@@ -10,6 +10,7 @@ namespace Root.Service
         TimerSetting,
         UserItemInventory,
         UserPoint,
+        TimerRecord,
     }
 
     public class PlayerPrefsService

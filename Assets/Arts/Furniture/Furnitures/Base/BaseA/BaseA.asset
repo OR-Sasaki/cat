@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df40d07f8a30246cfa3ad0a872187009, type: 3}
-  m_Name: SmallBox
+  m_Name: BaseA
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Furniture.Furniture
   FurnitureType: 1
-  Thumbnail: {fileID: -8829076095670358118, guid: edb4a83073a4a4d7c87961f58a086bd3, type: 3}
-  SceneObject: {fileID: 4323239550851522223, guid: 0771ce19f82014035ba523e792fc7c4e, type: 3}
+  PlacementType: 3
+  Thumbnail: {fileID: 21300000, guid: 56a9a981c1d4244bd82af901668b1c26, type: 3}
+  SceneObject: {fileID: 0}
+  BaseSceneObject: {fileID: 5451265513610593981, guid: bd135dce26f6d441fbbebcc5e101bdf1, type: 3}

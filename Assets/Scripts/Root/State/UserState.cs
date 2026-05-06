@@ -18,6 +18,10 @@ namespace Root.State
         public GridSaveEntry LeftWall;
         public GridSaveEntry RightWall;
         public FragmentedGridSaveEntry[] FragmentedGrids;
+        /// 配置中 Base の UserFurnitureId。-1 = 未配置 sentinel。
+        /// 旧セーブデータには本フィールドが存在しないため JsonUtility は 0 で復元する。
+        /// 復元側 (IsoGridLoadService.LoadBaseObject) は <= 0 をすべて未設定扱いする前提で運用する。
+        public int BaseUserFurnitureId = -1;
     }
 
     [Serializable]

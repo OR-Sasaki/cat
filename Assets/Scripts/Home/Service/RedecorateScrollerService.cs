@@ -1,4 +1,5 @@
 using System.Linq;
+using Cat.Furniture;
 using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using Home.State;
@@ -6,6 +7,7 @@ using Home.View;
 using Root.State;
 using UnityEngine;
 using UnityEngine.Events;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -20,9 +22,14 @@ namespace Home.Service
         readonly FurniturePlacementService _furniturePlacementService;
         readonly RedecorateTinyService _redecorateTinyService;
         readonly RedecorateCameraService _redecorateCameraService;
+        readonly RoomBaseState _roomBaseState;
+        readonly RedecorateTabState _redecorateTabState;
+        readonly RedecorateTabService _redecorateTabService;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
+        bool _suppressTabReload;
 
+        [Inject]
         public RedecorateScrollerService(
             RedecorateUiView redecorateUiView,
             UserState userState,
@@ -31,7 +38,10 @@ namespace Home.Service
             IsoGridState isoGridState,
             FurniturePlacementService furniturePlacementService,
             RedecorateTinyService redecorateTinyService,
-            RedecorateCameraService redecorateCameraService)
+            RedecorateCameraService redecorateCameraService,
+            RoomBaseState roomBaseState,
+            RedecorateTabState redecorateTabState,
+            RedecorateTabService redecorateTabService)
         {
             _redecorateUiView = redecorateUiView;
             _userState = userState;
@@ -41,12 +51,39 @@ namespace Home.Service
             _furniturePlacementService = furniturePlacementService;
             _redecorateTinyService = redecorateTinyService;
             _redecorateCameraService = redecorateCameraService;
+            _roomBaseState = roomBaseState;
+            _redecorateTabState = redecorateTabState;
+            _redecorateTabService = redecorateTabService;
         }
 
         public void Start()
         {
-            _redecorateUiView.OnOpen.AddListener(Initialize);
+            _redecorateUiView.OnOpen.AddListener(OnOpen);
+            _redecorateTabState.Changed.AddListener(OnTabChanged);
             _cellSelectedEvent.AddListener(OnCellViewSelected);
+        }
+
+        void OnOpen()
+        {
+            _suppressTabReload = true;
+            try
+            {
+                _redecorateTabService.ResetToDefault();
+            }
+            finally
+            {
+                _suppressTabReload = false;
+            }
+
+            Initialize();
+        }
+
+        void OnTabChanged(FurnitureType _)
+        {
+            if (_suppressTabReload) return;
+            if (!_redecorateUiView.gameObject.activeInHierarchy) return;
+            if (!_furnitureAssetState.IsLoaded) return;
+            LoadData();
         }
 
         void Initialize()
@@ -88,12 +125,14 @@ namespace Home.Service
                 var furniture = _furnitureAssetState.Get(masterFurniture.Name);
                 if (furniture is null) continue;
 
+                if (furniture.FurnitureType != _redecorateTabState.Current) continue;
+
                 var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
                 _data.Add(furnitureData);
             }
 
             UpdateSelectionStates();
-            _redecorateUiView.Scroller.ReloadData();
+            _redecorateUiView.Scroller.ReloadData(0f);
         }
 
         void OnCellViewSelected(RedecorateRowCellView cellView)
@@ -107,14 +146,21 @@ namespace Home.Service
             var userFurnitureId = selectedData.UserFurnitureId;
             var furniture = selectedData.Furniture;
 
+            // Base 専用分岐: 既選択 Base セル再タップは何もしない (Base 取り外し UI を提供しないため)
+            // 未選択時のみ PlaceBase に委譲し、カメラ移動・Tiny 化はスキップして UI 反映のみ行う
+            if (furniture.PlacementType == PlacementType.Base)
+            {
+                if (!selectedData.Selected)
+                {
+                    _furniturePlacementService.PlaceBase(userFurnitureId, furniture);
+                }
+                UpdateSelectionStates();
+                return;
+            }
+
             // selectedDataで判定するのは設計思想的に微妙だが、設置判定は処理コストが重いためこうしている
             // 直後にUpdateSelectionStates()をしていることで、設置判定をキャッシュしている
-            if (selectedData.Selected)
-            {
-                // 配置済みの場合：グリッドとシーンから削除
-                _furniturePlacementService.RemoveFurniture(userFurnitureId, furniture);
-            }
-            else
+            if (!selectedData.Selected)
             {
                 // 未配置の場合：空き位置を探して配置
                 var placedPosition = _furniturePlacementService.PlaceFurniture(userFurnitureId, furniture);
@@ -128,15 +174,23 @@ namespace Home.Service
             UpdateSelectionStates();
         }
 
-        /// 全グリッドのObjectPositionsに基づいて全データの選択状態を更新する
+        /// 全グリッドのObjectPositionsおよびRoomBaseStateに基づいて全データの選択状態を更新する
         public void UpdateSelectionStates()
         {
             for (var i = 0; i < _data.Count; i++)
             {
                 var data = _data[i];
-                // 床、壁、またはFragmentedGridに登録されていればSelectedをtrueにする
-                data.Selected = _isoGridState.EnumerateAllGrids()
-                    .Any(g => g.ObjectPositions.ContainsKey(data.UserFurnitureId));
+                if (data.Furniture.PlacementType == PlacementType.Base)
+                {
+                    // BaseはIsoGridStateに登録されないためRoomBaseState経由で判定する
+                    data.Selected = _roomBaseState.PlacedBaseUserFurnitureId == data.UserFurnitureId;
+                }
+                else
+                {
+                    // 床、壁、またはFragmentedGridに登録されていればSelectedをtrueにする
+                    data.Selected = _isoGridState.EnumerateAllGrids()
+                        .Any(g => g.ObjectPositions.ContainsKey(data.UserFurnitureId));
+                }
             }
         }
 

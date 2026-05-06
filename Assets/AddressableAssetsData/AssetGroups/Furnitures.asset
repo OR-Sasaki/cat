@@ -25,6 +25,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 885ab4deb52054dfc900c144f5e9adcd
+    m_Address: Furnitures/BaseA
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8bccc586b886d489e9f99f762f3d4db4
+    m_Address: Furnitures/BaseB
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b4e2e5acc38e448b4bd8fc9a005dccaa
     m_Address: Furnitures/MidBox
     m_ReadOnly: 0

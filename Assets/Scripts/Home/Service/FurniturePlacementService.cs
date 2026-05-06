@@ -3,6 +3,7 @@ using Home.State;
 using Home.View;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 namespace Home.Service
 {
@@ -12,13 +13,20 @@ namespace Home.Service
     {
         readonly IsoGridState _isoGridState;
         readonly IsoGridService _isoGridService;
+        readonly RoomBaseState _roomBaseState;
+        readonly RoomBackGroundView _roomBackGroundView;
 
+        [Inject]
         public FurniturePlacementService(
             IsoGridState isoGridState,
-            IsoGridService isoGridService)
+            IsoGridService isoGridService,
+            RoomBaseState roomBaseState,
+            RoomBackGroundView roomBackGroundView)
         {
             _isoGridState = isoGridState;
             _isoGridService = isoGridService;
+            _roomBaseState = roomBaseState;
+            _roomBackGroundView = roomBackGroundView;
         }
 
         #region 共通
@@ -27,6 +35,13 @@ namespace Home.Service
         /// 戻り値: 配置したワールド座標（配置失敗時はnull）
         public Vector3? PlaceFurniture(int userFurnitureId, Cat.Furniture.Furniture furniture)
         {
+            // PlacementType.Base は専用経路 PlaceBase を使うこと。誤って Floor 経路に流れないよう冒頭で弾く。
+            if (furniture.PlacementType == PlacementType.Base)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Use PlaceBase for Base placement type: userFurnitureId={userFurnitureId}");
+                return null;
+            }
+
             if (furniture.SceneObject is null) return null;
 
             if (furniture.PlacementType == PlacementType.Wall)
@@ -350,6 +365,46 @@ namespace Home.Service
 #endif
 
             return worldPos;
+        }
+
+        #endregion
+
+        #region Base配置
+
+        /// Base家具をRoomBackGroundView.BaseRoot配下に配置する。
+        /// 旧Base破棄→新Base生成→State同期を1コール内で同期実行し、中間状態（0個または2個以上）を外部から観測不可にする。
+        /// IsoDraggableView / IsoGridState / IsoGridService への参照は持たない（Baseはドラッグ・グリッド占有の対象外）。
+        /// 戻り値: 配置に成功したか。falseの場合は既存配置状態は変更されない。
+        public bool PlaceBase(int userFurnitureId, Cat.Furniture.Furniture furniture)
+        {
+            if (furniture.PlacementType != PlacementType.Base)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] PlaceBase called with non-Base PlacementType: {furniture.PlacementType}, userFurnitureId={userFurnitureId}");
+                return false;
+            }
+
+            if (furniture.BaseSceneObject is null)
+            {
+                Debug.LogWarning($"[FurniturePlacementService] Furniture has no BaseSceneObject: userFurnitureId={userFurnitureId}");
+                return false;
+            }
+
+            var baseRoot = _roomBackGroundView.BaseRoot;
+
+            // 旧Baseを破棄（BaseRoot配下はBase専用領域。RoomBackGroundView の運用ルールで他GameObjectが置かれていない前提）
+            foreach (Transform child in baseRoot)
+            {
+                Object.Destroy(child.gameObject);
+            }
+
+            // 新Baseを生成し、Homeシーンへ移動した上でBaseRoot配下にアタッチする（PlaceFloorFurnitureAt の Instantiate→MoveGameObjectToScene パターンを踏襲）
+            var instance = Object.Instantiate(furniture.BaseSceneObject);
+            SceneManager.MoveGameObjectToScene(instance.gameObject, _isoGridService.HomeScene);
+            instance.SetParent(baseRoot, worldPositionStays: false);
+
+            _roomBaseState.SetPlaced(userFurnitureId);
+
+            return true;
         }
 
         #endregion

@@ -2,4 +2,6 @@ id,type,name
 1,Floor,LargeBox
 2,Floor,MidBox
 3,Floor,SmallBox
-4,Wall,Painting
+4,Base,BaseA
+5,Wall,Painting
+6,Base,BaseB

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df40d07f8a30246cfa3ad0a872187009, type: 3}
-  m_Name: MidBox
+  m_Name: BaseB
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Furniture.Furniture
-  FurnitureType: 2
-  PlacementType: 1
-  Thumbnail: {fileID: -8829076095670358118, guid: edb4a83073a4a4d7c87961f58a086bd3, type: 3}
-  SceneObject: {fileID: 7846082776888673395, guid: aa98ccc19e99d4d93aa5fec557d9fdad, type: 3}
-  BaseSceneObject: {fileID: 0}
+  FurnitureType: 1
+  PlacementType: 3
+  Thumbnail: {fileID: 21300000, guid: 2d67032b7bc304989b23c69772650818, type: 3}
+  SceneObject: {fileID: 0}
+  BaseSceneObject: {fileID: 5451265513610593981, guid: 0dd8ff5f0cf5245e08c00161ab8366e1, type: 3}

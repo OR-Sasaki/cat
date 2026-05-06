@@ -18,6 +18,7 @@ namespace Home.Scope
         [SerializeField] RedecorateUiView _redecorateUiView;
         [SerializeField] CameraView _cameraView;
         [SerializeField] IsoGridSettingsView _isoGridSettingsView;
+        [SerializeField] RoomBackGroundView _roomBackGroundView;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -28,6 +29,7 @@ namespace Home.Scope
             builder.RegisterComponent(_redecorateUiView);
             builder.RegisterComponent(_cameraView);
             builder.RegisterComponent(_isoGridSettingsView);
+            builder.RegisterComponent(_roomBackGroundView);
 
             // State
             builder.Register<HomeState>(Lifetime.Scoped);
@@ -35,12 +37,14 @@ namespace Home.Scope
             builder.Register<FurnitureAssetState>(Lifetime.Scoped);
             builder.Register<IsoGridState>(Lifetime.Scoped);
             builder.Register<ClosetTabState>(Lifetime.Scoped);
+            builder.Register<RoomBaseState>(Lifetime.Scoped);
 
             // Service
             builder.Register<HomeStateSetService>(Lifetime.Scoped);
             builder.Register<IsoGridService>(Lifetime.Scoped);
             builder.Register<FurniturePlacementService>(Lifetime.Scoped);
             builder.Register<ClosetTabService>(Lifetime.Scoped);
+            builder.Register<RoomBaseDefaultService>(Lifetime.Scoped);
 
             // EntryPoint & Service
             // 本来であれば、EntryPointとなるServiceは、他のServiceなどから参照されるべきではない

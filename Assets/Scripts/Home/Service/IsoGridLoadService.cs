@@ -1,8 +1,10 @@
 using System.Linq;
+using Cat.Furniture;
 using Home.State;
 using Root.Service;
 using Root.State;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -15,19 +17,26 @@ namespace Home.Service
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
         readonly PlayerPrefsService _playerPrefsService;
+        readonly RoomBaseState _roomBaseState;
+        readonly RoomBaseDefaultService _roomBaseDefaultService;
 
+        [Inject]
         public IsoGridLoadService(
             FurniturePlacementService furniturePlacementService,
             UserState userState,
             MasterDataState masterDataState,
             FurnitureAssetState furnitureAssetState,
-            PlayerPrefsService playerPrefsService)
+            PlayerPrefsService playerPrefsService,
+            RoomBaseState roomBaseState,
+            RoomBaseDefaultService roomBaseDefaultService)
         {
             _furniturePlacementService = furniturePlacementService;
             _userState = userState;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
             _playerPrefsService = playerPrefsService;
+            _roomBaseState = roomBaseState;
+            _roomBaseDefaultService = roomBaseDefaultService;
         }
 
         public void Start()
@@ -53,18 +62,24 @@ namespace Home.Service
             if (saveData is null)
             {
                 Debug.Log("IsoGridLoadService: No saved data found");
-                return;
+            }
+            else
+            {
+                // UserStateに設定
+                _userState.IsoGridSaveData = saveData;
+
+                var floorLoadedCount = LoadFloorObjects(saveData.Floor);
+                var leftWallLoadedCount = LoadWallObjects(saveData.LeftWall, WallSide.Left);
+                var rightWallLoadedCount = LoadWallObjects(saveData.RightWall, WallSide.Right);
+                var fragmentedLoadedCount = LoadFragmentedObjects(saveData.FragmentedGrids);
+                LoadBaseObject(saveData.BaseUserFurnitureId);
+
+                Debug.Log($"IsoGridLoadService: Loaded Floor={floorLoadedCount}, LeftWall={leftWallLoadedCount}, RightWall={rightWallLoadedCount}, Fragmented={fragmentedLoadedCount}, Base={_roomBaseState.PlacedBaseUserFurnitureId}");
             }
 
-            // UserStateに設定
-            _userState.IsoGridSaveData = saveData;
-
-            var floorLoadedCount = LoadFloorObjects(saveData.Floor);
-            var leftWallLoadedCount = LoadWallObjects(saveData.LeftWall, WallSide.Left);
-            var rightWallLoadedCount = LoadWallObjects(saveData.RightWall, WallSide.Right);
-            var fragmentedLoadedCount = LoadFragmentedObjects(saveData.FragmentedGrids);
-
-            Debug.Log($"IsoGridLoadService: Loaded Floor={floorLoadedCount}, LeftWall={leftWallLoadedCount}, RightWall={rightWallLoadedCount}, Fragmented={fragmentedLoadedCount}");
+            // Post-loadフック: saveData の有無に関わらず必ず1回呼び、Base未配置のときだけデフォルト適用する。
+            // OnLoaded多重購読を排除した単線フローを成立させる。
+            _roomBaseDefaultService.ApplyDefaultIfNeeded();
         }
 
         int LoadFloorObjects(GridSaveEntry entry)
@@ -138,6 +153,29 @@ namespace Home.Service
             }
 
             return loadedCount;
+        }
+
+        /// 復元時のBase配置専用パス。GetFurnitureAsset (Floor/Wall 既存挙動) には手を加えない。
+        /// 内部でPlacementType == Base かつ BaseSceneObject != null を独自検証してからPlaceBaseに委譲する。
+        /// 復元IDがユーザー所持外・PlacementType不一致・BaseSceneObject null のいずれも黙ってreturnし、
+        /// 後段の RoomBaseDefaultService.ApplyDefaultIfNeeded がフォールバック配置を担う。
+        void LoadBaseObject(int baseUserFurnitureId)
+        {
+            // -1 sentinel または旧データの 0 は未設定扱い
+            if (baseUserFurnitureId <= 0) return;
+
+            var userFurniture = _userState.UserFurnitures?.FirstOrDefault(f => f.Id == baseUserFurnitureId);
+            if (userFurniture is null) return;
+
+            var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == userFurniture.FurnitureID);
+            if (masterFurniture is null) return;
+
+            var furnitureAsset = _furnitureAssetState.Get(masterFurniture.Name);
+            if (furnitureAsset is null) return;
+            if (furnitureAsset.PlacementType != PlacementType.Base) return;
+            if (furnitureAsset.BaseSceneObject is null) return;
+
+            _furniturePlacementService.PlaceBase(baseUserFurnitureId, furnitureAsset);
         }
 
         Cat.Furniture.Furniture GetFurnitureAsset(int userFurnitureId)

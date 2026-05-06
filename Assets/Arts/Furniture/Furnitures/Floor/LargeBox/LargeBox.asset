@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df40d07f8a30246cfa3ad0a872187009, type: 3}
   m_Name: LargeBox
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Furniture.Furniture
-  FurnitureType: 1
+  FurnitureType: 2
+  PlacementType: 1
   Thumbnail: {fileID: -8829076095670358118, guid: edb4a83073a4a4d7c87961f58a086bd3, type: 3}
   SceneObject: {fileID: 2902937410327174357, guid: 17ffc20384fd34623a1800639621969a, type: 3}
+  BaseSceneObject: {fileID: 0}

@@ -3,6 +3,7 @@ using Home.State;
 using Root.Service;
 using Root.State;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home.Service
@@ -14,17 +15,21 @@ namespace Home.Service
         readonly IsoGridState _isoGridState;
         readonly UserState _userState;
         readonly PlayerPrefsService _playerPrefsService;
+        readonly RoomBaseState _roomBaseState;
 
+        [Inject]
         public IsoGridSaveService(
             HomeState homeState,
             IsoGridState isoGridState,
             UserState userState,
-            PlayerPrefsService playerPrefsService)
+            PlayerPrefsService playerPrefsService,
+            RoomBaseState roomBaseState)
         {
             _homeState = homeState;
             _isoGridState = isoGridState;
             _userState = userState;
             _playerPrefsService = playerPrefsService;
+            _roomBaseState = roomBaseState;
         }
 
         public void Start()
@@ -56,6 +61,7 @@ namespace Home.Service
                 LeftWall = new GridSaveEntry { ObjectPositions = ToSaveEntries(_isoGridState.LeftWall.ObjectPositions) },
                 RightWall = new GridSaveEntry { ObjectPositions = ToSaveEntries(_isoGridState.RightWall.ObjectPositions) },
                 FragmentedGrids = fragmentedGrids,
+                BaseUserFurnitureId = _roomBaseState.PlacedBaseUserFurnitureId,
             };
 
             // UserStateに保存
@@ -64,7 +70,7 @@ namespace Home.Service
             // PlayerPrefsに保存
             _playerPrefsService.Save(PlayerPrefsKey.IsoGrid, saveData);
 
-            Debug.Log($"IsoGridSaveService: Saved Floor={saveData.Floor.ObjectPositions.Length}, LeftWall={saveData.LeftWall.ObjectPositions.Length}, RightWall={saveData.RightWall.ObjectPositions.Length}, FragmentedGrids={fragmentedGrids.Length}");
+            Debug.Log($"IsoGridSaveService: Saved Floor={saveData.Floor.ObjectPositions.Length}, LeftWall={saveData.LeftWall.ObjectPositions.Length}, RightWall={saveData.RightWall.ObjectPositions.Length}, FragmentedGrids={fragmentedGrids.Length}, Base={saveData.BaseUserFurnitureId}");
         }
 
         static ObjectPlacementSaveEntry[] ToSaveEntries(System.Collections.Generic.Dictionary<int, ObjectPlacement> positions)

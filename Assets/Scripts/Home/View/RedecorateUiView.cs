@@ -20,6 +20,9 @@ namespace Home.View
         [SerializeField] Animator _tinyAnimator;
         [SerializeField] Button _tinyButton;
 
+        [Header("Tabs")]
+        [SerializeField] RedecorateTabsView _tabsView;
+
         static readonly int TinyParam = Animator.StringToHash("Tiny");
 
         bool _isTiny;
@@ -47,9 +50,21 @@ namespace Home.View
         }
 
         [Inject]
-        public void Init(HomeStateSetService homeStateSetService)
+        public void Init(
+            HomeStateSetService homeStateSetService,
+            RedecorateTabService redecorateTabService,
+            RedecorateTabState redecorateTabState)
         {
             _backButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Home));
+
+            if (_tabsView is not null)
+            {
+                _tabsView.Bind(redecorateTabService, redecorateTabState);
+            }
+            else
+            {
+                Debug.LogError("[RedecorateUiView] _tabsView is not assigned");
+            }
         }
     }
 }

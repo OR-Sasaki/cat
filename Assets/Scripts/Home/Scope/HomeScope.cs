@@ -37,6 +37,7 @@ namespace Home.Scope
             builder.Register<FurnitureAssetState>(Lifetime.Scoped);
             builder.Register<IsoGridState>(Lifetime.Scoped);
             builder.Register<ClosetTabState>(Lifetime.Scoped);
+            builder.Register<RedecorateTabState>(Lifetime.Scoped);
             builder.Register<RoomBaseState>(Lifetime.Scoped);
 
             // Service
@@ -44,6 +45,7 @@ namespace Home.Scope
             builder.Register<IsoGridService>(Lifetime.Scoped);
             builder.Register<FurniturePlacementService>(Lifetime.Scoped);
             builder.Register<ClosetTabService>(Lifetime.Scoped);
+            builder.Register<RedecorateTabService>(Lifetime.Scoped);
             builder.Register<RoomBaseDefaultService>(Lifetime.Scoped);
 
             // EntryPoint & Service

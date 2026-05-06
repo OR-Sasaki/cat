@@ -23,8 +23,11 @@ namespace Home.Service
         readonly RedecorateTinyService _redecorateTinyService;
         readonly RedecorateCameraService _redecorateCameraService;
         readonly RoomBaseState _roomBaseState;
+        readonly RedecorateTabState _redecorateTabState;
+        readonly RedecorateTabService _redecorateTabService;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
+        bool _suppressTabReload;
 
         [Inject]
         public RedecorateScrollerService(
@@ -36,7 +39,9 @@ namespace Home.Service
             FurniturePlacementService furniturePlacementService,
             RedecorateTinyService redecorateTinyService,
             RedecorateCameraService redecorateCameraService,
-            RoomBaseState roomBaseState)
+            RoomBaseState roomBaseState,
+            RedecorateTabState redecorateTabState,
+            RedecorateTabService redecorateTabService)
         {
             _redecorateUiView = redecorateUiView;
             _userState = userState;
@@ -47,12 +52,38 @@ namespace Home.Service
             _redecorateTinyService = redecorateTinyService;
             _redecorateCameraService = redecorateCameraService;
             _roomBaseState = roomBaseState;
+            _redecorateTabState = redecorateTabState;
+            _redecorateTabService = redecorateTabService;
         }
 
         public void Start()
         {
-            _redecorateUiView.OnOpen.AddListener(Initialize);
+            _redecorateUiView.OnOpen.AddListener(OnOpen);
+            _redecorateTabState.Changed.AddListener(OnTabChanged);
             _cellSelectedEvent.AddListener(OnCellViewSelected);
+        }
+
+        void OnOpen()
+        {
+            _suppressTabReload = true;
+            try
+            {
+                _redecorateTabService.ResetToDefault();
+            }
+            finally
+            {
+                _suppressTabReload = false;
+            }
+
+            Initialize();
+        }
+
+        void OnTabChanged(FurnitureType _)
+        {
+            if (_suppressTabReload) return;
+            if (!_redecorateUiView.gameObject.activeInHierarchy) return;
+            if (!_furnitureAssetState.IsLoaded) return;
+            LoadData();
         }
 
         void Initialize()
@@ -94,12 +125,14 @@ namespace Home.Service
                 var furniture = _furnitureAssetState.Get(masterFurniture.Name);
                 if (furniture is null) continue;
 
+                if (furniture.FurnitureType != _redecorateTabState.Current) continue;
+
                 var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
                 _data.Add(furnitureData);
             }
 
             UpdateSelectionStates();
-            _redecorateUiView.Scroller.ReloadData();
+            _redecorateUiView.Scroller.ReloadData(0f);
         }
 
         void OnCellViewSelected(RedecorateRowCellView cellView)

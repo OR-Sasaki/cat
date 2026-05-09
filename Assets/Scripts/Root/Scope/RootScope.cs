@@ -1,5 +1,6 @@
 using Root.Service;
 using Root.State;
+using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
@@ -7,6 +8,12 @@ namespace Root.Scope
 {
     public class RootScope : LifetimeScope
     {
+        protected override void Awake()
+        {
+            base.Awake();
+            Application.targetFrameRate = 60;
+        }
+
         protected override void Configure(IContainerBuilder builder)
         {
             builder.Register<SceneLoader>(Lifetime.Singleton);

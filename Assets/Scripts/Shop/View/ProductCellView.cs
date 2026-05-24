@@ -18,6 +18,7 @@ namespace Shop.View
         [SerializeField] Button? _button;
         [SerializeField] GameObject? _dimOverlay;
         [SerializeField] GameObject? _soldOutOverlay;
+        [SerializeField] TMP_Text? _remainingCountText;
 
         public ProductData? Data { get; private set; }
 
@@ -30,6 +31,7 @@ namespace Shop.View
         bool? _lastInteractable;
         bool _hasWarnedMissingDimOverlay;
         bool _hasWarnedMissingSoldOutOverlay;
+        bool _hasWarnedMissingRemainingCountText;
 
         void Start()
         {
@@ -54,11 +56,37 @@ namespace Shop.View
 
             if (_priceText != null)
             {
-                var currencySymbol = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "¥";
-                _priceText.text = $"{currencySymbol} {data.Price:N0}";
+                _priceText.text = data.CurrencyType switch
+                {
+                    CurrencyType.Yarn => $"毛糸 {data.Price:N0}",
+                    CurrencyType.RealMoney => $"¥ {data.Price:N0}",
+                    CurrencyType.RewardAd => "広告を見て獲得",
+                    _ => $"{data.Price:N0}",
+                };
             }
 
+            // 残数テキストは既定で非表示。RewardAd セルでのみ SetRemainingCount で表示する。
+            if (_remainingCountText != null)
+                _remainingCountText.gameObject.SetActive(false);
+
             LoadIconAsync(data.IconPath);
+        }
+
+        // リワード広告セルの残り視聴回数を n/m 形式で表示する。
+        public void SetRemainingCount(int remaining, int dailyCap)
+        {
+            if (_remainingCountText == null)
+            {
+                if (!_hasWarnedMissingRemainingCountText)
+                {
+                    Debug.LogWarning("[ProductCellView] _remainingCountText is not assigned. SetRemainingCount is ignored.");
+                    _hasWarnedMissingRemainingCountText = true;
+                }
+                return;
+            }
+
+            _remainingCountText.gameObject.SetActive(true);
+            _remainingCountText.text = $"{remaining}/{dailyCap}";
         }
 
         // 売り切れ ＞ タップ無効の優先度を保証するため、interactable は _isSoldOut で常に上書きされる。

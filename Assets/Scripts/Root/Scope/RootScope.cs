@@ -39,6 +39,11 @@ namespace Root.Scope
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DialogService>(Lifetime.Singleton).As<IDialogService>();
 
+            builder.RegisterInstance(Resources.Load<RewardedAdConfig>("RewardedAdConfig"));
+#if UNITY_EDITOR
+            builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
+#endif
+
             builder.RegisterEntryPoint<UserDataImportService>();
         }
     }

@@ -39,7 +39,8 @@ namespace Shop.State
         ItemType ItemType,
         uint? ProductId,
         uint? ItemId,
-        int? YarnAmount = null // 毛糸パックの場合のみ使用
+        int? YarnAmount = null, // 毛糸パックの場合のみ使用
+        int Amount = 1 // 付与数（RewardAd/Point用）
     );
 
     public class ShopState

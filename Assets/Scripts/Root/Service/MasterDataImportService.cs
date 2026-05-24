@@ -92,7 +92,7 @@ namespace Root.Service
                 foreach (var line in lines)
                 {
                     var columns = line.Split(',');
-                    if (columns.Length < 6)
+                    if (columns.Length < 8)
                     {
                         Debug.LogWarning($"[MasterDataImportService] shop_products: invalid column count, skipping line: {line}");
                         continue;
@@ -140,7 +140,35 @@ namespace Root.Service
                         continue;
                     }
 
-                    products.Add(new ShopProduct(id, name, itemType, itemId, price, currencyType));
+                    var amountRaw = columns[6].Trim();
+                    int amount;
+                    if (string.IsNullOrEmpty(amountRaw))
+                    {
+                        amount = 1;
+                    }
+                    else if (!int.TryParse(amountRaw, out amount))
+                    {
+                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid amount, skipping line: {line}");
+                        continue;
+                    }
+
+                    var dailyCapRaw = columns[7].Trim();
+                    int? dailyCap;
+                    if (string.IsNullOrEmpty(dailyCapRaw))
+                    {
+                        dailyCap = null;
+                    }
+                    else if (int.TryParse(dailyCapRaw, out var parsedDailyCap))
+                    {
+                        dailyCap = parsedDailyCap;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid daily_cap, skipping line: {line}");
+                        continue;
+                    }
+
+                    products.Add(new ShopProduct(id, name, itemType, itemId, price, currencyType, amount, dailyCap));
                 }
 
                 _masterDataState.ShopProducts = products.ToArray();

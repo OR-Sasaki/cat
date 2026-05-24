@@ -93,6 +93,7 @@ namespace Root.Service
             }
             catch (OperationCanceledException)
             {
+                SetState(RewardedAdState.Uninitialized);
                 throw;
             }
             catch (Exception e)

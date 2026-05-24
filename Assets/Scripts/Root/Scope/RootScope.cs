@@ -42,6 +42,10 @@ namespace Root.Scope
             builder.RegisterInstance(Resources.Load<RewardedAdConfig>("RewardedAdConfig"));
 #if UNITY_EDITOR
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
+#elif UNITY_ANDROID || UNITY_IOS
+            builder.Register<LevelPlayRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
+#else
+            builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #endif
 
             builder.RegisterEntryPoint<UserDataImportService>();

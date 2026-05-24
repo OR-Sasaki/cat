@@ -28,6 +28,7 @@ namespace Shop.Service
         readonly IClock _clock;
         readonly IRewardedAdService _rewardedAdService;
         readonly PlayerPrefsService _playerPrefsService;
+        readonly RewardedAdConfig _rewardedAdConfig;
 
         Furniture[]? _cachedFurnitureSource;
         Dictionary<uint, Furniture>? _furnitureLookup;
@@ -38,6 +39,9 @@ namespace Shop.Service
         readonly Dictionary<uint, int> _dailyCountByProductId = new();
         readonly Dictionary<uint, ShopProduct> _rewardAdProductById = new();
         string _currentJstDate = string.Empty;
+
+        // 視聴セッション進行中の productId（多重タップ防止、要件 5-2）
+        uint? _processingProductId;
 
         bool _isInitialized;
 
@@ -51,7 +55,8 @@ namespace Shop.Service
             SceneLoader sceneLoader,
             IClock clock,
             IRewardedAdService rewardedAdService,
-            PlayerPrefsService playerPrefsService)
+            PlayerPrefsService playerPrefsService,
+            RewardedAdConfig rewardedAdConfig)
         {
             _state = state;
             _userPointService = userPointService;
@@ -62,17 +67,41 @@ namespace Shop.Service
             _clock = clock;
             _rewardedAdService = rewardedAdService;
             _playerPrefsService = playerPrefsService;
+            _rewardedAdConfig = rewardedAdConfig;
         }
 
         public void Initialize()
         {
-            _state.RewardAdProductList.Clear();
-
+            BuildRewardAdProductList();
             LoadRewardAdDailyCount();
 
             var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
             RebuildTimedShop(snapshot);
             _isInitialized = true;
+        }
+
+        // マスターから CurrencyType.RewardAd の商品を抽出し ProductId 昇順で RewardAdProductList を構築する。
+        // 通常 (Yarn) 商品の購入フロー・時限ショップ抽選には混入させない。
+        void BuildRewardAdProductList()
+        {
+            _state.RewardAdProductList.Clear();
+
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+            var rewardAdProducts = new List<ShopProduct>();
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                if (shopProducts[i].CurrencyType == CurrencyType.RewardAd)
+                    rewardAdProducts.Add(shopProducts[i]);
+            }
+
+            rewardAdProducts.Sort((a, b) => a.Id.CompareTo(b.Id));
+
+            for (var i = 0; i < rewardAdProducts.Count; i++)
+            {
+                var data = BuildProductDataFromShopProduct(rewardAdProducts[i]);
+                if (data != null)
+                    _state.RewardAdProductList.Add(data);
+            }
         }
 
         public void Tick()
@@ -175,8 +204,11 @@ namespace Shop.Service
                     break;
                 }
                 case ItemType.Point:
-                    Debug.LogWarning($"[ShopService] ItemType.Point is not supported in this phase (product_id={product.Id})");
-                    return null;
+                {
+                    displayName = string.IsNullOrEmpty(product.Name) ? "毛糸" : product.Name;
+                    iconPath = ResolvePointIconPath(product);
+                    break;
+                }
                 default:
                     Debug.LogWarning($"[ShopService] Unsupported ItemType={product.ItemType} (product_id={product.Id})");
                     return null;
@@ -203,6 +235,11 @@ namespace Shop.Service
         static string ResolveOutfitIconPath(Outfit outfit)
         {
             return $"Outfits/{outfit.Name}";
+        }
+
+        static string ResolvePointIconPath(ShopProduct product)
+        {
+            return $"Points/{product.Name}";
         }
 
         public void SetCurrentTab(ShopTab tab)
@@ -402,7 +439,7 @@ namespace Shop.Service
         {
             if (data.CurrencyType == CurrencyType.RewardAd)
             {
-                // 本フェーズ未対応。将来の Unity Ads 統合点として分岐を残す。
+                await OnRewardAdProductTappedAsync(data, ct);
                 return;
             }
 
@@ -474,6 +511,99 @@ namespace Shop.Service
             );
         }
 
+        // リワード広告商品の視聴フロー: 確認ダイアログ → 視聴 → 結果分岐 → 付与 → 結果メッセージ
+        public async UniTask OnRewardAdProductTappedAsync(ProductData data, CancellationToken ct)
+        {
+            if (!data.ProductId.HasValue)
+                return;
+
+            var productId = data.ProductId.Value;
+
+            // 視聴可否 (IsReady かつ 残数 >= 1) を確認
+            if (!IsRewardAdAvailable(productId))
+                return;
+
+            // 多重タップ防止: 別セッション進行中なら弾く
+            if (_processingProductId.HasValue)
+                return;
+
+            _processingProductId = productId;
+            try
+            {
+                var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
+                    new CommonConfirmDialogArgs(
+                        Title: "視聴確認",
+                        Message: $"広告を視聴して「{data.Name}」を獲得しますか？"
+                    ),
+                    ct
+                );
+
+                if (confirmResult != DialogResult.Ok)
+                    return;
+
+                // 確認中に状態が変化している可能性があるため再評価
+                if (!IsRewardAdAvailable(productId))
+                {
+                    await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
+                    return;
+                }
+
+                var result = await _rewardedAdService.ShowAsync(_rewardedAdConfig.DefaultPlacementName, ct);
+
+                switch (result)
+                {
+                    case RewardedAdResult.Rewarded:
+                        await HandleRewardedAsync(data, productId, ct);
+                        break;
+                    case RewardedAdResult.Dismissed:
+                        // 誘導文を含めない (要件 6-3)
+                        await ShowRewardAdMessageAsync("広告の視聴が中断されました", ct);
+                        break;
+                    case RewardedAdResult.DisplayFailed:
+                        await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
+                        break;
+                    case RewardedAdResult.NotReady:
+                        await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
+                        break;
+                }
+            }
+            finally
+            {
+                _processingProductId = null;
+            }
+        }
+
+        // 報酬獲得確定時の付与処理。付与成功時のみ日次カウントを加算する (要件 10-2)。
+        async UniTask HandleRewardedAsync(ProductData data, uint productId, CancellationToken ct)
+        {
+            var grantSucceeded = TryGrantPurchasedItem(data);
+            if (grantSucceeded)
+                IncrementDailyCount(productId);
+
+            var message = grantSucceeded
+                ? $"「{data.Name}」を獲得しました！"
+                : $"「{data.Name}」を獲得しました！\n（アイテムの付与に失敗しました）";
+
+            await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                new CommonMessageDialogArgs(
+                    Title: "獲得完了",
+                    Message: message
+                ),
+                ct
+            );
+        }
+
+        async UniTask ShowRewardAdMessageAsync(string message, CancellationToken ct)
+        {
+            await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                new CommonMessageDialogArgs(
+                    Title: "お知らせ",
+                    Message: message
+                ),
+                ct
+            );
+        }
+
         bool TryGrantPurchasedItem(ProductData data)
         {
             if (!data.ItemId.HasValue)
@@ -496,7 +626,12 @@ namespace Shop.Service
                     return result.IsSuccess;
                 }
                 case ItemType.Point:
-                    return true;
+                {
+                    var result = _userPointService.AddYarn(data.Amount);
+                    if (!result.IsSuccess)
+                        Debug.LogError($"[ShopService] AddYarn failed (amount={data.Amount}): {result.Error}");
+                    return result.IsSuccess;
+                }
                 default:
                     return true;
             }

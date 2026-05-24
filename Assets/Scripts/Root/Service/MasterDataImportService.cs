@@ -140,7 +140,7 @@ namespace Root.Service
                         continue;
                     }
 
-                    products.Add(new ShopProduct(id, name, itemType, itemId, price, currencyType));
+                    products.Add(new ShopProduct(id, name, itemType, itemId, price, currencyType, 1, null));
                 }
 
                 _masterDataState.ShopProducts = products.ToArray();

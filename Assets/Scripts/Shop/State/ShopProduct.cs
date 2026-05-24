@@ -15,6 +15,8 @@ namespace Shop.State
         ItemType ItemType,
         uint ItemId,
         int Price,
-        CurrencyType CurrencyType
+        CurrencyType CurrencyType,
+        int Amount,
+        int? DailyCap
     );
 }

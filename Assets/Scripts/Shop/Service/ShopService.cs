@@ -38,7 +38,7 @@ namespace Shop.Service
         // リワード広告商品の日次視聴消化回数（productId -> 当日カウント）と、それが属する JST 日付
         readonly Dictionary<uint, int> _dailyCountByProductId = new();
         readonly Dictionary<uint, ShopProduct> _rewardAdProductById = new();
-        string _currentJstDate = string.Empty;
+        System.DateTime _currentJstDate;
 
         // 視聴セッション進行中の productId（多重タップ防止、要件 5-2）
         uint? _processingProductId;
@@ -107,6 +107,11 @@ namespace Shop.Service
         public void Tick()
         {
             if (!_isInitialized) return;
+
+            // JST 日付境界を跨いだら全リワード広告商品の残数をリセットし、開いている画面へ通知する
+            if (EnsureFreshDate())
+                _state.NotifyRewardAdCountsChanged();
+
             // 毎フレームのコストを抑える: 次回更新時刻に到達するまでスナップショット計算を省略する
             if (_clock.UtcNow < _state.NextUpdateAt) return;
 
@@ -332,11 +337,19 @@ namespace Shop.Service
             return _rewardedAdService.IsReady && GetDailyRemainingCount(productId) >= 1;
         }
 
+        // 当該商品の日次上限 m（残数表示の分母）。マスター未指定・0 以下は既定値。
+        public int GetEffectiveDailyCap(uint productId)
+        {
+            var dailyCap = _rewardAdProductById.TryGetValue(productId, out var product) ? product.DailyCap : null;
+            return RewardAdDailyCount.ResolveDailyCap(dailyCap, RewardAdShopConstants.DefaultDailyCap);
+        }
+
         void LoadRewardAdDailyCount()
         {
             BuildRewardAdMasterLookup();
 
-            var currentJstDate = JstDateHelper.ToJstDateString(_clock.UtcNow);
+            var nowUtc = _clock.UtcNow;
+            var currentJstDateString = JstDateHelper.ToJstDateString(nowUtc);
 
             RewardAdDailyCountSnapshot? snapshot = null;
             try
@@ -349,12 +362,12 @@ namespace Shop.Service
                 Debug.LogWarning($"[ShopService] RewardAdDailyCount load failed, resetting: {e.Message}");
             }
 
-            var result = RewardAdDailyCount.Reconcile(snapshot, currentJstDate, _rewardAdProductById.Keys);
+            var result = RewardAdDailyCount.Reconcile(snapshot, currentJstDateString, _rewardAdProductById.Keys);
 
             _dailyCountByProductId.Clear();
             foreach (var kv in result.Counts)
                 _dailyCountByProductId[kv.Key] = kv.Value;
-            _currentJstDate = currentJstDate;
+            _currentJstDate = JstDateHelper.ToJstDate(nowUtc);
 
             if (result.RequiresPersist)
                 SaveRewardAdDailyCount();
@@ -378,7 +391,8 @@ namespace Shop.Service
         {
             try
             {
-                var snapshot = RewardAdDailyCount.BuildSnapshot(_dailyCountByProductId, _currentJstDate);
+                var snapshot = RewardAdDailyCount.BuildSnapshot(
+                    _dailyCountByProductId, JstDateHelper.ToDateString(_currentJstDate));
                 _playerPrefsService.Save(PlayerPrefsKey.RewardAdDailyCount, snapshot);
             }
             catch (System.Exception e)
@@ -391,26 +405,27 @@ namespace Shop.Service
         // リセットが発生したら true を返す。
         bool EnsureFreshDate()
         {
-            var currentJstDate = JstDateHelper.ToJstDateString(_clock.UtcNow);
-            if (currentJstDate == _currentJstDate)
+            var today = JstDateHelper.ToJstDate(_clock.UtcNow);
+            if (today == _currentJstDate)
                 return false;
 
             var keys = new List<uint>(_dailyCountByProductId.Keys);
             for (var i = 0; i < keys.Count; i++)
                 _dailyCountByProductId[keys[i]] = 0;
 
-            _currentJstDate = currentJstDate;
+            _currentJstDate = today;
             SaveRewardAdDailyCount();
             return true;
         }
 
-        // 報酬付与成功時にカウントを 1 加算して即時永続化する。
+        // 報酬付与成功時にカウントを 1 加算して即時永続化し、画面へ残数更新を通知する。
         void IncrementDailyCount(uint productId)
         {
             EnsureFreshDate();
             _dailyCountByProductId.TryGetValue(productId, out var current);
             _dailyCountByProductId[productId] = current + 1;
             SaveRewardAdDailyCount();
+            _state.NotifyRewardAdCountsChanged();
         }
 
         public bool IsTimedShopProduct(ProductData data)

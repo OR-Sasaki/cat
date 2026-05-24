@@ -60,6 +60,14 @@ namespace Shop.State
 
         public event Action? OnTimedShopUpdated;
 
+        /// リワード広告商品の残り視聴回数が変化したときに発火（視聴成立・JST 日付境界リセット）
+        public event Action? OnRewardAdCountsChanged;
+
+        public void NotifyRewardAdCountsChanged()
+        {
+            OnRewardAdCountsChanged?.Invoke();
+        }
+
         public void SetCurrentTab(ShopTab tab)
         {
             if (tab == CurrentTab)

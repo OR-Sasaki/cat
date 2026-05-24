@@ -21,7 +21,13 @@ namespace Shop.RewardAd
         /// UTC 時刻に対応する JST 日付を yyyy-MM-dd 文字列で返す
         public static string ToJstDateString(DateTimeOffset utcNow)
         {
-            return ToJstDate(utcNow).ToString(DateFormat, CultureInfo.InvariantCulture);
+            return ToDateString(ToJstDate(utcNow));
+        }
+
+        /// JST 日付（DateTime）を yyyy-MM-dd 文字列に整形する
+        public static string ToDateString(DateTime jstDate)
+        {
+            return jstDate.ToString(DateFormat, CultureInfo.InvariantCulture);
         }
     }
 }

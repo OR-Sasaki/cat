@@ -782,7 +782,7 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
-    Android: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
+    Android: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO;LEVELPLAY_DEPENDENCIES_INSTALLED
     EmbeddedLinux: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
     GameCoreScarlett: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
     GameCoreXboxOne: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
@@ -902,7 +902,7 @@ PlayerSettings:
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: Cat
-  organizationId: hemuichi
+  organizationId: teamhemuichi
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

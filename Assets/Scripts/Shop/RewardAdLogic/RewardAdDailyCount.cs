@@ -54,9 +54,22 @@ namespace Shop.RewardAd
                 foreach (var entry in snapshot.Entries)
                 {
                     if (counts.ContainsKey(entry.ProductId))
-                        counts[entry.ProductId] = entry.Count < 0 ? 0 : entry.Count;
+                    {
+                        if (entry.Count < 0)
+                        {
+                            // 壊れた負値は 0 に補正し、自己修復のため再永続化を要求する
+                            counts[entry.ProductId] = 0;
+                            pruned = true;
+                        }
+                        else
+                        {
+                            counts[entry.ProductId] = entry.Count;
+                        }
+                    }
                     else
+                    {
                         pruned = true; // マスターに存在しない productId は破棄
+                    }
                 }
             }
 

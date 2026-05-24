@@ -142,6 +142,23 @@ namespace Shop.RewardAd.Tests
         }
 
         [Test]
+        [Description("壊れた負値カウントは 0 に補正し、自己修復のため再永続化を要求する")]
+        public void Reconcile_NegativeCount_ClampedToZeroAndRequiresPersist()
+        {
+            var snapshot = new RewardAdDailyCountSnapshot
+            {
+                Version = RewardAdDailyCountSnapshot.CurrentVersion,
+                JstDate = "2026-05-23",
+                Entries = new[] { new RewardAdDailyCountSnapshot.DailyCountEntry { ProductId = 1, Count = -4 } }
+            };
+
+            var result = RewardAdDailyCount.Reconcile(snapshot, "2026-05-23", new uint[] { 1 });
+
+            Assert.IsTrue(result.RequiresPersist);
+            Assert.AreEqual(0, result.Counts[1]);
+        }
+
+        [Test]
         [Description("スナップショットに無い新規マスター productId は 0 から開始する（再永続化は不要）")]
         public void Reconcile_NewMasterProduct_StartsAtZero()
         {

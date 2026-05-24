@@ -84,6 +84,36 @@ namespace Shop.RewardAd.Tests
         }
 
         [Test]
+        [Description("price が負値の行はスキップ対象として失敗を返す")]
+        public void NegativePrice_Fails()
+        {
+            var ok = ShopProductCsvParser.TryParseLine("3,Body001,outfit,1,-1,reward_ad,1,3", out _, out var error);
+
+            Assert.IsFalse(ok);
+            Assert.IsNotEmpty(error);
+        }
+
+        [Test]
+        [Description("amount が 0 の行はスキップ対象として失敗を返す")]
+        public void ZeroAmount_Fails()
+        {
+            var ok = ShopProductCsvParser.TryParseLine("3,Body001,outfit,1,0,reward_ad,0,3", out _, out var error);
+
+            Assert.IsFalse(ok);
+            Assert.IsNotEmpty(error);
+        }
+
+        [Test]
+        [Description("amount が負値の行はスキップ対象として失敗を返す")]
+        public void NegativeAmount_Fails()
+        {
+            var ok = ShopProductCsvParser.TryParseLine("3,Body001,outfit,1,0,reward_ad,-5,3", out _, out var error);
+
+            Assert.IsFalse(ok);
+            Assert.IsNotEmpty(error);
+        }
+
+        [Test]
         [Description("既存 Yarn 行（新カラム amount/daily_cap が空）も後方互換で正常に解釈する")]
         public void LegacyYarnRow_WithEmptyNewColumns_Parses()
         {

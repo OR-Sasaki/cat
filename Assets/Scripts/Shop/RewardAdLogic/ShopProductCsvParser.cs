@@ -47,6 +47,12 @@ namespace Shop.RewardAd
                 return false;
             }
 
+            if (price < 0)
+            {
+                error = "price must be >= 0";
+                return false;
+            }
+
             var currencyTypeRaw = columns[5].Trim();
 
             var amountRaw = columns[6].Trim();
@@ -58,6 +64,12 @@ namespace Shop.RewardAd
             else if (!int.TryParse(amountRaw, out amount))
             {
                 error = "invalid amount";
+                return false;
+            }
+
+            if (amount <= 0)
+            {
+                error = "amount must be > 0";
                 return false;
             }
 

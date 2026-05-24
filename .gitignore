@@ -103,3 +103,6 @@ InitTestScene*.unity*
 
 # Claude Code (local)
 *.local.*
+
+# Local secrets (LevelPlay ad keys etc.) — never commit. CI passes the same keys as env vars.
+/.env

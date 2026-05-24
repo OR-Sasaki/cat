@@ -35,65 +35,65 @@
 
 ### Branch: `feature/rewarded-ad-shop-product-ad-service`
 
-- [ ] 2. 広告 SDK 抽象と構成アセットを定義
-  - [ ] 2.1 (P) IRewardedAdService インターフェースと状態・結果列挙を新規定義
+- [x] 2. 広告 SDK 抽象と構成アセットを定義
+  - [x] 2.1 (P) IRewardedAdService インターフェースと状態・結果列挙を新規定義
     - `RewardedAdState` 列挙: Uninitialized / Initializing / Loading / Ready / Showing / Failed
     - `RewardedAdResult` 列挙: Rewarded / Dismissed / DisplayFailed / NotReady
     - インターフェース API: `State`, `IsReady`, `StateChanged` event, `InitializeAsync(ct)`, `ShowAsync(placementName, ct)`
     - `Root.Service` 名前空間に配置、`#nullable enable` を付与
-  - [ ] 2.2 (P) RewardedAdConfig ScriptableObject を実装
+  - [x] 2.2 (P) RewardedAdConfig ScriptableObject を実装
     - Android / iOS 用 App Key と Rewarded Ad Unit ID、デフォルト Placement 名、最大再試行回数、初期/最大再試行間隔を SerializeField で保持
     - Resources/RewardedAdConfig.asset として配置できる形式
     - `GetAppKey()` / `GetRewardedAdUnitId()` をプリプロセッサで対象プラットフォームに切替
-  - [ ] 2.3 RewardedAdConfig.asset を Resources に作成し、LevelPlay ダッシュボード取得済みの実値を Inspector に入力
+  - [x] 2.3 RewardedAdConfig.asset を Resources に作成し、LevelPlay ダッシュボード取得済みの実値を Inspector に入力
     - 実値は機密扱いでも CSV と同じくクライアント同梱で構わない (research.md の Security 判断に従う)
   - _Requirements: 1.5, 7.2, 7.3, 7.5, 8.1, 8.2, 8.3_
 
-- [ ] 3. Editor 用スタブ実装と DI 切替の準備
-  - [ ] 3.1 (P) EditorRewardedAdService を実装
+- [x] 3. Editor 用スタブ実装と DI 切替の準備
+  - [x] 3.1 (P) EditorRewardedAdService を実装
     - `InitializeAsync` は即時完了、`State` は常に Ready
     - `ShowAsync` は短いウェイト (100ms 程度) 後に `RewardedAdResult.Rewarded` を返却
     - クラスコンテキスト付きログでスタブ動作を出力
-  - [ ] 3.2 RootScope に IRewardedAdService の Editor 登録を追加
+  - [x] 3.2 RootScope に IRewardedAdService の Editor 登録を追加
     - `#if UNITY_EDITOR` プリプロセッサで EditorRewardedAdService を Singleton 登録
     - RewardedAdConfig は Resources からロードして Component 登録
   - _Requirements: 7.1, 8.1_
 
-- [ ] 4. LevelPlay SDK 実機実装を構築
-  - [ ] 4.1 LevelPlayRewardedAdService のスケルトンと初期化を実装
+- [x] 4. LevelPlay SDK 実機実装を構築
+  - [x] 4.1 LevelPlayRewardedAdService のスケルトンと初期化を実装
     - VContainer 注入用コンストラクタに `[Inject]` を付与、`RewardedAdConfig` と `IClock` を依存に取る
     - LevelPlay の OnInitSuccess / OnInitFailed を Init 前に購読
     - `InitializeAsync` 内で `LevelPlay.Init(appKey)` を呼び、成功/失敗で State 遷移
     - 初期化失敗時は `State = Failed` に遷移、以降の ShowAsync は即時 NotReady を返却
     - 全 LevelPlay 型参照は `#if UNITY_ANDROID || UNITY_IOS` 配下に閉じ、それ以外プラットフォームでは内部 NoOp フォールバック
-  - [ ] 4.2 リワード広告ユニットのロードと指数バックオフ再試行を実装
+  - [x] 4.2 リワード広告ユニットのロードと指数バックオフ再試行を実装
     - 初期化成功直後に `LevelPlayRewardedAd` を生成し、OnAdLoaded / OnAdLoadFailed / OnAdDisplayed / OnAdDisplayFailed / OnAdRewarded / OnAdClosed を購読してからロード開始
     - 成功で `State = Ready`、失敗で指数バックオフ (1s → 2s → 4s → 8s → 16s → 32s、上限 60s) を最大 5 回再試行
     - 上限到達で `State = Failed`、StateChanged イベントで通知
-  - [ ] 4.3 視聴フローと順序非依存ステートマシンを実装
+  - [x] 4.3 視聴フローと順序非依存ステートマシンを実装
     - `ShowAsync` 開始時に内部 RewardedAdSession を 1 個生成、UniTaskCompletionSource<RewardedAdResult> を保持
     - `_rewardedFired` / `_closedFired` の 2 フラグで OnAdRewarded と OnAdClosed の合流を判定
     - OnAdDisplayFailed 発火時は DisplayFailed を返却して終了
     - 結果確定後の二重通知は `_completed` フラグで防御
     - 視聴完了 (Rewarded / Dismissed / DisplayFailed) 後、次回視聴のための再ロードを発行
-  - [ ] 4.4 状態変化通知とエラーハンドリングを完成
+  - [x] 4.4 状態変化通知とエラーハンドリングを完成
     - `StateChanged` イベントの購読者例外を try/catch で抑止 (UserPointService.FireYarnBalanceChanged と同パターン)
     - LevelPlay コールバック内処理は全てメインスレッド前提で記述 (LevelPlay 仕様)
     - クラスコンテキスト付きログで全異常パスを `Debug.LogError` / `Debug.LogWarning` 出力
-  - [ ] 4.5 RootScope に LevelPlayRewardedAdService の実機登録を追加
+  - [x] 4.5 RootScope に LevelPlayRewardedAdService の実機登録を追加
     - `#elif UNITY_ANDROID || UNITY_IOS` で LevelPlayRewardedAdService を Singleton 登録
     - `#else` で EditorRewardedAdService にフォールバック (Standalone / WebGL 等)
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 5.1, 5.3, 5.4, 5.5, 7.6, 8.4, 8.5_
 
-- [ ] 5. iOS ATT 連携と起動エントリポイントを構築
-  - [ ] 5.1 com.unity.ads.ios-support パッケージ導入と Info.plist 設定
+- [x] 5. iOS ATT 連携と起動エントリポイントを構築
+  - [x] 5.1 com.unity.ads.ios-support パッケージ導入と Info.plist 設定
     - `Packages/manifest.json` に `com.unity.ads.ios-support` を追加
     - iOS 向け `NSUserTrackingUsageDescription` を Player Settings (もしくは Info.plist 拡張機構) で日本語文言設定
     - 既存 EDM4U 解決結果と競合しないことを確認
-  - [ ] 5.2 iOS ビルドで ATT 応答待ち後に SDK 初期化を開始するフローを LevelPlayRewardedAdService に組込み
+  - [x] 5.2 iOS ビルドで ATT 応答待ち後に SDK 初期化を開始するフローを LevelPlayRewardedAdService に組込み
     - `#if UNITY_IOS && !UNITY_EDITOR` で `ATTrackingStatusBinding.RequestAuthorizationTracking` を呼び、応答完了まで `LevelPlay.Init` を遅延
     - Denied / Restricted を含むあらゆる応答ステータスでも初期化は継続する (eCPM は下がるが広告自体は表示可能)
-  - [ ] 5.3 起動時 InitializeAsync 自動発火用 IStartable を新設して RootScope に登録
+  - [x] 5.3 起動時 InitializeAsync 自動発火用 IStartable を新設して RootScope に登録
     - VContainer の `RegisterEntryPoint<RewardedAdServiceStarter>()` で起動フックに乗せる
     - InitializeAsync を `UniTaskVoid` で `Forget()` 発火し、UI スレッドをブロックしない
     - 例外捕捉 + クラスコンテキスト付きログ

@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Root.Service;
 using Root.State;
 using Root.View;
+using Shop.RewardAd;
 using Shop.View;
 using Shop.State;
 using UnityEngine;
@@ -25,11 +26,18 @@ namespace Shop.Service
         readonly IDialogService _dialogService;
         readonly SceneLoader _sceneLoader;
         readonly IClock _clock;
+        readonly IRewardedAdService _rewardedAdService;
+        readonly PlayerPrefsService _playerPrefsService;
 
         Furniture[]? _cachedFurnitureSource;
         Dictionary<uint, Furniture>? _furnitureLookup;
         Outfit[]? _cachedOutfitSource;
         Dictionary<uint, Outfit>? _outfitLookup;
+
+        // リワード広告商品の日次視聴消化回数（productId -> 当日カウント）と、それが属する JST 日付
+        readonly Dictionary<uint, int> _dailyCountByProductId = new();
+        readonly Dictionary<uint, ShopProduct> _rewardAdProductById = new();
+        string _currentJstDate = string.Empty;
 
         bool _isInitialized;
 
@@ -41,7 +49,9 @@ namespace Shop.Service
             MasterDataState masterDataState,
             IDialogService dialogService,
             SceneLoader sceneLoader,
-            IClock clock)
+            IClock clock,
+            IRewardedAdService rewardedAdService,
+            PlayerPrefsService playerPrefsService)
         {
             _state = state;
             _userPointService = userPointService;
@@ -50,11 +60,15 @@ namespace Shop.Service
             _dialogService = dialogService;
             _sceneLoader = sceneLoader;
             _clock = clock;
+            _rewardedAdService = rewardedAdService;
+            _playerPrefsService = playerPrefsService;
         }
 
         public void Initialize()
         {
             _state.RewardAdProductList.Clear();
+
+            LoadRewardAdDailyCount();
 
             var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
             RebuildTimedShop(snapshot);
@@ -244,13 +258,19 @@ namespace Shop.Service
             {
                 CurrencyType.Yarn => balance >= data.Price,
                 CurrencyType.RealMoney => true,
-                CurrencyType.RewardAd => false,
+                CurrencyType.RewardAd => data.ProductId.HasValue && IsRewardAdAvailable(data.ProductId.Value),
                 _ => false,
             };
         }
 
         public bool IsSoldOut(ProductData data)
         {
+            // リワード広告商品は当日残数 0 でも売り切れ扱い（要件 3-5）
+            if (data.CurrencyType == CurrencyType.RewardAd
+                && data.ProductId.HasValue
+                && GetDailyRemainingCount(data.ProductId.Value) <= 0)
+                return true;
+
             return data.ItemType switch
             {
                 ItemType.Outfit => data.ItemId.HasValue && _userItemInventoryService.HasOutfit(data.ItemId.Value),
@@ -258,6 +278,102 @@ namespace Shop.Service
                 ItemType.Point => false,
                 _ => false,
             };
+        }
+
+        // 当該商品の本日残り視聴回数（下限 0）。日付跨ぎを検知したら遡及リセットする（要件 10-6）。
+        public int GetDailyRemainingCount(uint productId)
+        {
+            EnsureFreshDate();
+            var count = _dailyCountByProductId.TryGetValue(productId, out var c) ? c : 0;
+            var dailyCap = _rewardAdProductById.TryGetValue(productId, out var product) ? product.DailyCap : null;
+            return RewardAdDailyCount.ComputeRemaining(count, dailyCap, RewardAdShopConstants.DefaultDailyCap);
+        }
+
+        // 視聴可能 = 広告が視聴可能状態かつ当日残数 1 以上
+        public bool IsRewardAdAvailable(uint productId)
+        {
+            return _rewardedAdService.IsReady && GetDailyRemainingCount(productId) >= 1;
+        }
+
+        void LoadRewardAdDailyCount()
+        {
+            BuildRewardAdMasterLookup();
+
+            var currentJstDate = JstDateHelper.ToJstDateString(_clock.UtcNow);
+
+            RewardAdDailyCountSnapshot? snapshot = null;
+            try
+            {
+                snapshot = _playerPrefsService.Load<RewardAdDailyCountSnapshot>(PlayerPrefsKey.RewardAdDailyCount);
+            }
+            catch (System.Exception e)
+            {
+                // 初回起動（空文字）や破損時は例外になりうるため握りつぶしてリセット扱いにする
+                Debug.LogWarning($"[ShopService] RewardAdDailyCount load failed, resetting: {e.Message}");
+            }
+
+            var result = RewardAdDailyCount.Reconcile(snapshot, currentJstDate, _rewardAdProductById.Keys);
+
+            _dailyCountByProductId.Clear();
+            foreach (var kv in result.Counts)
+                _dailyCountByProductId[kv.Key] = kv.Value;
+            _currentJstDate = currentJstDate;
+
+            if (result.RequiresPersist)
+                SaveRewardAdDailyCount();
+        }
+
+        // マスターから RewardAd 商品の (productId -> ShopProduct) 参照表を再構築する。
+        // マスター再インポートで配列が差し替わっても最新集合で同定できるようにする（要件 10-7）。
+        void BuildRewardAdMasterLookup()
+        {
+            _rewardAdProductById.Clear();
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                var product = shopProducts[i];
+                if (product.CurrencyType != CurrencyType.RewardAd) continue;
+                _rewardAdProductById[product.Id] = product;
+            }
+        }
+
+        void SaveRewardAdDailyCount()
+        {
+            try
+            {
+                var snapshot = RewardAdDailyCount.BuildSnapshot(_dailyCountByProductId, _currentJstDate);
+                _playerPrefsService.Save(PlayerPrefsKey.RewardAdDailyCount, snapshot);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[ShopService] {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        // JST 日付が変わっていれば全カウントを 0 にリセットして永続化する。
+        // リセットが発生したら true を返す。
+        bool EnsureFreshDate()
+        {
+            var currentJstDate = JstDateHelper.ToJstDateString(_clock.UtcNow);
+            if (currentJstDate == _currentJstDate)
+                return false;
+
+            var keys = new List<uint>(_dailyCountByProductId.Keys);
+            for (var i = 0; i < keys.Count; i++)
+                _dailyCountByProductId[keys[i]] = 0;
+
+            _currentJstDate = currentJstDate;
+            SaveRewardAdDailyCount();
+            return true;
+        }
+
+        // 報酬付与成功時にカウントを 1 加算して即時永続化する。
+        void IncrementDailyCount(uint productId)
+        {
+            EnsureFreshDate();
+            _dailyCountByProductId.TryGetValue(productId, out var current);
+            _dailyCountByProductId[productId] = current + 1;
+            SaveRewardAdDailyCount();
         }
 
         public bool IsTimedShopProduct(ProductData data)

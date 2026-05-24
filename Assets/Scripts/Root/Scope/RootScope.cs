@@ -47,6 +47,7 @@ namespace Root.Scope
 #else
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #endif
+            builder.RegisterEntryPoint<RewardedAdServiceStarter>();
 
             builder.RegisterEntryPoint<UserDataImportService>();
         }

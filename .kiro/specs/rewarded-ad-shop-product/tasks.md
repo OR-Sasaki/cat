@@ -174,13 +174,13 @@
   - _Requirements: 3.2, 3.4, 6.1, 6.4, 11.1, 11.2, 11.3, 11.4, 11.5_
 
 - [ ] 10. shop_products.csv に実リワード広告商品を登録し UI 枠を準備
-  - [ ] 10.1 リワード広告商品の新規行を CSV に追加
+  - [x] 10.1 リワード広告商品の新規行を CSV に追加
     - 例: 毛糸ポイント 1 件 (`item_type=point`, `amount=100`, `daily_cap=5`)、家具 1 件、着せ替え 1 件
     - 各行で `currency_type=reward_ad`、`price=0` を統一
-  - [ ] 10.2 ShopView の `_rewardAdCells` に必要数の ProductCellView を Inspector で割り当て
+  - [ ] 10.2 ShopView の `_rewardAdCells` に必要数の ProductCellView を Inspector で割り当て（**手動: Editor 作業が必要**）
     - リワード広告商品の最大想定数に合わせて Prefab を配置
     - 残数テキスト要素 (TMP_Text) を Prefab に追加して `_remainingCountText` に結線
-  - [ ] 10.3 実機 / Editor で表示順 (ProductId 昇順) とアイコン解決を目視確認
+  - [ ] 10.3 実機 / Editor で表示順 (ProductId 昇順) とアイコン解決を目視確認（**手動: Editor/実機作業が必要**）
     - 既存 IconPath 解決 (`Furnitures/{name}` / `Outfits/{name}`) が機能することを確認
     - Point 商品のアイコン解決は新規アイコン (毛糸アイコン) を Addressables に登録する場合は別途用意 (本タスクで合わせて準備)
   - _Requirements: 9.1, 9.2, 9.3_

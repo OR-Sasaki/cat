@@ -1,5 +1,7 @@
 id,name,item_type,item_id,price,currency_type,amount,daily_cap
 1,毛糸,point,0,0,reward_ad,100,3
+2,SmallBox,furniture,3,0,reward_ad,1,3
+3,Body001,outfit,1,0,reward_ad,,
 100,Body001,outfit,1,100,yarn,,
 101,Body002,outfit,2,100,yarn,,
 102,Body003,outfit,3,100,yarn,,

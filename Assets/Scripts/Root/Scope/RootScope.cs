@@ -1,3 +1,4 @@
+using System;
 using Root.Service;
 using Root.State;
 using UnityEngine;
@@ -39,7 +40,12 @@ namespace Root.Scope
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DialogService>(Lifetime.Singleton).As<IDialogService>();
 
-            builder.RegisterInstance(Resources.Load<RewardedAdConfig>("RewardedAdConfig"));
+            var rewardedAdConfig = Resources.Load<RewardedAdConfig>("RewardedAdConfig");
+            if (rewardedAdConfig == null)
+            {
+                throw new InvalidOperationException("[RootScope] Assets/Resources/RewardedAdConfig.asset が見つかりません。");
+            }
+            builder.RegisterInstance(rewardedAdConfig);
 #if UNITY_EDITOR
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #elif UNITY_ANDROID || UNITY_IOS

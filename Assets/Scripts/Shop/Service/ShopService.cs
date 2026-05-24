@@ -244,7 +244,8 @@ namespace Shop.Service
 
         static string ResolvePointIconPath(ShopProduct product)
         {
-            return $"Points/{product.Name}";
+            var pointName = string.IsNullOrEmpty(product.Name) ? "毛糸" : product.Name;
+            return $"Points/{pointName}";
         }
 
         public void SetCurrentTab(ShopTab tab)

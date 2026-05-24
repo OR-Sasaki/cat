@@ -176,7 +176,8 @@ namespace Shop.Service
                 ProductType: ProductType.Item,
                 ItemType: product.ItemType,
                 ProductId: product.Id,
-                ItemId: product.ItemId
+                ItemId: product.ItemId,
+                Amount: product.Amount
             );
         }
 

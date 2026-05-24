@@ -115,25 +115,25 @@
     - 単体テストしやすい純粋関数として実装（Unity に DateOnly が無いため yyyy-MM-dd 文字列で実装）
   - _Requirements: 9.4, 10.1, 10.5_
 
-- [ ] 7. ShopService に日次キャップ管理を統合
-  - [ ] 7.1 ShopService に日次カウントのインメモリ保持を追加
-    - productId → カウントの Dictionary、最終リセット日付 (JST DateOnly) を保持
+- [x] 7. ShopService に日次キャップ管理を統合
+  - [x] 7.1 ShopService に日次カウントのインメモリ保持を追加
+    - productId → カウントの Dictionary、最終リセット日付 (JST 文字列) を保持
     - IRewardedAdService / PlayerPrefsService を `[Inject]` 経由で依存追加
-  - [ ] 7.2 起動時に永続化スナップショットをロードし JST 日付不一致なら全リセット
+  - [x] 7.2 起動時に永続化スナップショットをロードし JST 日付不一致なら全リセット
     - PlayerPrefsService 経由で `RewardAdDailyCountSnapshot` をロード
     - Version 不一致または保存日付 != 現在 JST 日付なら全カウント 0 にしてから永続化
     - マスター上に存在しない productId のエントリは破棄
-  - [ ] 7.3 GetDailyRemainingCount と IsRewardAdAvailable API を実装
+  - [x] 7.3 GetDailyRemainingCount と IsRewardAdAvailable API を実装
     - 残り = (DailyCap ?? RewardAdShopConstants.DefaultDailyCap) - 当日カウント
     - IsRewardAdAvailable は「IRewardedAdService.IsReady かつ 残り ≥ 1」で判定
-  - [ ] 7.4 IsSoldOut と IsAffordable に RewardAd 商品の判定を追加
+  - [x] 7.4 IsSoldOut と IsAffordable に RewardAd 商品の判定を追加
     - IsSoldOut: 既存 Outfit 既所持判定に加え、`CurrencyType.RewardAd` かつ 残り 0 で売り切れ扱い
     - IsAffordable の RewardAd 分岐を `IsRewardAdAvailable(productId)` 結果に置換
-  - [ ] 7.5 報酬付与成功時にカウント増分と即時永続化を実施
+  - [x] 7.5 報酬付与成功時にカウント増分と即時永続化を実施
     - カウント増分後、JST 日付境界判定 (起動後に翌日に達した場合) も同時に評価し、必要ならリセットしてから増分
     - 永続化失敗時はエラーログのみ、UI 表示は阻害しない
-  - [ ] 7.6 マスター再インポート時の整合性を確保
-    - `MasterDataImportService.Imported` イベントもしくは Initialize 経由で再構築時、既存カウントから消滅 productId を排除
+  - [x] 7.6 マスター再インポート時の整合性を確保
+    - `MasterDataImportService.Imported` イベントもしくは Initialize 経由で再構築時、既存カウントから消滅 productId を排除（Import は冪等のため Initialize 時の Reconcile で消滅 productId を破棄）
   - _Requirements: 3.3, 3.4, 3.5, 9.4, 9.5, 10.1, 10.2, 10.3, 10.4, 10.6, 10.7_
 
 - [ ] 8. ShopService に視聴フローと付与処理を実装

@@ -8,6 +8,9 @@ using VContainer;
 #if UNITY_ANDROID || UNITY_IOS
 using Unity.Services.LevelPlay;
 #endif
+#if UNITY_IOS && !UNITY_EDITOR
+using Unity.Advertisements.IosSupport;
+#endif
 
 namespace Root.Service
 {
@@ -336,12 +339,33 @@ namespace Root.Service
             }
         }
 
-        /// iOS ATT 応答待ち。Task 5.2 で実装される
+#if UNITY_IOS && !UNITY_EDITOR
+        /// iOS ATT 応答が確定するまで SDK 初期化を遅延する
+        /// Denied / Restricted を含むあらゆる応答でも初期化は継続する (eCPM は下がるが広告は表示可能)
+        async UniTask RequestTrackingAuthorizationIfNeededAsync(CancellationToken cancellationToken)
+        {
+            if (ATTrackingStatusBinding.GetAuthorizationTrackingStatus()
+                == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
+            {
+                ATTrackingStatusBinding.RequestAuthorizationTracking();
+
+                while (ATTrackingStatusBinding.GetAuthorizationTrackingStatus()
+                    == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
+                {
+                    await UniTask.Delay(100, cancellationToken: cancellationToken);
+                }
+            }
+
+            Debug.Log($"[LevelPlayRewardedAdService] ATT status: {ATTrackingStatusBinding.GetAuthorizationTrackingStatus()}");
+        }
+#else
+        /// 非 iOS では ATT 不要のため即時完了
         UniTask RequestTrackingAuthorizationIfNeededAsync(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             return UniTask.CompletedTask;
         }
+#endif
 
         public void Dispose()
         {

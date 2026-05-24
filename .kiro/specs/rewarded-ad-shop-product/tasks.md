@@ -136,22 +136,22 @@
     - `MasterDataImportService.Imported` イベントもしくは Initialize 経由で再構築時、既存カウントから消滅 productId を排除（Import は冪等のため Initialize 時の Reconcile で消滅 productId を破棄）
   - _Requirements: 3.3, 3.4, 3.5, 9.4, 9.5, 10.1, 10.2, 10.3, 10.4, 10.6, 10.7_
 
-- [ ] 8. ShopService に視聴フローと付与処理を実装
-  - [ ] 8.1 RewardAdProductList 構築処理を Initialize に統合
+- [x] 8. ShopService に視聴フローと付与処理を実装
+  - [x] 8.1 RewardAdProductList 構築処理を Initialize に統合
     - `MasterDataState.ShopProducts` から `CurrencyType.RewardAd` を抽出し ProductData に変換
     - `ShopProduct.Id` 昇順で並び替えて `ShopState.RewardAdProductList` に格納
     - 通常 (Yarn) 商品の購入フロー・時限ショップ抽選には引き続き混入させない (既存 `SplitShopProductsForTimedShop` の挙動を維持)
-  - [ ] 8.2 OnProductCellTappedAsync の RewardAd 分岐を実装
+  - [x] 8.2 OnProductCellTappedAsync の RewardAd 分岐を実装
     - 既存スタブ (現状 `return;`) を新規メソッド呼び出しに置換
     - 視聴前確認ダイアログ (CommonConfirmDialog) を IDialogService 経由で表示
     - 承認時に IRewardedAdService.ShowAsync を呼ぶ
     - 視聴セッション内のキャンセル/失敗/中断/成功を結果ごとに分岐
-  - [ ] 8.3 TryGrantPurchasedItem に ItemType.Point 分岐を追加
+  - [x] 8.3 TryGrantPurchasedItem に ItemType.Point 分岐を追加
     - `_userPointService.AddYarn(data.Amount)` を呼び、エラー時はクラスコンテキスト付きログ
     - 戻り値の IsSuccess を呼び出し側に伝搬し、結果メッセージの文言切替に使用
-  - [ ] 8.4 視聴セッション間の多重タップ防止を実装
+  - [x] 8.4 視聴セッション間の多重タップ防止を実装
     - ShopView の `_isProcessing` と並行して、ShopService 内でも進行中の productId を保持し、別セルの新規タップを弾く
-  - [ ] 8.5 失敗時メッセージダイアログを実装
+  - [x] 8.5 失敗時メッセージダイアログを実装
     - DisplayFailed: 「広告を再生できませんでした」 (CommonMessageDialog)
     - Dismissed: 「広告の視聴が中断されました」 (誘導文を含めない、要件 6-3)
     - 付与失敗: 既存 Yarn 商品と同じく結果メッセージ内に「（アイテムの付与に失敗しました）」を併記

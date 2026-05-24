@@ -36,9 +36,11 @@ namespace Shop.RewardAd
             foreach (var id in validProductIds)
                 counts[id] = 0;
 
-            var isFresh = snapshot != null
-                          && snapshot.Version == RewardAdDailyCountSnapshot.CurrentVersion
-                          && snapshot.JstDate == currentJstDate;
+            var isFresh = snapshot is
+                          {
+                              Version: RewardAdDailyCountSnapshot.CurrentVersion,
+                              JstDate: var snapshotDate
+                          } && snapshotDate == currentJstDate;
 
             if (!isFresh)
             {

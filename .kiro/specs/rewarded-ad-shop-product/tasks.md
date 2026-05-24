@@ -177,10 +177,10 @@
   - [x] 10.1 リワード広告商品の新規行を CSV に追加
     - 例: 毛糸ポイント 1 件 (`item_type=point`, `amount=100`, `daily_cap=5`)、家具 1 件、着せ替え 1 件
     - 各行で `currency_type=reward_ad`、`price=0` を統一
-  - [ ] 10.2 ShopView の `_rewardAdCells` に必要数の ProductCellView を Inspector で割り当て（**手動: Editor 作業が必要**）
+  - [x] 10.2 ShopView の `_rewardAdCells` に必要数の ProductCellView を Inspector で割り当て（ユーザー対応済み）
     - リワード広告商品の最大想定数に合わせて Prefab を配置
     - 残数テキスト要素 (TMP_Text) を Prefab に追加して `_remainingCountText` に結線
-  - [ ] 10.3 実機 / Editor で表示順 (ProductId 昇順) とアイコン解決を目視確認（**手動: Editor/実機作業が必要**）
+  - [ ] 10.3 実機 / Editor で表示順 (ProductId 昇順) とアイコン解決を目視確認（**後日対応: 毛糸アイコンの Addressables 登録が未了**）
     - 既存 IconPath 解決 (`Furnitures/{name}` / `Outfits/{name}`) が機能することを確認
     - Point 商品のアイコン解決は新規アイコン (毛糸アイコン) を Addressables に登録する場合は別途用意 (本タスクで合わせて準備)
   - _Requirements: 9.1, 9.2, 9.3_
@@ -198,11 +198,11 @@
     - 8 カラム正常 / 6 カラム不足でスキップ / 空 amount → 1 / 空 daily_cap → null / 数値不正でスキップの各ケース
     - 既存 Yarn 商品行が新カラム空でも正常ロードされること
     - （`ShopProductCsvParser` を新設し純粋関数化、EditMode テスト化。全 27 件パス）
-  - [ ] 11.4 Editor 上で全フローの統合テスト (手動)（**手動: Editor 作業が必要**）
+  - [x] 11.4 Editor 上で全フローの統合テスト (手動)（ユーザー対応済み）
     - スタブ広告で視聴 → 報酬付与 → 残数減 → 永続化反映 → アプリ再起動で永続化復元 → JST 境界またぎでリセット
     - DailyCap 到達後の売り切れ表示確認
     - 確認ダイアログでキャンセル時の挙動 (付与なし、カウント不変)
-  - [ ] 11.5* Android / iOS 実機検証（**手動: 実機作業が必要**）
+  - [ ] 11.5* Android / iOS 実機検証（**後日対応**）
     - Android 実機: 起動 → ロード → ショップ → 視聴 → 付与
     - iOS 実機: ATT ダイアログ → 各応答 (Authorized / Denied / Restricted) で広告ロード継続
     - DisplayFailed / Dismissed のケースを実機で再現 (機内モード等)

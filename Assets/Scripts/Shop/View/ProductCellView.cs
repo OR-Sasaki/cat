@@ -56,8 +56,13 @@ namespace Shop.View
 
             if (_priceText != null)
             {
-                var currencySymbol = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "¥";
-                _priceText.text = $"{currencySymbol} {data.Price:N0}";
+                _priceText.text = data.CurrencyType switch
+                {
+                    CurrencyType.Yarn => $"毛糸 {data.Price:N0}",
+                    CurrencyType.RealMoney => $"¥ {data.Price:N0}",
+                    CurrencyType.RewardAd => "広告を見て獲得",
+                    _ => $"{data.Price:N0}",
+                };
             }
 
             // 残数テキストは既定で非表示。RewardAd セルでのみ SetRemainingCount で表示する。

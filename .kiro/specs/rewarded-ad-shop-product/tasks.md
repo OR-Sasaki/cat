@@ -157,20 +157,20 @@
     - 付与失敗: 既存 Yarn 商品と同じく結果メッセージ内に「（アイテムの付与に失敗しました）」を併記
   - _Requirements: 3.1, 3.6, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 5.2, 5.6, 6.2, 6.3, 6.5, 9.3_
 
-- [ ] 9. ShopView と ProductCellView を残数表示・状態連動に拡張
-  - [ ] 9.1 ProductCellView に残数テキスト表示 API を追加
+- [x] 9. ShopView と ProductCellView を残数表示・状態連動に拡張
+  - [x] 9.1 ProductCellView に残数テキスト表示 API を追加
     - `_remainingCountText` を SerializeField で追加、未割当時は警告ログのみ
     - `SetRemainingCount(int remaining, int dailyCap)` を新規 API として追加、テキストは `{n}/{m}` 形式
     - `Setup` で既定状態は非表示 (SetActive(false))、RewardAd セルでのみアクティブ化
-  - [ ] 9.2 ShopView.SetupCategoryCells と RefreshCategoryAppearance に残数更新を統合
+  - [x] 9.2 ShopView.SetupCategoryCells と RefreshCategoryAppearance に残数更新を統合
     - RewardAd セルのみ `SetRemainingCount` を呼び、Yarn セルでは呼ばない
     - 既存 SetSoldOut / SetDimmed / SetInteractable の呼び順は維持し、売り切れ表示が残数 0 と連動することを確認
-  - [ ] 9.3 IRewardedAdService.StateChanged を ShopView が購読しセル状態を再評価
+  - [x] 9.3 IRewardedAdService.StateChanged を ShopView が購読しセル状態を再評価
     - Ready 遷移時/Failed 遷移時に RefreshAllCellsAppearance を呼ぶ
-    - 起動時の長時間未初期化を検知して RewardAd 枠を「準備中」状態として表示する経路を確保 (要件 6-4)
-  - [ ] 9.4 視聴完了時と JST 境界またぎ時の残数即時更新を結線
+    - 起動時の長時間未初期化を検知して RewardAd 枠を「準備中」状態として表示する経路を確保 (要件 6-4)（未準備時は IsRewardAdAvailable=false により非操作・Dim 表示で「準備中」を表現）
+  - [x] 9.4 視聴完了時と JST 境界またぎ時の残数即時更新を結線
     - ShopService 内のカウント増分後、ShopView に通知し残数テキストを再計算 (`ShopState` の新規イベントを追加する、もしくは ShopView 側で定期/イベント駆動で取得)
-    - JST 日付境界またぎを検知した瞬間 (起動時/視聴成立時の遅延判定でも可) に全 RewardAd セルの残数を `m/m` に戻す
+    - JST 日付境界またぎを検知した瞬間 (起動時/視聴成立時の遅延判定でも可) に全 RewardAd セルの残数を `m/m` に戻す（Tick で JST 境界を検知し OnRewardAdCountsChanged を発火）
   - _Requirements: 3.2, 3.4, 6.1, 6.4, 11.1, 11.2, 11.3, 11.4, 11.5_
 
 - [ ] 10. shop_products.csv に実リワード広告商品を登録し UI 枠を準備

@@ -101,18 +101,18 @@
 
 ### Branch: `feature/rewarded-ad-shop-product-shop-integration`
 
-- [ ] 6. 日次キャップ永続化基盤と JST ヘルパを整備
-  - [ ] 6.1 (P) PlayerPrefsKey に RewardAdDailyCount を追加
+- [x] 6. 日次キャップ永続化基盤と JST ヘルパを整備
+  - [x] 6.1 (P) PlayerPrefsKey に RewardAdDailyCount を追加
     - 既存 enum 末尾に追加し、`PlayerPrefsKey.RewardAdDailyCount` を新規キーとして使用可能にする
-  - [ ] 6.2 (P) RewardAdDailyCountSnapshot シリアライズ型を新規定義
+  - [x] 6.2 (P) RewardAdDailyCountSnapshot シリアライズ型を新規定義
     - `Version` (const 1) / `JstDate` (string YYYY-MM-DD) / `Entries` (productId と count の配列)
     - JsonUtility 対応のため `[Serializable]` 付与、ネスト型 `DailyCountEntry` を含む
-  - [ ] 6.3 (P) RewardAdShopConstants 定数クラスを新設
+  - [x] 6.3 (P) RewardAdShopConstants 定数クラスを新設
     - `DefaultDailyCap` = 5 (要件 9-4 の既定値)
     - 必要なら最大プレイスメント名定数も含める
-  - [ ] 6.4 (P) JST 日付変換ヘルパを新設
+  - [x] 6.4 (P) JST 日付変換ヘルパを新設
     - `IClock.UtcNow` から JST (`UTC+9`) の `DateOnly` を取得するユーティリティを Shop 内 or Root.Service 内に配置
-    - 単体テストしやすい純粋関数として実装
+    - 単体テストしやすい純粋関数として実装（Unity に DateOnly が無いため yyyy-MM-dd 文字列で実装）
   - _Requirements: 9.4, 10.1, 10.5_
 
 - [ ] 7. ShopService に日次キャップ管理を統合

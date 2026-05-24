@@ -186,21 +186,23 @@
   - _Requirements: 9.1, 9.2, 9.3_
 
 - [ ] 11. テストと実機検証
-  - [ ] 11.1 (P) ShopService の日次カウント関連ユニットテストを追加
+  - [x] 11.1 (P) ShopService の日次カウント関連ユニットテストを追加
     - GetDailyRemainingCount: カップ未指定 (既定値適用) / カップ指定 / カウント 0 / カウント上限の各ケース
     - IsSoldOut: Outfit 既所持 / RewardAd 残数 0 / 通常状態の判定
     - マスター再インポート時の存在しない productId 排除
-  - [ ] 11.2 (P) JST 境界判定ヘルパのユニットテスト
+    - （純粋ロジック `RewardAdDailyCount` を対象に EditMode テスト化。ShopService は同ロジックへ委譲）
+  - [x] 11.2 (P) JST 境界判定ヘルパのユニットテスト
     - UTC 14:59 → JST 23:59 同日、UTC 15:00 → JST 翌日 0:00
     - 月末/年末越え (UTC 末日 14:59 / 15:00)
-  - [ ] 11.3 (P) MasterDataImportService の 8 カラム拡張テスト
+  - [x] 11.3 (P) MasterDataImportService の 8 カラム拡張テスト
     - 8 カラム正常 / 6 カラム不足でスキップ / 空 amount → 1 / 空 daily_cap → null / 数値不正でスキップの各ケース
     - 既存 Yarn 商品行が新カラム空でも正常ロードされること
-  - [ ] 11.4 Editor 上で全フローの統合テスト (手動)
+    - （`ShopProductCsvParser` を新設し純粋関数化、EditMode テスト化。全 27 件パス）
+  - [ ] 11.4 Editor 上で全フローの統合テスト (手動)（**手動: Editor 作業が必要**）
     - スタブ広告で視聴 → 報酬付与 → 残数減 → 永続化反映 → アプリ再起動で永続化復元 → JST 境界またぎでリセット
     - DailyCap 到達後の売り切れ表示確認
     - 確認ダイアログでキャンセル時の挙動 (付与なし、カウント不変)
-  - [ ] 11.5* Android / iOS 実機検証
+  - [ ] 11.5* Android / iOS 実機検証（**手動: 実機作業が必要**）
     - Android 実機: 起動 → ロード → ショップ → 視聴 → 付与
     - iOS 実機: ATT ダイアログ → 各応答 (Authorized / Denied / Restricted) で広告ロード継続
     - DisplayFailed / Dismissed のケースを実機で再現 (機内モード等)

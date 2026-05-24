@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Root.State;
+using Shop.RewardAd;
 using Shop.State;
 using UnityEngine;
 
@@ -91,84 +92,35 @@ namespace Root.Service
                 var products = new List<ShopProduct>();
                 foreach (var line in lines)
                 {
-                    var columns = line.Split(',');
-                    if (columns.Length < 8)
+                    if (!ShopProductCsvParser.TryParseLine(line, out var row, out var error))
                     {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid column count, skipping line: {line}");
+                        Debug.LogWarning($"[MasterDataImportService] shop_products: {error}, skipping line: {line}");
                         continue;
                     }
 
-                    if (!uint.TryParse(columns[0].Trim(), out var id))
-                    {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid id, skipping line: {line}");
-                        continue;
-                    }
-
-                    var name = columns[1].Trim();
-
-                    if (!Enum.TryParse<ItemType>(columns[2].Trim(), ignoreCase: true, out var itemType))
+                    if (!Enum.TryParse<ItemType>(row.ItemTypeRaw, ignoreCase: true, out var itemType))
                     {
                         Debug.LogWarning($"[MasterDataImportService] shop_products: invalid item_type, skipping line: {line}");
                         continue;
                     }
 
-                    if (!uint.TryParse(columns[3].Trim(), out var itemId))
-                    {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid item_id, skipping line: {line}");
-                        continue;
-                    }
-
-                    if (!int.TryParse(columns[4].Trim(), out var price))
-                    {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid price, skipping line: {line}");
-                        continue;
-                    }
-
-                    var currencyTypeRaw = columns[5].Trim();
                     CurrencyType currencyType;
-                    if (string.Equals(currencyTypeRaw, "yarn", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(row.CurrencyTypeRaw, "yarn", StringComparison.OrdinalIgnoreCase))
                     {
                         currencyType = CurrencyType.Yarn;
                     }
-                    else if (string.Equals(currencyTypeRaw, "reward_ad", StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(row.CurrencyTypeRaw, "reward_ad", StringComparison.OrdinalIgnoreCase))
                     {
                         currencyType = CurrencyType.RewardAd;
                     }
                     else
                     {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: unsupported currency_type '{currencyTypeRaw}', skipping line: {line}");
+                        Debug.LogWarning($"[MasterDataImportService] shop_products: unsupported currency_type '{row.CurrencyTypeRaw}', skipping line: {line}");
                         continue;
                     }
 
-                    var amountRaw = columns[6].Trim();
-                    int amount;
-                    if (string.IsNullOrEmpty(amountRaw))
-                    {
-                        amount = 1;
-                    }
-                    else if (!int.TryParse(amountRaw, out amount))
-                    {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid amount, skipping line: {line}");
-                        continue;
-                    }
-
-                    var dailyCapRaw = columns[7].Trim();
-                    int? dailyCap;
-                    if (string.IsNullOrEmpty(dailyCapRaw))
-                    {
-                        dailyCap = null;
-                    }
-                    else if (int.TryParse(dailyCapRaw, out var parsedDailyCap))
-                    {
-                        dailyCap = parsedDailyCap;
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[MasterDataImportService] shop_products: invalid daily_cap, skipping line: {line}");
-                        continue;
-                    }
-
-                    products.Add(new ShopProduct(id, name, itemType, itemId, price, currencyType, amount, dailyCap));
+                    products.Add(new ShopProduct(
+                        row.Id, row.Name, itemType, row.ItemId, row.Price, currencyType, row.Amount, row.DailyCap));
                 }
 
                 _masterDataState.ShopProducts = products.ToArray();

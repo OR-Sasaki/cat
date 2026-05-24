@@ -98,7 +98,8 @@ namespace Root.Service
                         continue;
                     }
 
-                    if (!Enum.TryParse<ItemType>(row.ItemTypeRaw, ignoreCase: true, out var itemType))
+                    if (!Enum.TryParse<ItemType>(row.ItemTypeRaw, ignoreCase: true, out var itemType)
+                        || !Enum.IsDefined(typeof(ItemType), itemType))
                     {
                         Debug.LogWarning($"[MasterDataImportService] shop_products: invalid item_type, skipping line: {line}");
                         continue;

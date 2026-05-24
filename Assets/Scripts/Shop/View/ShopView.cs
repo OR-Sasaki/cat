@@ -61,6 +61,7 @@ namespace Shop.View
         ShopService? _shopService;
         IUserPointService? _userPointService;
         IUserItemInventoryService? _userItemInventoryService;
+        IRewardedAdService? _rewardedAdService;
         bool _isProcessing;
 
         [Inject]
@@ -68,12 +69,14 @@ namespace Shop.View
             ShopState state,
             ShopService shopService,
             IUserPointService userPointService,
-            IUserItemInventoryService userItemInventoryService)
+            IUserItemInventoryService userItemInventoryService,
+            IRewardedAdService rewardedAdService)
         {
             _state = state;
             _shopService = shopService;
             _userPointService = userPointService;
             _userItemInventoryService = userItemInventoryService;
+            _rewardedAdService = rewardedAdService;
         }
 
         void Start()
@@ -148,6 +151,7 @@ namespace Shop.View
             if (_state != null)
             {
                 _state.OnTimedShopUpdated += OnTimedShopUpdated;
+                _state.OnRewardAdCountsChanged += OnRewardAdCountsChanged;
             }
 
             if (_userPointService != null)
@@ -160,6 +164,11 @@ namespace Shop.View
             {
                 _userItemInventoryService.OutfitChanged += OnOutfitChanged;
             }
+
+            if (_rewardedAdService != null)
+            {
+                _rewardedAdService.StateChanged += OnRewardedAdStateChanged;
+            }
         }
 
         void UnsubscribeFromStateEvents()
@@ -167,6 +176,7 @@ namespace Shop.View
             if (_state != null)
             {
                 _state.OnTimedShopUpdated -= OnTimedShopUpdated;
+                _state.OnRewardAdCountsChanged -= OnRewardAdCountsChanged;
             }
 
             if (_userPointService != null)
@@ -174,6 +184,21 @@ namespace Shop.View
 
             if (_userItemInventoryService != null)
                 _userItemInventoryService.OutfitChanged -= OnOutfitChanged;
+
+            if (_rewardedAdService != null)
+                _rewardedAdService.StateChanged -= OnRewardedAdStateChanged;
+        }
+
+        // リワード広告 SDK の状態変化（準備中→視聴可能→失敗 等）でセル状態を再評価する
+        void OnRewardedAdStateChanged(RewardedAdState _)
+        {
+            RefreshAllCellsAppearance();
+        }
+
+        // 視聴成立・JST 境界リセットによる残数変化でセル状態を再評価する
+        void OnRewardAdCountsChanged()
+        {
+            RefreshAllCellsAppearance();
         }
 
         void OnYarnBalanceChanged(int balance)
@@ -203,7 +228,7 @@ namespace Shop.View
                 _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            RefreshCategoryAppearance(_rewardAdCells, _state.RewardAdProductList, balance);
+            RefreshCategoryAppearance(_rewardAdCells, _state.RewardAdProductList, balance, isRewardAd: true);
             RefreshCategoryAppearance(_timedFurnitureCells, _state.TimedFurnitureProductList, balance);
             RefreshCategoryAppearance(_timedOutfitCells, _state.TimedOutfitProductList, balance);
         }
@@ -211,7 +236,8 @@ namespace Shop.View
         void RefreshCategoryAppearance(
             List<ProductCellView> cells,
             IReadOnlyList<ProductData> list,
-            int balance)
+            int balance,
+            bool isRewardAd = false)
         {
             if (_shopService == null) return;
 
@@ -228,6 +254,15 @@ namespace Shop.View
                 cell.SetSoldOut(isSoldOut);
                 cell.SetDimmed(!isAffordable);
                 cell.SetInteractable(isAffordable);
+
+                // 残数 n/m はリワード広告セルのみ更新する（Yarn/時限セルでは呼ばない）
+                if (isRewardAd && data.ProductId.HasValue)
+                {
+                    var productId = data.ProductId.Value;
+                    cell.SetRemainingCount(
+                        _shopService.GetDailyRemainingCount(productId),
+                        _shopService.GetEffectiveDailyCap(productId));
+                }
             }
         }
 

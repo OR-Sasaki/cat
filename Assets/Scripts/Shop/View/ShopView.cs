@@ -46,8 +46,8 @@ namespace Shop.View
         [Header("Point Cells (legacy, kept for scene compatibility)")]
         [SerializeField] List<ProductCellView> _pointCells = new();
 
-        [Header("Reward-Ad Cells (placeholder, 0 cells in this phase)")]
-        [SerializeField] List<ProductCellView> _rewardAdCells = new();
+        [Header("Reward-Ad Cells")]
+        [SerializeField] List<RewardAdProductCellView> _rewardAdCells = new();
 
         [Header("Timed Shop Furniture Cells")]
         [SerializeField] List<ProductCellView> _timedFurnitureCells = new();
@@ -119,7 +119,7 @@ namespace Shop.View
 
             if (_state == null) return;
 
-            SetupCategoryCells(_rewardAdCells, _state.RewardAdProductList);
+            SetupRewardAdCells(_rewardAdCells, _state.RewardAdProductList);
             SetupCategoryCells(_timedFurnitureCells, _state.TimedFurnitureProductList);
             SetupCategoryCells(_timedOutfitCells, _state.TimedOutfitProductList);
 
@@ -127,6 +127,26 @@ namespace Shop.View
         }
 
         void SetupCategoryCells(List<ProductCellView> cells, IReadOnlyList<ProductData> list)
+        {
+            var dataCount = list.Count;
+            for (var i = 0; i < cells.Count; i++)
+            {
+                var cell = cells[i];
+                if (cell == null) continue;
+
+                if (i < dataCount)
+                {
+                    cell.gameObject.SetActive(true);
+                    cell.Setup(list[i]);
+                }
+                else
+                {
+                    cell.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        void SetupRewardAdCells(List<RewardAdProductCellView> cells, IReadOnlyList<ProductData> list)
         {
             var dataCount = list.Count;
             for (var i = 0; i < cells.Count; i++)
@@ -228,7 +248,7 @@ namespace Shop.View
                 _shopService.RefreshGachaCellInteractable(_gachaCells[i], i, balance);
             }
 
-            RefreshCategoryAppearance(_rewardAdCells, _state.RewardAdProductList, balance, isRewardAd: true);
+            RefreshRewardAdCellsAppearance(_rewardAdCells, _state.RewardAdProductList, balance);
             RefreshCategoryAppearance(_timedFurnitureCells, _state.TimedFurnitureProductList, balance);
             RefreshCategoryAppearance(_timedOutfitCells, _state.TimedOutfitProductList, balance);
         }
@@ -236,8 +256,7 @@ namespace Shop.View
         void RefreshCategoryAppearance(
             List<ProductCellView> cells,
             IReadOnlyList<ProductData> list,
-            int balance,
-            bool isRewardAd = false)
+            int balance)
         {
             if (_shopService == null) return;
 
@@ -254,15 +273,30 @@ namespace Shop.View
                 cell.SetSoldOut(isSoldOut);
                 cell.SetDimmed(!isAffordable);
                 cell.SetInteractable(isAffordable);
+            }
+        }
 
-                // 残数 n/m はリワード広告セルのみ更新する（Yarn/時限セルでは呼ばない）
-                if (isRewardAd && data.ProductId.HasValue)
-                {
-                    var productId = data.ProductId.Value;
-                    cell.SetRemainingCount(
-                        _shopService.GetDailyRemainingCount(productId),
-                        _shopService.GetEffectiveDailyCap(productId));
-                }
+        // IsAffordable は IRewardedAdService.IsReady と当日残数 >= 1 を両方満たすかを返す。
+        // どちらか欠ければグレーアウト＋無効化する単一オーバーレイで表現する。
+        void RefreshRewardAdCellsAppearance(
+            List<RewardAdProductCellView> cells,
+            IReadOnlyList<ProductData> list,
+            int balance)
+        {
+            if (_shopService == null) return;
+
+            var count = Math.Min(cells.Count, list.Count);
+            for (var i = 0; i < count; i++)
+            {
+                var cell = cells[i];
+                if (cell == null) continue;
+
+                var data = list[i];
+                var isAffordable = _shopService.IsAffordable(data, balance);
+                cell.SetGrayedOut(!isAffordable);
+
+                if (data.ProductId.HasValue)
+                    cell.SetRemainingCount(_shopService.GetDailyRemainingCount(data.ProductId.Value));
             }
         }
 

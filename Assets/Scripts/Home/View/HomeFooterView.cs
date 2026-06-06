@@ -29,6 +29,7 @@ namespace Home.View
             _closetButton.onClick.AddListener(() => homeStateSetService.SetState(HomeState.State.Closet));
             _timerButton.onClick.AddListener(() =>
                 OnTimerButtonClickedAsync(dialogService, sceneLoader, destroyCancellationToken).Forget());
+            _shopButton.onClick.AddListener(() => sceneLoader.Load(Const.SceneName.Shop));
             _historyButton.onClick.AddListener(() => sceneLoader.Load(Const.SceneName.History));
         }
 

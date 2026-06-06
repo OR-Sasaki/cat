@@ -24,7 +24,7 @@ namespace Shop.View
         /// セルがタップされた時のイベント
         public event Action<ProductData>? OnTapped;
 
-        AsyncOperationHandle<Sprite>? _iconHandle;
+        AsyncOperationHandle? _iconHandle;
         bool? _isSoldOut;
         bool? _lastDimmed;
         bool? _lastInteractable;
@@ -58,7 +58,7 @@ namespace Shop.View
                 _priceText.text = $"{currencySymbol} {data.Price:N0}";
             }
 
-            LoadIconAsync(data.IconPath);
+            LoadIconAsync(data);
         }
 
         // 売り切れ ＞ タップ無効の優先度を保証するため、interactable は _isSoldOut で常に上書きされる。
@@ -115,22 +115,36 @@ namespace Shop.View
                 OnTapped?.Invoke(Data);
         }
 
-        void LoadIconAsync(string iconPath)
+        void LoadIconAsync(ProductData data)
         {
-            if (string.IsNullOrEmpty(iconPath) || _icon == null)
+            if (string.IsNullOrEmpty(data.IconPath) || _icon == null)
                 return;
 
             ReleaseIconAsset();
 
-            var handle = Addressables.LoadAssetAsync<Sprite>(iconPath);
+            switch (data.ItemType)
+            {
+                case ItemType.Furniture:
+                    LoadThumbnail<Cat.Furniture.Furniture>(data.IconPath, f => f.Thumbnail);
+                    break;
+                case ItemType.Outfit:
+                    LoadThumbnail<Cat.Character.Outfit>(data.IconPath, o => o.Thumbnail);
+                    break;
+            }
+        }
+
+        void LoadThumbnail<T>(string address, Func<T, Sprite?> thumbnailSelector) where T : UnityEngine.Object
+        {
+            var handle = Addressables.LoadAssetAsync<T>(address);
             _iconHandle = handle;
 
             handle.Completed += h =>
             {
                 if (h.Status == AsyncOperationStatus.Succeeded && h.Result != null)
                 {
-                    if (_icon != null)
-                        _icon.sprite = h.Result;
+                    var sprite = thumbnailSelector(h.Result);
+                    if (_icon != null && sprite != null)
+                        _icon.sprite = sprite;
                 }
                 else if (h.OperationException is Exception e)
                 {
@@ -138,7 +152,7 @@ namespace Shop.View
                 }
                 else
                 {
-                    Debug.LogError($"[ProductCellView] Failed to load icon: {iconPath}");
+                    Debug.LogError($"[ProductCellView] Failed to load icon: {address}");
                 }
             };
         }

@@ -187,7 +187,7 @@ namespace Shop.Service
 
         static string ResolveOutfitIconPath(Outfit outfit)
         {
-            return $"Outfits/{outfit.Name}";
+            return $"{outfit.Type}/{outfit.Name}.asset";
         }
 
         public void SetCurrentTab(ShopTab tab)

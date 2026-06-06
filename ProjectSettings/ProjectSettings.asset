@@ -516,6 +516,9 @@ PlayerSettings:
   - serializedVersion: 3
     m_BuildTarget: Android
     m_Formats: 01000000
+  - serializedVersion: 3
+    m_BuildTarget: iOS
+    m_Formats: 03000000
   playModeTestRunnerEnabled: 0
   runPlayModeTestAsEditModeTest: 0
   actionOnDotNetUnhandledException: 1
@@ -798,7 +801,7 @@ PlayerSettings:
     WebGL: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
     Windows Store Apps: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
     XboxOne: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
-    iPhone: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
+    iPhone: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO;LEVELPLAY_DEPENDENCIES_INSTALLED
     tvOS: DOTWEEN;DOTWEEN_DEUNITYEXTENDED;DOTWEEN_TEXTMESHPRO
   additionalCompilerArguments: {}
   platformArchitecture: {}

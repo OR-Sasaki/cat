@@ -11,11 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd0d3fe369d662940be205effdda1188, type: 3}
   m_Name: RewardedAdConfig
-  m_EditorClassIdentifier:
-  _androidAppKey:
-  _androidRewardedAdUnitId:
-  _iosAppKey:
-  _iosRewardedAdUnitId:
+  m_EditorClassIdentifier: 
+  _androidAppKey: 
+  _androidRewardedAdUnitId: 
+  _iosAppKey: 
+  _iosRewardedAdUnitId: 
   _defaultPlacementName: ShopRewardAd
   _maxLoadRetryCount: 5
   _loadRetryInitialDelaySeconds: 1

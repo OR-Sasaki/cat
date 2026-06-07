@@ -108,14 +108,16 @@ namespace Shop.Service
         {
             if (!_isInitialized) return;
 
+            var utcNow = _clock.UtcNow;
+
             // JST 日付境界を跨いだら全リワード広告商品の残数をリセットし、開いている画面へ通知する
-            if (EnsureFreshDate())
+            if (EnsureFreshDate(utcNow))
                 _state.NotifyRewardAdCountsChanged();
 
             // 毎フレームのコストを抑える: 次回更新時刻に到達するまでスナップショット計算を省略する
-            if (_clock.UtcNow < _state.NextUpdateAt) return;
+            if (utcNow < _state.NextUpdateAt) return;
 
-            var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
+            var snapshot = TimedShopCycleCalculator.Calculate(utcNow, TimedShopConstants.UpdateInterval);
             if (snapshot.CycleId == _state.CurrentCycleId) return;
 
             RebuildTimedShop(snapshot);
@@ -326,7 +328,7 @@ namespace Shop.Service
         // 当該商品の本日残り視聴回数（下限 0）。日付跨ぎを検知したら遡及リセットする（要件 10-6）。
         public int GetDailyRemainingCount(uint productId)
         {
-            EnsureFreshDate();
+            EnsureFreshDate(_clock.UtcNow);
             var count = _dailyCountByProductId.TryGetValue(productId, out var c) ? c : 0;
             var dailyCap = _rewardAdProductById.TryGetValue(productId, out var product) ? product.DailyCap : null;
             return RewardAdDailyCount.ComputeRemaining(count, dailyCap, RewardAdShopConstants.DefaultDailyCap);
@@ -404,9 +406,9 @@ namespace Shop.Service
 
         // JST 日付が変わっていれば全カウントを 0 にリセットして永続化する。
         // リセットが発生したら true を返す。
-        bool EnsureFreshDate()
+        bool EnsureFreshDate(System.DateTimeOffset utcNow)
         {
-            var today = JstDateHelper.ToJstDate(_clock.UtcNow);
+            var today = JstDateHelper.ToJstDate(utcNow);
             if (today == _currentJstDate)
                 return false;
 
@@ -422,7 +424,7 @@ namespace Shop.Service
         // 報酬付与成功時にカウントを 1 加算して即時永続化し、画面へ残数更新を通知する。
         void IncrementDailyCount(uint productId)
         {
-            EnsureFreshDate();
+            EnsureFreshDate(_clock.UtcNow);
             _dailyCountByProductId.TryGetValue(productId, out var current);
             _dailyCountByProductId[productId] = current + 1;
             SaveRewardAdDailyCount();

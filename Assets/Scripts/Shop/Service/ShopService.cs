@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Root.Service;
 using Root.State;
 using Root.View;
+using Shop.RewardAd;
 using Shop.View;
 using Shop.State;
 using UnityEngine;
@@ -25,11 +26,22 @@ namespace Shop.Service
         readonly IDialogService _dialogService;
         readonly SceneLoader _sceneLoader;
         readonly IClock _clock;
+        readonly IRewardedAdService _rewardedAdService;
+        readonly PlayerPrefsService _playerPrefsService;
+        readonly RewardedAdConfig _rewardedAdConfig;
 
         Furniture[]? _cachedFurnitureSource;
         Dictionary<uint, Furniture>? _furnitureLookup;
         Outfit[]? _cachedOutfitSource;
         Dictionary<uint, Outfit>? _outfitLookup;
+
+        // リワード広告商品の日次視聴消化回数（productId -> 当日カウント）と、それが属する JST 日付
+        readonly Dictionary<uint, int> _dailyCountByProductId = new();
+        readonly Dictionary<uint, ShopProduct> _rewardAdProductById = new();
+        System.DateTime _currentJstDate;
+
+        // 視聴セッション進行中の productId（多重タップ防止、要件 5-2）
+        uint? _processingProductId;
 
         bool _isInitialized;
 
@@ -41,7 +53,10 @@ namespace Shop.Service
             MasterDataState masterDataState,
             IDialogService dialogService,
             SceneLoader sceneLoader,
-            IClock clock)
+            IClock clock,
+            IRewardedAdService rewardedAdService,
+            PlayerPrefsService playerPrefsService,
+            RewardedAdConfig rewardedAdConfig)
         {
             _state = state;
             _userPointService = userPointService;
@@ -50,24 +65,59 @@ namespace Shop.Service
             _dialogService = dialogService;
             _sceneLoader = sceneLoader;
             _clock = clock;
+            _rewardedAdService = rewardedAdService;
+            _playerPrefsService = playerPrefsService;
+            _rewardedAdConfig = rewardedAdConfig;
         }
 
         public void Initialize()
         {
-            _state.RewardAdProductList.Clear();
+            BuildRewardAdProductList();
+            LoadRewardAdDailyCount();
 
             var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
             RebuildTimedShop(snapshot);
             _isInitialized = true;
         }
 
+        // マスターから CurrencyType.RewardAd の商品を抽出し ProductId 昇順で RewardAdProductList を構築する。
+        // 通常 (Yarn) 商品の購入フロー・時限ショップ抽選には混入させない。
+        void BuildRewardAdProductList()
+        {
+            _state.RewardAdProductList.Clear();
+
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+            var rewardAdProducts = new List<ShopProduct>();
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                if (shopProducts[i].CurrencyType == CurrencyType.RewardAd)
+                    rewardAdProducts.Add(shopProducts[i]);
+            }
+
+            rewardAdProducts.Sort((a, b) => a.Id.CompareTo(b.Id));
+
+            for (var i = 0; i < rewardAdProducts.Count; i++)
+            {
+                var data = BuildProductDataFromShopProduct(rewardAdProducts[i]);
+                if (data != null)
+                    _state.RewardAdProductList.Add(data);
+            }
+        }
+
         public void Tick()
         {
             if (!_isInitialized) return;
-            // 毎フレームのコストを抑える: 次回更新時刻に到達するまでスナップショット計算を省略する
-            if (_clock.UtcNow < _state.NextUpdateAt) return;
 
-            var snapshot = TimedShopCycleCalculator.Calculate(_clock.UtcNow, TimedShopConstants.UpdateInterval);
+            var utcNow = _clock.UtcNow;
+
+            // JST 日付境界を跨いだら全リワード広告商品の残数をリセットし、開いている画面へ通知する
+            if (EnsureFreshDate(utcNow))
+                _state.NotifyRewardAdCountsChanged();
+
+            // 毎フレームのコストを抑える: 次回更新時刻に到達するまでスナップショット計算を省略する
+            if (utcNow < _state.NextUpdateAt) return;
+
+            var snapshot = TimedShopCycleCalculator.Calculate(utcNow, TimedShopConstants.UpdateInterval);
             if (snapshot.CycleId == _state.CurrentCycleId) return;
 
             RebuildTimedShop(snapshot);
@@ -161,8 +211,11 @@ namespace Shop.Service
                     break;
                 }
                 case ItemType.Point:
-                    Debug.LogWarning($"[ShopService] ItemType.Point is not supported in this phase (product_id={product.Id})");
-                    return null;
+                {
+                    displayName = string.IsNullOrEmpty(product.Name) ? "毛糸" : product.Name;
+                    iconPath = $"Points/{displayName}";
+                    break;
+                }
                 default:
                     Debug.LogWarning($"[ShopService] Unsupported ItemType={product.ItemType} (product_id={product.Id})");
                     return null;
@@ -176,7 +229,8 @@ namespace Shop.Service
                 ProductType: ProductType.Item,
                 ItemType: product.ItemType,
                 ProductId: product.Id,
-                ItemId: product.ItemId
+                ItemId: product.ItemId,
+                Amount: product.Amount
             );
         }
 
@@ -243,13 +297,19 @@ namespace Shop.Service
             {
                 CurrencyType.Yarn => balance >= data.Price,
                 CurrencyType.RealMoney => true,
-                CurrencyType.RewardAd => false,
+                CurrencyType.RewardAd => data.ProductId.HasValue && IsRewardAdAvailable(data.ProductId.Value),
                 _ => false,
             };
         }
 
         public bool IsSoldOut(ProductData data)
         {
+            // リワード広告商品は当日残数 0 でも売り切れ扱い（要件 3-5）
+            if (data.CurrencyType == CurrencyType.RewardAd
+                && data.ProductId.HasValue
+                && GetDailyRemainingCount(data.ProductId.Value) <= 0)
+                return true;
+
             return data.ItemType switch
             {
                 ItemType.Outfit => data.ItemId.HasValue && _userItemInventoryService.HasOutfit(data.ItemId.Value),
@@ -257,6 +317,112 @@ namespace Shop.Service
                 ItemType.Point => false,
                 _ => false,
             };
+        }
+
+        // 当該商品の本日残り視聴回数（下限 0）。日付跨ぎを検知したら遡及リセットする（要件 10-6）。
+        public int GetDailyRemainingCount(uint productId)
+        {
+            EnsureFreshDate(_clock.UtcNow);
+            var count = _dailyCountByProductId.TryGetValue(productId, out var c) ? c : 0;
+            var dailyCap = _rewardAdProductById.TryGetValue(productId, out var product) ? product.DailyCap : null;
+            return RewardAdDailyCount.ComputeRemaining(count, dailyCap, RewardAdShopConstants.DefaultDailyCap);
+        }
+
+        // 視聴可能 = 広告が視聴可能状態かつ当日残数 1 以上
+        public bool IsRewardAdAvailable(uint productId)
+        {
+            return _rewardedAdService.IsReady && GetDailyRemainingCount(productId) >= 1;
+        }
+
+        // 当該商品の日次上限 m（残数表示の分母）。マスター未指定・0 以下は既定値。
+        public int GetEffectiveDailyCap(uint productId)
+        {
+            var dailyCap = _rewardAdProductById.TryGetValue(productId, out var product) ? product.DailyCap : null;
+            return RewardAdDailyCount.ResolveDailyCap(dailyCap, RewardAdShopConstants.DefaultDailyCap);
+        }
+
+        void LoadRewardAdDailyCount()
+        {
+            BuildRewardAdMasterLookup();
+
+            var nowUtc = _clock.UtcNow;
+            var currentJstDateString = JstDateHelper.ToJstDateString(nowUtc);
+
+            RewardAdDailyCountSnapshot? snapshot = null;
+            try
+            {
+                snapshot = _playerPrefsService.Load<RewardAdDailyCountSnapshot>(PlayerPrefsKey.RewardAdDailyCount);
+            }
+            catch (System.Exception e)
+            {
+                // 初回起動（空文字）や破損時は例外になりうるため握りつぶしてリセット扱いにする
+                Debug.LogWarning($"[ShopService] RewardAdDailyCount load failed, resetting: {e.Message}");
+            }
+
+            var result = RewardAdDailyCount.Reconcile(snapshot, currentJstDateString, _rewardAdProductById.Keys);
+
+            _dailyCountByProductId.Clear();
+            foreach (var kv in result.Counts)
+                _dailyCountByProductId[kv.Key] = kv.Value;
+            _currentJstDate = JstDateHelper.ToJstDate(nowUtc);
+
+            if (result.RequiresPersist)
+                SaveRewardAdDailyCount();
+        }
+
+        // マスターから RewardAd 商品の (productId -> ShopProduct) 参照表を再構築する。
+        // マスター再インポートで配列が差し替わっても最新集合で同定できるようにする（要件 10-7）。
+        void BuildRewardAdMasterLookup()
+        {
+            _rewardAdProductById.Clear();
+            var shopProducts = _masterDataState.ShopProducts ?? System.Array.Empty<ShopProduct>();
+            for (var i = 0; i < shopProducts.Length; i++)
+            {
+                var product = shopProducts[i];
+                if (product.CurrencyType != CurrencyType.RewardAd) continue;
+                _rewardAdProductById[product.Id] = product;
+            }
+        }
+
+        void SaveRewardAdDailyCount()
+        {
+            try
+            {
+                var snapshot = RewardAdDailyCount.BuildSnapshot(
+                    _dailyCountByProductId, JstDateHelper.ToDateString(_currentJstDate));
+                _playerPrefsService.Save(PlayerPrefsKey.RewardAdDailyCount, snapshot);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[ShopService] {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        // JST 日付が変わっていれば全カウントを 0 にリセットして永続化する。
+        // リセットが発生したら true を返す。
+        bool EnsureFreshDate(System.DateTimeOffset utcNow)
+        {
+            var today = JstDateHelper.ToJstDate(utcNow);
+            if (today == _currentJstDate)
+                return false;
+
+            var keys = new List<uint>(_dailyCountByProductId.Keys);
+            for (var i = 0; i < keys.Count; i++)
+                _dailyCountByProductId[keys[i]] = 0;
+
+            _currentJstDate = today;
+            SaveRewardAdDailyCount();
+            return true;
+        }
+
+        // 報酬付与成功時にカウントを 1 加算して即時永続化し、画面へ残数更新を通知する。
+        void IncrementDailyCount(uint productId)
+        {
+            EnsureFreshDate(_clock.UtcNow);
+            _dailyCountByProductId.TryGetValue(productId, out var current);
+            _dailyCountByProductId[productId] = current + 1;
+            SaveRewardAdDailyCount();
+            _state.NotifyRewardAdCountsChanged();
         }
 
         public bool IsTimedShopProduct(ProductData data)
@@ -285,7 +451,7 @@ namespace Shop.Service
         {
             if (data.CurrencyType == CurrencyType.RewardAd)
             {
-                // 本フェーズ未対応。将来の Unity Ads 統合点として分岐を残す。
+                await OnRewardAdProductTappedAsync(data, ct);
                 return;
             }
 
@@ -357,6 +523,95 @@ namespace Shop.Service
             );
         }
 
+        // リワード広告商品の視聴フロー: 確認ダイアログ → 視聴 → 結果分岐 → 付与 → 結果メッセージ
+        public async UniTask OnRewardAdProductTappedAsync(ProductData data, CancellationToken ct)
+        {
+            if (!data.ProductId.HasValue)
+                return;
+
+            var productId = data.ProductId.Value;
+
+            if (!IsRewardAdAvailable(productId))
+                return;
+
+            // 多重タップ防止: 別セッション進行中なら弾く
+            if (_processingProductId.HasValue)
+                return;
+
+            _processingProductId = productId;
+            try
+            {
+                var confirmResult = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
+                    new CommonConfirmDialogArgs(
+                        Title: "視聴確認",
+                        Message: $"広告を視聴して「{data.Name}」を獲得しますか？"
+                    ),
+                    ct
+                );
+
+                if (confirmResult != DialogResult.Ok)
+                    return;
+
+                // 確認中に状態が変化している可能性があるため再評価
+                if (!IsRewardAdAvailable(productId))
+                {
+                    await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
+                    return;
+                }
+
+                var result = await _rewardedAdService.ShowAsync(_rewardedAdConfig.DefaultPlacementName, ct);
+
+                switch (result)
+                {
+                    case RewardedAdResult.Rewarded:
+                        await HandleRewardedAsync(data, productId, ct);
+                        break;
+                    case RewardedAdResult.Dismissed:
+                        // 誘導文を含めない
+                        await ShowRewardAdMessageAsync("広告の視聴が中断されました", ct);
+                        break;
+                    case RewardedAdResult.DisplayFailed:
+                    case RewardedAdResult.NotReady:
+                        await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
+                        break;
+                }
+            }
+            finally
+            {
+                _processingProductId = null;
+            }
+        }
+
+        async UniTask HandleRewardedAsync(ProductData data, uint productId, CancellationToken ct)
+        {
+            var grantSucceeded = TryGrantPurchasedItem(data);
+            if (grantSucceeded)
+                IncrementDailyCount(productId);
+
+            var message = grantSucceeded
+                ? $"「{data.Name}」を獲得しました！"
+                : $"「{data.Name}」を獲得しました！\n（アイテムの付与に失敗しました）";
+
+            await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                new CommonMessageDialogArgs(
+                    Title: "獲得完了",
+                    Message: message
+                ),
+                ct
+            );
+        }
+
+        async UniTask ShowRewardAdMessageAsync(string message, CancellationToken ct)
+        {
+            await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
+                new CommonMessageDialogArgs(
+                    Title: "お知らせ",
+                    Message: message
+                ),
+                ct
+            );
+        }
+
         bool TryGrantPurchasedItem(ProductData data)
         {
             if (!data.ItemId.HasValue)
@@ -379,7 +634,12 @@ namespace Shop.Service
                     return result.IsSuccess;
                 }
                 case ItemType.Point:
-                    return true;
+                {
+                    var result = _userPointService.AddYarn(data.Amount);
+                    if (!result.IsSuccess)
+                        Debug.LogError($"[ShopService] AddYarn failed (amount={data.Amount}): {result.Error}");
+                    return result.IsSuccess;
+                }
                 default:
                     return true;
             }

@@ -9,7 +9,8 @@ using UnityEngine.UI;
 
 namespace Shop.View
 {
-    /// 汎用商品セルの表示（アイテム/毛糸パック共用）
+    /// 汎用商品セルの表示（毛糸建ての家具/着せ替え/毛糸パック共用）。
+    /// リワード広告商品は専用の RewardAdProductCellView を使う。
     public class ProductCellView : MonoBehaviour
     {
         [SerializeField] Image? _icon;
@@ -54,8 +55,13 @@ namespace Shop.View
 
             if (_priceText != null)
             {
-                var currencySymbol = data.CurrencyType == CurrencyType.Yarn ? "毛糸" : "¥";
-                _priceText.text = $"{currencySymbol} {data.Price:N0}";
+                _priceText.text = data.CurrencyType switch
+                {
+                    CurrencyType.Yarn => $"毛糸 {data.Price:N0}",
+                    CurrencyType.RealMoney => $"¥ {data.Price:N0}",
+                    CurrencyType.RewardAd => $"{data.Price:N0}",
+                    _ => $"{data.Price:N0}",
+                };
             }
 
             LoadIconAsync(data);

@@ -39,7 +39,8 @@ namespace Shop.State
         ItemType ItemType,
         uint? ProductId,
         uint? ItemId,
-        int? YarnAmount = null // 毛糸パックの場合のみ使用
+        int? YarnAmount = null, // 毛糸パックの場合のみ使用
+        int Amount = 1 // 付与数（RewardAd/Point用）
     );
 
     public class ShopState
@@ -58,6 +59,14 @@ namespace Shop.State
         public DateTimeOffset NextUpdateAt { get; private set; }
 
         public event Action? OnTimedShopUpdated;
+
+        /// リワード広告商品の残り視聴回数が変化したときに発火（視聴成立・JST 日付境界リセット）
+        public event Action? OnRewardAdCountsChanged;
+
+        public void NotifyRewardAdCountsChanged()
+        {
+            OnRewardAdCountsChanged?.Invoke();
+        }
 
         public void SetCurrentTab(ShopTab tab)
         {

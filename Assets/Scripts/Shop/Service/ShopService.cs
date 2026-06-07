@@ -531,7 +531,6 @@ namespace Shop.Service
 
             var productId = data.ProductId.Value;
 
-            // 視聴可否 (IsReady かつ 残数 >= 1) を確認
             if (!IsRewardAdAvailable(productId))
                 return;
 
@@ -568,12 +567,10 @@ namespace Shop.Service
                         await HandleRewardedAsync(data, productId, ct);
                         break;
                     case RewardedAdResult.Dismissed:
-                        // 誘導文を含めない (要件 6-3)
+                        // 誘導文を含めない
                         await ShowRewardAdMessageAsync("広告の視聴が中断されました", ct);
                         break;
                     case RewardedAdResult.DisplayFailed:
-                        await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
-                        break;
                     case RewardedAdResult.NotReady:
                         await ShowRewardAdMessageAsync("広告を再生できませんでした", ct);
                         break;
@@ -585,7 +582,6 @@ namespace Shop.Service
             }
         }
 
-        // 報酬獲得確定時の付与処理。付与成功時のみ日次カウントを加算する (要件 10-2)。
         async UniTask HandleRewardedAsync(ProductData data, uint productId, CancellationToken ct)
         {
             var grantSucceeded = TryGrantPurchasedItem(data);

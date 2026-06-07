@@ -213,7 +213,7 @@ namespace Shop.Service
                 case ItemType.Point:
                 {
                     displayName = string.IsNullOrEmpty(product.Name) ? "毛糸" : product.Name;
-                    iconPath = ResolvePointIconPath(product);
+                    iconPath = $"Points/{displayName}";
                     break;
                 }
                 default:
@@ -242,12 +242,6 @@ namespace Shop.Service
         static string ResolveOutfitIconPath(Outfit outfit)
         {
             return $"Outfits/{outfit.Name}";
-        }
-
-        static string ResolvePointIconPath(ShopProduct product)
-        {
-            var pointName = string.IsNullOrEmpty(product.Name) ? "毛糸" : product.Name;
-            return $"Points/{pointName}";
         }
 
         public void SetCurrentTab(ShopTab tab)

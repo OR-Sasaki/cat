@@ -144,22 +144,19 @@ namespace Root.Service
             }
             catch (OperationCanceledException)
             {
-                result = RewardedAdResult.DisplayFailed;
+                // AttachExternalCancellation は待機側のみキャンセルする。SDK セッションは継続中のため
+                // セッション破棄と再ロードは SDK 終端イベントの CompleteSession に委ねる。
+                return RewardedAdResult.DisplayFailed;
             }
             catch (Exception e)
             {
                 Debug.LogError($"[LevelPlayRewardedAdService] {e.Message}\n{e.StackTrace}");
-                result = RewardedAdResult.DisplayFailed;
-            }
-            finally
-            {
-                _session = null;
+                CompleteSession(session, RewardedAdResult.DisplayFailed);
+                return RewardedAdResult.DisplayFailed;
             }
 
             var elapsed = _clock.UtcNow - startedAt;
             Debug.Log($"[LevelPlayRewardedAdService] ShowAsync completed: {result} ({elapsed.TotalSeconds:F1}s)");
-
-            ReloadForNextShow();
             return result;
 #else
             cancellationToken.ThrowIfCancellationRequested();
@@ -257,7 +254,9 @@ namespace Root.Service
         void HandleAdDisplayFailed(LevelPlayAdInfo info, LevelPlayAdError error)
         {
             Debug.LogError($"[LevelPlayRewardedAdService] Rewarded ad display failed: {error}");
-            _session?.TryComplete(RewardedAdResult.DisplayFailed);
+            var session = _session;
+            if (session == null) return;
+            CompleteSession(session, RewardedAdResult.DisplayFailed);
         }
 
         void HandleAdRewarded(LevelPlayAdInfo info, LevelPlayReward reward)
@@ -269,7 +268,7 @@ namespace Root.Service
             session.RewardedFired = true;
             if (session.ClosedFired)
             {
-                session.TryComplete(RewardedAdResult.Rewarded);
+                CompleteSession(session, RewardedAdResult.Rewarded);
             }
         }
 
@@ -282,7 +281,7 @@ namespace Root.Service
             session.ClosedFired = true;
             if (session.RewardedFired)
             {
-                session.TryComplete(RewardedAdResult.Rewarded);
+                CompleteSession(session, RewardedAdResult.Rewarded);
                 return;
             }
 
@@ -301,7 +300,18 @@ namespace Root.Service
             }
 
             if (session.Completed) return;
-            session.TryComplete(session.RewardedFired ? RewardedAdResult.Rewarded : RewardedAdResult.Dismissed);
+            CompleteSession(session, session.RewardedFired ? RewardedAdResult.Rewarded : RewardedAdResult.Dismissed);
+        }
+
+        // 終端結果を確定し、現セッションを破棄して次回視聴のために再ロードする。
+        // 待機側がキャンセルで離脱していても、SDK 終端イベントから呼ばれることでここがクリーンアップする。
+        void CompleteSession(RewardedAdSession session, RewardedAdResult result)
+        {
+            if (_session != session) return;
+            if (!session.TryComplete(result)) return;
+
+            _session = null;
+            ReloadForNextShow();
         }
 
         void ReloadForNextShow()

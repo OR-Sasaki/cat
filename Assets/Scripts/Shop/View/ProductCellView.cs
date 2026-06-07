@@ -59,6 +59,7 @@ namespace Shop.View
                 {
                     CurrencyType.Yarn => $"毛糸 {data.Price:N0}",
                     CurrencyType.RealMoney => $"¥ {data.Price:N0}",
+                    CurrencyType.RewardAd => $"{data.Price:N0}",
                     _ => $"{data.Price:N0}",
                 };
             }

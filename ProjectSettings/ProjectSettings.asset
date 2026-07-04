@@ -264,11 +264,11 @@ PlayerSettings:
   templateDefaultScene: Assets/Scenes/SampleScene.unity
   useCustomMainManifest: 0
   useCustomLauncherManifest: 0
-  useCustomMainGradleTemplate: 0
+  useCustomMainGradleTemplate: 1
   useCustomLauncherGradleManifest: 0
   useCustomBaseGradleTemplate: 0
-  useCustomGradlePropertiesTemplate: 0
-  useCustomGradleSettingsTemplate: 0
+  useCustomGradlePropertiesTemplate: 1
+  useCustomGradleSettingsTemplate: 1
   useCustomProguardFile: 0
   AndroidTargetArchitectures: 2
   AndroidAllowedArchitectures: -1
@@ -287,13 +287,13 @@ PlayerSettings:
   AndroidEnableTango: 0
   androidEnableBanner: 1
   androidUseLowAccuracyLocation: 0
-  androidUseCustomKeystore: 0
+  androidUseCustomKeystore: 1
   m_AndroidBanners:
   - width: 320
     height: 180
     banner: {fileID: 0}
   androidGamepadSupportLevel: 0
-  AndroidMinifyRelease: 0
+  AndroidMinifyRelease: 1
   AndroidMinifyDebug: 0
   AndroidValidateAppBundleSize: 1
   AndroidAppBundleSizeToValidate: 150
@@ -527,7 +527,7 @@ PlayerSettings:
   editorGfxJobOverride: 1
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
-  enableCrashReportAPI: 0
+  enableCrashReportAPI: 1
   cameraUsageDescription: 
   locationUsageDescription: 
   microphoneUsageDescription: 

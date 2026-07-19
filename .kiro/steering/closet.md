@@ -5,6 +5,8 @@ fileMatchPattern: "Assets/Scripts/Home/View/Closet*|Assets/Scripts/Home/Service/
 
 # Closet (クローゼット) 機能 実装ガイド
 
+> **⚠️ 更新中 (2026-07-19)**: 2階層タブ UI (メジャー/マイナータブ) が別 spec `closet-two-level-tabs` で実装中です。`Home.State.ClosetTabState` / `Home.State.MajorTab`、`Home.Service.ClosetTabService`、`Home.View.ClosetMajorTabsView` / `ClosetMajorTabItemView` / `ClosetMinorTabsView` / `ClosetMinorTabItemView` が追加され (C# はコミット済み)、`ClosetScrollerService` もタブ連携を持ちます。Editor 配線 (DI 登録・プレハブ/シーン階層, tasks 7.x) は一部未完。**本ガイド下部の「`HeadingItem`/`TabItem` は未結線」「タブ切替は未実装」といった記述はこの実装により置き換えられます。** タブ配線完了後に本ガイドの全面更新を推奨。`fileMatchPattern` も新タブファイルを含むよう追補が必要。
+
 Homeシーン内の「服を着替える」UI機能。`HomeFooterView` のクローゼットボタン押下で `HomeState.State.Closet` に遷移し、所持しているOutfitアセットをグリッド表示する。セル選択でキャラクター (`CharacterView`) に即時適用 + `PlayerPrefs` に保存される。
 
 ## アーキテクチャ概要

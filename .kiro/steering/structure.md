@@ -23,9 +23,10 @@
 ### Root Services
 **Location**: `Assets/Scripts/Root/`
 **Purpose**: 全シーン共通のグローバルサービス (RootScope)。シーンと同じ層構造 (Service/State/View) を持つ
-**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `IClock` (`SystemClock`)
-**Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `SceneLoaderState`
-**Key Snapshots**: `UserPointSnapshot`, `UserItemInventorySnapshot` (ユーザー資産系サービスのイミュータブル戻り値)
+**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `TimerRecordService/ITimerRecordService`, `IRewardedAdService` (`EditorRewardedAdService` / `LevelPlayRewardedAdService`), `IClock` (`SystemClock`)
+**Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `UserPointState`, `UserItemInventoryState`, `TimerRecordState`, `SceneLoaderState`
+**Key Snapshots**: `UserPointSnapshot`, `UserItemInventorySnapshot`, `TimerRecordSnapshot` (状態系サービスのイミュータブル戻り値)
+**Key Configs**: `RewardedAdConfig` (`Resources/RewardedAdConfig.asset` からロードする ScriptableObject 構成)
 **Key Views**: `DialogCanvasView`, `BackdropView`, `BaseDialogView` (継承ベースのダイアログ基底クラス), `CommonConfirmDialog`, `CommonMessageDialog`
 
 ### Utilities
@@ -38,13 +39,19 @@
 **Example**: IsoGrid機能は `Home/Service/IsoGridService.cs`, `Home/State/IsoGridState.cs`, `Home/View/IsoGridGizmo.cs`, `Home/View/FragmentedIsoGrid.cs` としてHomeシーンに統合。Closet/Redecorate機能もHomeシーン内のUI機能として統合
 **Namespace**: `Cat` (プロジェクト共通) または `{SceneName}.{Layer}` (例: `Home.Service`)
 
+### Testable Logic Assemblies
+**Pattern**: 決定論的な純粋ロジックはシーンフォルダ配下の独立アセンブリ (`.asmdef`, `noEngineReferences: true`) に切り出し、`Tests/` サブフォルダに EditMode テストアセンブリ (`{Name}.Tests`, `includePlatforms: [Editor]`) を同居させる
+**Location**: `Assets/Scripts/{Scene}/{Feature}Logic/`
+**Example**: `Shop/RewardAdLogic/` — `JstDateHelper` / `RewardAdDailyCount` / `ShopProductCsvParser` (本体) + `Tests/*Tests.cs`。UnityEngine 非依存に保つことで純粋にユニットテスト可能
+
 ### Dialog-based Feature Folders
 **Pattern**: シーンではないがシーン構造に準じたフォルダ (State/View) を持つ機能。標準の6層フォルダを用意しつつ、必要な層のみにファイルを配置 (空フォルダは将来拡張用)
 **Example**: `TimerSetting/` - ダイアログベースの設定機能。`BaseDialogView<TArgs>` (`IDialogWithArgs<TArgs>` 契約) を継承し、`State/TimerSettingData.cs` と `View/TimerSettingDialog.cs` のみを持つ
 
 ### Thin Scenes
 **Pattern**: 機能の薄いシーンも標準の6層フォルダを用意するが、必要な層のみにファイルを配置
-**Example**: `History/` - `Scope/HistoryScope.cs` と `View/ReturnButtonView.cs` のみ。Service/State/Manager/Starter は空
+**Example**: `Title/` - `Scope/TitleScope.cs` と `View/TitleStartButtonView.cs` のみ。他層は空。`Logo/` も `Scope` + `Starter` のみの薄いシーン
+**Note**: 機能が育つと層が埋まる。`History/` は当初 thin だったが集中時間カレンダー機能 (State/Starter/Service/View 多数) を持つ通常のシーンへ成長した
 
 ### Assets Organization
 ```
@@ -107,3 +114,4 @@ Starter    Manager
 
 ---
 _Document patterns, not file trees. New files following patterns shouldn't require updates_
+_更新: 2026-07-19 — Root サービス/状態一覧の追補・Thin Scenes 例の更新 (History→Title)・テスト用ロジックアセンブリのパターン追記_

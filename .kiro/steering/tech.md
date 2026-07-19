@@ -20,6 +20,7 @@
 - **Animation**: 2D Animation 13.0.4, Cinemachine 3.1.5
 - **Asset Management**: Addressables 2.9.1
 - **Timeline**: Unity Timeline 1.8.11
+- **Ads**: LevelPlay (ironSource) SDK — リワード広告。実装 (`LevelPlayRewardedAdService`) は `IRewardedAdService` ポートで隠蔽し、SDK 型を上位層に露出させない
 
 ## Development Standards
 
@@ -42,6 +43,9 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ### Scene Naming
 シーン名定数は `Assets/Scripts/Utils/Const.cs` で管理
 
+### Testing
+決定論的な純粋ロジックは EditMode ユニットテスト (NUnit) で検証する。テスト対象は UnityEngine 非依存の独立アセンブリ (例: `Cat.Shop.RewardAdLogic`, `noEngineReferences: true`) に切り出し、`{Name}.Tests` アセンブリ (`includePlatforms: [Editor]`, `defineConstraints: [UNITY_INCLUDE_TESTS]`) から参照してテストする。日付・CSVパース・上限計算などはこのパターンで検証 (`JstDateHelper`, `ShopProductCsvParser`, `RewardAdDailyCount`)。時刻依存は `IClock` を注入して決定化する
+
 ## Development Environment
 
 ### Required Tools
@@ -57,7 +61,7 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ## Key Technical Decisions
 
 ### VContainer DI Pattern
-- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService`, `UserItemInventoryService`, `IClock` (`SystemClock`) など)
+- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService`, `UserItemInventoryService`, `TimerRecordService`, `IRewardedAdService`, `RewardedAdConfig`, `IClock` (`SystemClock`) など)。インターフェースを持つサービスは `.As<IXxx>().AsSelf()` で契約と実体の両方を解決可能に登録
 - **SceneScope**: 抽象基底クラス `SceneScope` を継承。Awake時にMasterDataImportを保証。各シーンスコープ (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope`, `LogoScope` など)
 - **Lifetime**: `Singleton` (RootScope), `Scoped` (SceneScope)
 - **ITickable**: VContainerの毎フレーム更新インターフェース。継続的な状態更新が必要なサービスに採用 (例: `ShopService` が時限ショップのサイクル監視に使用、`DialogContainer`、`Home/Service/IsoInputService`、`Home/Service/RedecorateCameraService`)。コンストラクタDIに加え `RegisterEntryPoint` も併用
@@ -79,5 +83,12 @@ Starter  Manager  (Scope が全体を構成)
 ```
 逆方向の依存は禁止 (例: State → Service)
 
+### Platform-Conditional Service Registration
+外部SDK依存サービスは抽象ポート (インターフェース) で隠蔽し、RootScope で `#if UNITY_EDITOR / #elif UNITY_ANDROID || UNITY_IOS` によって実装を切替える。例: `IRewardedAdService` は Editor で `EditorRewardedAdService` (スタブ)、実機で `LevelPlayRewardedAdService` を登録。上位層 (Shop) は SDK 型を参照しない
+
+### Config-as-Asset (機密のコード排除)
+App Key / Ad Unit ID などの構成値・機密はコードリテラルから排除し、`ScriptableObject` (`RewardedAdConfig`) として `Resources/RewardedAdConfig.asset` から `Resources.Load` する。キーはビルド時に env / ローカル `.env` から注入。アセット欠落時は RootScope で fail-fast (例外送出)
+
 ---
 _Document standards and patterns, not every dependency_
+_更新: 2026-07-19 — リワード広告SDK / EditMode テスト方針 / プラットフォーム条件付きDI を追記_

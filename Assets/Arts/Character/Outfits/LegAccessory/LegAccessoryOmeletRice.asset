@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ffa8990b63a44eda858ef9bc08a3695, type: 3}
+  m_Name: LegAccessoryOmeletRice
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.LegAccessory
+  Thumbnail: {fileID: 21300000, guid: 1f01700c8af94453791f5503cb091a72, type: 3}
+  LegAccessoryBackPart: {fileID: 11400000, guid: daecf78454463485aa3c24c1c47cbb38, type: 2}
+  LegAccessoryFrontPart: {fileID: 11400000, guid: 91676e85615fd406089e2b33508b155e, type: 2}

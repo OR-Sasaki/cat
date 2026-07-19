@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 727d90b0b35741bba36dbfd8ebd9dd5d, type: 3}
+  m_Name: HandAccessoryDracula
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HandAccessory
+  Thumbnail: {fileID: 21300000, guid: e5bae45b6f354464da85f6b217f404d6, type: 3}
+  HandAccessoryPart: {fileID: 11400000, guid: 9ddca616e43d849e4a41ddf24bbf36ea, type: 2}

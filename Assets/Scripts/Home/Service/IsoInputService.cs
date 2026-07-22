@@ -23,6 +23,9 @@ namespace Home.Service
         public readonly UnityEvent<Vector3> OnPointerDrag = new();
         public readonly UnityEvent OnPointerUp = new();
 
+        /// 直近に処理したポインターのスクリーン座標（画面際の自動スクロール判定に使用）
+        public Vector2 PointerScreenPosition { get; private set; }
+
         [Inject]
         public IsoInputService(HomeState homeState)
         {
@@ -69,6 +72,7 @@ namespace Home.Service
         void HandleTouchInput()
         {
             var touch = Touch.activeTouches[0];
+            PointerScreenPosition = touch.screenPosition;
             var worldPos = ScreenToWorldPosition(touch.screenPosition);
 
             switch (touch.phase)
@@ -98,7 +102,9 @@ namespace Home.Service
             var mouse = Mouse.current;
             if (mouse == null) return;
 
-            var worldPos = ScreenToWorldPosition(mouse.position.ReadValue());
+            var screenPos = mouse.position.ReadValue();
+            PointerScreenPosition = screenPos;
+            var worldPos = ScreenToWorldPosition(screenPos);
 
             if (mouse.leftButton.wasPressedThisFrame)
             {

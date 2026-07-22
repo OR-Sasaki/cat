@@ -13,6 +13,7 @@ namespace Home.Service
     {
         readonly IsoGridService _isoGridService;
         readonly IsoInputService _isoInputService;
+        readonly RedecorateCameraService _redecorateCameraService;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -26,10 +27,11 @@ namespace Home.Service
         Vector2Int _dragStartLocalGridPos;
 
         [Inject]
-        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService)
+        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService)
         {
             _isoInputService = isoInputService;
             _isoGridService = isoGridService;
+            _redecorateCameraService = redecorateCameraService;
         }
 
         public void Start()
@@ -53,6 +55,9 @@ namespace Home.Service
         void HandlePointerDrag(Vector3 worldPos)
         {
             if (_currentIsoDraggableView == null) return;
+
+            // 画面際までドラッグしたらカメラをゆっくりスクロールさせる
+            _redecorateCameraService.OnFurnitureDragMove(_isoInputService.PointerScreenPosition);
 
             var newPos = worldPos + _dragOffset;
             _currentIsoDraggableView.SetPosition(newPos);
@@ -112,6 +117,9 @@ namespace Home.Service
         /// ポインター離した時の処理
         void HandlePointerUp()
         {
+            // ドラッグ終了と同時に画面際の自動スクロールも止める
+            _redecorateCameraService.OnFurnitureDragEnd();
+
             if (_currentIsoDraggableView == null) return;
             EndDrag();
             _currentIsoDraggableView = null;

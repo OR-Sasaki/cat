@@ -14,6 +14,7 @@ namespace Home.Service
         readonly IsoGridService _isoGridService;
         readonly IsoInputService _isoInputService;
         readonly RedecorateCameraService _redecorateCameraService;
+        readonly FurnitureStowService _furnitureStowService;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -27,11 +28,12 @@ namespace Home.Service
         Vector2Int _dragStartLocalGridPos;
 
         [Inject]
-        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService)
+        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService)
         {
             _isoInputService = isoInputService;
             _isoGridService = isoGridService;
             _redecorateCameraService = redecorateCameraService;
+            _furnitureStowService = furnitureStowService;
         }
 
         public void Start()
@@ -49,6 +51,9 @@ namespace Home.Service
 
             _currentIsoDraggableView = draggable;
             BeginDrag(worldPos);
+
+            // 家具を持ち上げた時点でしまうバーをうっすら表示する
+            _furnitureStowService.OnFurnitureDragMove(_isoInputService.PointerScreenPosition);
         }
 
         /// ポインタードラッグ中の処理
@@ -58,6 +63,9 @@ namespace Home.Service
 
             // 画面際までドラッグしたらカメラをゆっくりスクロールさせる
             _redecorateCameraService.OnFurnitureDragMove(_isoInputService.PointerScreenPosition);
+
+            // 画面下部のしまうゾーン判定とUI表示を更新する
+            _furnitureStowService.OnFurnitureDragMove(_isoInputService.PointerScreenPosition);
 
             var newPos = worldPos + _dragOffset;
             _currentIsoDraggableView.SetPosition(newPos);
@@ -120,8 +128,22 @@ namespace Home.Service
             // ドラッグ終了と同時に画面際の自動スクロールも止める
             _redecorateCameraService.OnFurnitureDragEnd();
 
+            // しまうゾーン内で離したかどうかを、UIを閉じる前に確定させる
+            var stowRequested = _furnitureStowService.IsPointerInZone;
+            _furnitureStowService.OnFurnitureDragEnd();
+
             if (_currentIsoDraggableView == null) return;
-            EndDrag();
+
+            if (stowRequested)
+            {
+                // ドラッグ開始時にグリッドから除去済みなので、配置せずシーンから除去してしまう
+                _furnitureStowService.Stow(_currentIsoDraggableView);
+            }
+            else
+            {
+                EndDrag();
+            }
+
             _currentIsoDraggableView = null;
         }
 

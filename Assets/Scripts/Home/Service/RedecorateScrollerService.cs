@@ -25,6 +25,7 @@ namespace Home.Service
         readonly RoomBaseState _roomBaseState;
         readonly RedecorateTabState _redecorateTabState;
         readonly RedecorateTabService _redecorateTabService;
+        readonly FurnitureStowService _furnitureStowService;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
         bool _suppressTabReload;
@@ -41,7 +42,8 @@ namespace Home.Service
             RedecorateCameraService redecorateCameraService,
             RoomBaseState roomBaseState,
             RedecorateTabState redecorateTabState,
-            RedecorateTabService redecorateTabService)
+            RedecorateTabService redecorateTabService,
+            FurnitureStowService furnitureStowService)
         {
             _redecorateUiView = redecorateUiView;
             _userState = userState;
@@ -54,6 +56,7 @@ namespace Home.Service
             _roomBaseState = roomBaseState;
             _redecorateTabState = redecorateTabState;
             _redecorateTabService = redecorateTabService;
+            _furnitureStowService = furnitureStowService;
         }
 
         public void Start()
@@ -61,6 +64,13 @@ namespace Home.Service
             _redecorateUiView.OnOpen.AddListener(OnOpen);
             _redecorateTabState.Changed.AddListener(OnTabChanged);
             _cellSelectedEvent.AddListener(OnCellViewSelected);
+            _furnitureStowService.OnFurnitureStowed.AddListener(OnFurnitureStowed);
+        }
+
+        /// 家具がしまわれたら、在庫リストの選択状態（配置済みハイライト）を更新する
+        void OnFurnitureStowed()
+        {
+            UpdateSelectionStates();
         }
 
         void OnOpen()

@@ -15,8 +15,153 @@ MonoBehaviour:
   m_GroupName: Furnitures
   m_GUID: c913bb8d11b0d4aba9e2f9da54321081
   m_SerializeEntries:
+  - m_GUID: 00ef88d5b086a45d48fff5086e0ac965
+    m_Address: Furnitures/Chair
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 04ffafc6675e647ddba392a0deb56630
+    m_Address: Furnitures/Book
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 06f060529736342f7a5c2a37fb4df4da
+    m_Address: Furnitures/Cup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 07691eb303589430a9caabfa0d481bc0
+    m_Address: Furnitures/AppleCore
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 091d8c62b22cf45feba543c8dbcc4221
+    m_Address: Furnitures/BaseD
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0960de2100f9848858ed242310754bb0
+    m_Address: Furnitures/TrashCan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0ad5f7cf49ba0481fa1efd0a39a4aefa
     m_Address: Furnitures/LargeBox
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0d90dd97779a04b5e8f0e9568f468d8e
+    m_Address: Furnitures/Table
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 15d8fe5f0d5b84ca5b2d56c3cb9338a7
+    m_Address: Furnitures/Watch
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 164843e6614c14c1d945ad54da010c4b
+    m_Address: Furnitures/SideTable
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f3aa72d865dd4959b3b1712805a3f46
+    m_Address: Furnitures/Rat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 20bab1e76cc53435a8fce5bd26b9bd93
+    m_Address: Furnitures/MicrowaveOven
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2188953efdb124be1b553bd57df4563b
+    m_Address: Furnitures/Apple
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2e7bd1759e1fd4922b18f011e0b27ee7
+    m_Address: Furnitures/Cactus
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 37fcd0ebfb88b4e1193881e9a272b4ad
+    m_Address: Furnitures/Houseplants
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 41eb44227315e42bd8bdfa97007b72c5
+    m_Address: Furnitures/CardboardO
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 43449ebe84bfa46dca7e6e2f631768b2
+    m_Address: Furnitures/Mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 44f4e4332d03048fabd964dd7b4a011c
+    m_Address: Furnitures/Can
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 46c5c4e0ca1c34f059b5563e37834269
+    m_Address: Furnitures/Outlet
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f6a540b756e548e6a7f2ee62e08d2ff
+    m_Address: Furnitures/CardboardW
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 54d553734ca184ee4bfb82691df111da
+    m_Address: Furnitures/BananaPeel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5bea6b35fdeb94b0aa2ded19a2777f9f
+    m_Address: Furnitures/StuffedToy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 68639172288074d2d8e2479cd554ad15
+    m_Address: Furnitures/Switch
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6880193df67e443e1b3e8cbb38362ea1
+    m_Address: Furnitures/Bed
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6b16c3d9b40374a85b945f8507d8eced
+    m_Address: Furnitures/Refrigerator
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6fb29fbc660fa4e1f8307fc194b6293b
+    m_Address: Furnitures/Bookshelf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 743df1362fc6747adafb5b9fbf33a50e
+    m_Address: Furnitures/HangerTree
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 79b0753a339fd4b18a8c9b4c03f4e509
+    m_Address: Furnitures/Lamp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f037093b3ef6486ba24a0034209eee7
+    m_Address: Furnitures/CardboardC
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 84908ac70914942ff92e9577f9c5f1ef
+    m_Address: Furnitures/Yogibo
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -30,8 +175,48 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 89bd1ab7e6d794961a5ed5e80e819717
+    m_Address: Furnitures/Yarn
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8b6fcfb873e914fce81dd4abcb9f4261
+    m_Address: Furnitures/Window2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8bccc586b886d489e9f99f762f3d4db4
     m_Address: Furnitures/BaseB
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 903de2c853096481382e38fcebfc2682
+    m_Address: Furnitures/WallShelf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 907c7f1e2635b4ea6abf597b75bbe873
+    m_Address: Furnitures/CookingTable
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9336c7a808d734b9badc5418930374fc
+    m_Address: Furnitures/Vase
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a01136cc474cf4c1fa866b259f4092fc
+    m_Address: Furnitures/Sink
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a5bdbe36d060746f396a016bce23e48b
+    m_Address: Furnitures/Rug
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1c153473e5634f71867349d84b4f793
+    m_Address: Furnitures/Cushion
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -40,8 +225,43 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: baa37da9f24a1419b8c8a48dd8e4e976
+    m_Address: Furnitures/Stove
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c6c21b2b311c44af59b0f1010de40c8c
+    m_Address: Furnitures/Tissue
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d64f38964ebd24e6d8d4cefeced64e3f
+    m_Address: Furnitures/Door
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dc9b7534ba94c49958a52dc85b666085
+    m_Address: Furnitures/Window1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd0f2c160fd024e0a9bef24aba31f45e
+    m_Address: Furnitures/BaseC
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ea0401cc0ecc84926a3f524c9302c594
+    m_Address: Furnitures/Rug2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f24a434a96a0440ea9486e397a9cb679
     m_Address: Furnitures/Painting
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f8dbdfd24087740f1885edca97fc4401
+    m_Address: Furnitures/Cup2
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

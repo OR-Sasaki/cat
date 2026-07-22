@@ -1,0 +1,18 @@
+重ね順参考
+
+上
+headacc005.png（帽子）
+clothescollar005.png（服の襟）
+clothesF005.png（服の手前袖）
+front hand001.png（手前腕）
+handacc005.png（浮き輪）
+clothes005.png（服胴体部分）
+front foot001.png（靴手前）
+face001.png（顔）
+bodybase001.png（体）
+clothesB005.png（服の奥袖）
+back hand001.png（奥腕）
+legaccB005.png（靴奥）
+back foot001.png（奥足）
+front foot line001.png（手前足の輪郭線）
+下

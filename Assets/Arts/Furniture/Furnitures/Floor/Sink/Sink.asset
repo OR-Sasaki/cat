@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df40d07f8a30246cfa3ad0a872187009, type: 3}
+  m_Name: Sink
+  m_EditorClassIdentifier: Assembly-CSharp::Cat.Furniture.Furniture
+  FurnitureType: 2
+  PlacementType: 1
+  Thumbnail: {fileID: 21300000, guid: 78ea63bdd3cf943809568007b467c1d8, type: 3}
+  SceneObject: {fileID: 7735305470218156808, guid: 8d29239b6947d45b6bb3bd4c9a2b3079, type: 3}
+  BaseSceneObject: {fileID: 0}

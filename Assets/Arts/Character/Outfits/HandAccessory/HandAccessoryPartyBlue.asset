@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 727d90b0b35741bba36dbfd8ebd9dd5d, type: 3}
   m_Name: HandAccessoryPartyBlue
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HandAccessory
-  Thumbnail: {fileID: 21300000, guid: 7787dcbee377b4b78acc9207f696cf2e, type: 3}
+  Thumbnail: {fileID: 21300000, guid: c7016dbc1ece4d559e7655395c1007cd, type: 3}
   HandAccessoryPart: {fileID: 11400000, guid: 4cf7044f1a6104797a27bd1349e30f62, type: 2}

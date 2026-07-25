@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ae9221fdd24398ab14bc2170090885, type: 3}
   m_Name: ClothOmeletRice
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Cloth
-  Thumbnail: {fileID: 21300000, guid: 0d50fb5f06fb448c699d4e94b84d13a7, type: 3}
+  Thumbnail: {fileID: 21300000, guid: a7f5fa7e74314c1fa23c7334566d8224, type: 3}
   ClothBackPart: {fileID: 11400000, guid: 8fafdcb32226248bda002569adf9344b, type: 2}
   ClothBodyPart: {fileID: 11400000, guid: d1a356eac4fe34ee08af79cfa5dd9954, type: 2}
   ClothCollarPart: {fileID: 11400000, guid: eaefe423cba87491a8e6d0f5d6222c5c, type: 2}

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ffa8990b63a44eda858ef9bc08a3695, type: 3}
   m_Name: LegAccessoryBunny
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.LegAccessory
-  Thumbnail: {fileID: 21300000, guid: cc40fd185f39142cb9957af027feb9dc, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 2a59e6b6956f4f5ea9b9192918e29fb9, type: 3}
   LegAccessoryBackPart: {fileID: 11400000, guid: 423c15b27e1a24a92b346c5f3e894a58, type: 2}
   LegAccessoryFrontPart: {fileID: 11400000, guid: 80300efd5e40344bca030d98c2f3999d, type: 2}

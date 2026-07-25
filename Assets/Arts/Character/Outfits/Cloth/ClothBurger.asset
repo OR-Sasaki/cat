@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ae9221fdd24398ab14bc2170090885, type: 3}
   m_Name: ClothBurger
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Cloth
-  Thumbnail: {fileID: 21300000, guid: 359997ef7917a43e6936a636735645df, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 12cc2b66c1844d5183f6b0a05854efec, type: 3}
   ClothBackPart: {fileID: 11400000, guid: c6ae98544709e4b65a4f526d7245e3a9, type: 2}
   ClothBodyPart: {fileID: 11400000, guid: b60a659fbd7304803ad50593a3a48ab4, type: 2}
   ClothCollarPart: {fileID: 11400000, guid: 98729eb9967874c82b1d0bbb02d2048b, type: 2}

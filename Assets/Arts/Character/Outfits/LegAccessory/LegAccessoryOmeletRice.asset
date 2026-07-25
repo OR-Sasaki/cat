@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ffa8990b63a44eda858ef9bc08a3695, type: 3}
   m_Name: LegAccessoryOmeletRice
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.LegAccessory
-  Thumbnail: {fileID: 21300000, guid: 1f01700c8af94453791f5503cb091a72, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 1f994c42168c45d8a24852ba4bc2da78, type: 3}
   LegAccessoryBackPart: {fileID: 11400000, guid: daecf78454463485aa3c24c1c47cbb38, type: 2}
   LegAccessoryFrontPart: {fileID: 11400000, guid: 91676e85615fd406089e2b33508b155e, type: 2}

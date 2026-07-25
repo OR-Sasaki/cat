@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 727d90b0b35741bba36dbfd8ebd9dd5d, type: 3}
   m_Name: HandAccessoryDracula
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HandAccessory
-  Thumbnail: {fileID: 21300000, guid: e5bae45b6f354464da85f6b217f404d6, type: 3}
+  Thumbnail: {fileID: 21300000, guid: e6d0614471984e4385fd43b8a6b1527f, type: 3}
   HandAccessoryPart: {fileID: 11400000, guid: 9ddca616e43d849e4a41ddf24bbf36ea, type: 2}

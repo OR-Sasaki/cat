@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 727d90b0b35741bba36dbfd8ebd9dd5d, type: 3}
   m_Name: HandAccessoryOmeletRice
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HandAccessory
-  Thumbnail: {fileID: 21300000, guid: 3a5723f9499604f1a9b6d2472d55b222, type: 3}
+  Thumbnail: {fileID: 21300000, guid: ed701a58e4c94a1fa2216b524e34263e, type: 3}
   HandAccessoryPart: {fileID: 11400000, guid: e4faae39b44d84de195a192440c8a570, type: 2}

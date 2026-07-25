@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Furniture.Furniture
   FurnitureType: 2
   PlacementType: 1
-  Thumbnail: {fileID: 21300000, guid: 78ea63bdd3cf943809568007b467c1d8, type: 3}
+  Thumbnail: {fileID: 21300000, guid: db3552f54a49440a840f824667786001, type: 3}
   SceneObject: {fileID: 7735305470218156808, guid: 8d29239b6947d45b6bb3bd4c9a2b3079, type: 3}
   BaseSceneObject: {fileID: 0}

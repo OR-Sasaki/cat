@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ffa8990b63a44eda858ef9bc08a3695, type: 3}
   m_Name: LegAccessoryBurger
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.LegAccessory
-  Thumbnail: {fileID: 21300000, guid: ec235f153007b4f4e9fc7342793e615c, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 5edd443c9c2f478b9efa2e182acfd5f7, type: 3}
   LegAccessoryBackPart: {fileID: 11400000, guid: 298e805bfa7b94fcab520445bb234e82, type: 2}
   LegAccessoryFrontPart: {fileID: 11400000, guid: 7c842bdd68d0d4a6e8507e00c5e8c52d, type: 2}

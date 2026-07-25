@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ae9221fdd24398ab14bc2170090885, type: 3}
   m_Name: ClothMother
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Cloth
-  Thumbnail: {fileID: 21300000, guid: 873891cb1e09b47fabcc6e14fe451215, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 1d8a656385074d90b7f03d938f4028a6, type: 3}
   ClothBackPart: {fileID: 11400000, guid: c6ae98544709e4b65a4f526d7245e3a9, type: 2}
   ClothBodyPart: {fileID: 11400000, guid: 4e980258ba5f647f8a9f71170d7d1f91, type: 2}
   ClothCollarPart: {fileID: 11400000, guid: eaefe423cba87491a8e6d0f5d6222c5c, type: 2}

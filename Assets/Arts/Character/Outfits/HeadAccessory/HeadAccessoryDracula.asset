@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c42b3096bf74677a63e6f7840844e4f, type: 3}
   m_Name: HeadAccessoryDracula
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.HeadAccessory
-  Thumbnail: {fileID: 21300000, guid: a045c8ed4d2c5421eb09caa2e3609a00, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 9f83a7a9879f4c879c8e7674011f9442, type: 3}
   HeadAccessoryPart: {fileID: 11400000, guid: c7ae0489adb6747768b86bf446f784b0, type: 2}

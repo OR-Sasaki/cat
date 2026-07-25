@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5b3bc772e224c8d8106668832748866, type: 3}
   m_Name: Face005
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Face
-  Thumbnail: {fileID: 21300000, guid: 330fe3b3ab7534c51a1ef610e8701f9c, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 61c0f82545cd44de8db3845649d46151, type: 3}
   FacePart: {fileID: 11400000, guid: a552feaebe1b64495a411d888da430d6, type: 2}

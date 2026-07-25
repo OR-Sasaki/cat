@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ae9221fdd24398ab14bc2170090885, type: 3}
   m_Name: ClothDracula
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Cloth
-  Thumbnail: {fileID: 21300000, guid: e84e4768bf18c402cba623c9d292b535, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 8304e61db1554fc699a60649bf53a30d, type: 3}
   ClothBackPart: {fileID: 11400000, guid: 3a54fa01281fc4bbba2fd5c213eeab6c, type: 2}
   ClothBodyPart: {fileID: 11400000, guid: 937be3c73540b46ea8a105e0bda00e9b, type: 2}
   ClothCollarPart: {fileID: 11400000, guid: eaefe423cba87491a8e6d0f5d6222c5c, type: 2}

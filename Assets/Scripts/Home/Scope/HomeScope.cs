@@ -4,6 +4,7 @@ using Home.Starter;
 using Home.State;
 using Home.View;
 using Root.Scope;
+using Root.Starter;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -35,7 +36,6 @@ namespace Home.Scope
 
             // State
             builder.Register<HomeState>(Lifetime.Scoped);
-            builder.Register<OutfitAssetState>(Lifetime.Scoped);
             builder.Register<FurnitureAssetState>(Lifetime.Scoped);
             builder.Register<IsoGridState>(Lifetime.Scoped);
             builder.Register<ClosetTabState>(Lifetime.Scoped);
@@ -66,7 +66,7 @@ namespace Home.Scope
             builder.RegisterEntryPoint<ClosetScrollerService>();
             builder.RegisterEntryPoint<RedecorateScrollerService>();
             builder.RegisterEntryPoint<HomeViewService>();
-            builder.RegisterEntryPoint<HomeStarter>();
+            builder.RegisterEntryPoint<CharacterOutfitStarter>();
             builder.RegisterEntryPoint<IsoDragService>();
             builder.RegisterEntryPoint<IsoGridLoadService>();
             builder.RegisterEntryPoint<IsoGridSaveService>();

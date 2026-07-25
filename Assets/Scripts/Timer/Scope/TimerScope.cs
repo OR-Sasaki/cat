@@ -1,5 +1,7 @@
 using System.Threading;
+using Cat.Character;
 using Root.Scope;
+using Root.Starter;
 using Timer.Service;
 using Timer.Starter;
 using Timer.State;
@@ -36,9 +38,12 @@ namespace Timer.Scope
             builder.RegisterComponentInHierarchy<BackgroundScrollView>();
             builder.RegisterComponentInHierarchy<TimerCharacterView>();
             builder.RegisterComponentInHierarchy<TimerEveningView>();
+            // Home で着替えた見た目を反映するため、スプライト差し替え用の CharacterView も登録する
+            builder.RegisterComponentInHierarchy<CharacterView>();
 
             // EntryPoint
             builder.RegisterEntryPoint<TimerStarter>();
+            builder.RegisterEntryPoint<CharacterOutfitStarter>();
         }
 
         protected override void OnDestroy()

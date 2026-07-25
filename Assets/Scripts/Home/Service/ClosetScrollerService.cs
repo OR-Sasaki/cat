@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Cat.Character;
 using EnhancedUI;
@@ -13,7 +14,7 @@ using VContainer.Unity;
 
 namespace Home.Service
 {
-    public class ClosetScrollerService : IEnhancedScrollerDelegate, IStartable
+    public class ClosetScrollerService : IEnhancedScrollerDelegate, IStartable, IDisposable
     {
         readonly CharacterView _characterView;
         readonly ClosetUiView _closetUiView;
@@ -76,14 +77,21 @@ namespace Home.Service
             var scroller = _closetUiView.Scroller;
             scroller.Delegate = this;
 
-            if (_outfitAssetState.IsLoaded)
+            if (_outfitAssetState.IsAllLoaded)
             {
                 LoadData();
+                return;
             }
-            else
-            {
-                _outfitAssetState.OnLoaded += LoadData;
-            }
+
+            // OutfitAssetState は Root スコープに常駐するため、開閉を繰り返しても二重購読にならないよう解除してから購読する
+            _outfitAssetState.OnAllLoaded -= LoadData;
+            _outfitAssetState.OnAllLoaded += LoadData;
+        }
+
+        public void Dispose()
+        {
+            // Root スコープの State への購読はシーン破棄時に必ず解除する
+            _outfitAssetState.OnAllLoaded -= LoadData;
         }
 
         void OnMinorChanged(OutfitType minor)

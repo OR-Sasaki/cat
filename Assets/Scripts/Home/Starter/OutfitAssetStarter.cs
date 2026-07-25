@@ -1,63 +1,53 @@
+#nullable enable
+
 using System;
-using Home.State;
-using Root.State;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Root.Service;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
+using VContainer;
 using VContainer.Unity;
 
 namespace Home.Starter
 {
-    public class OutfitAssetStarter : IStartable
+    /// クローゼットの一覧表示に必要な Outfit アセットを全件ロードする
+    /// 装備中の分は CharacterOutfitStarter が個別にロードするため、ここは一覧用の先読みが役割
+    public sealed class OutfitAssetStarter : IStartable, IDisposable
     {
-        readonly OutfitAssetState _outfitAssetState;
-        readonly MasterDataState _masterDataState;
+        readonly OutfitAssetService _outfitAssetService;
+        readonly CancellationTokenSource _cts = new();
 
-        int _pendingLoadCount;
-
-        public OutfitAssetStarter(
-            OutfitAssetState outfitAssetState,
-            MasterDataState masterDataState)
+        [Inject]
+        public OutfitAssetStarter(OutfitAssetService outfitAssetService)
         {
-            _outfitAssetState = outfitAssetState;
-            _masterDataState = masterDataState;
+            _outfitAssetService = outfitAssetService;
         }
 
         public void Start()
         {
-            LoadAllOutfits();
+            LoadAllAsync(_cts.Token).Forget();
         }
 
-        void LoadAllOutfits()
+        async UniTaskVoid LoadAllAsync(CancellationToken cancellationToken)
         {
-            if (_masterDataState.Outfits is null || _masterDataState.Outfits.Length == 0)
+            try
             {
-                Debug.LogError("[OutfitAssetStarter] MasterDataState.Outfits is null or empty");
-                _outfitAssetState.NotifyLoaded();
-                return;
+                await _outfitAssetService.LoadAllAsync(cancellationToken);
             }
-
-            _pendingLoadCount = _masterDataState.Outfits.Length;
-
-            foreach (var masterOutfit in _masterDataState.Outfits)
+            catch (OperationCanceledException)
             {
-                var outfitName = masterOutfit.Name;
-                var address = $"{masterOutfit.Type}/{outfitName}.asset";
-                var handle = Addressables.LoadAssetAsync<Cat.Character.Outfit>(address);
-                handle.Completed += h =>
-                {
-                    if (h.Status == AsyncOperationStatus.Succeeded && h.Result is not null)
-                    {
-                        _outfitAssetState.Add(outfitName, h.Result);
-                    }
-
-                    _pendingLoadCount--;
-                    if (_pendingLoadCount <= 0)
-                    {
-                        _outfitAssetState.NotifyLoaded();
-                    }
-                };
+                // シーン破棄によるキャンセルは正常動作
             }
+            catch (Exception e)
+            {
+                Debug.LogError($"[OutfitAssetStarter] {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        public void Dispose()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
         }
     }
 }

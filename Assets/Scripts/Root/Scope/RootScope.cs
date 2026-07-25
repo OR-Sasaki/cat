@@ -26,6 +26,10 @@ namespace Root.Scope
             builder.Register<PlayerPrefsService>(Lifetime.Singleton);
             builder.Register<UserEquippedOutfitState>(Lifetime.Singleton);
             builder.Register<UserEquippedOutfitService>(Lifetime.Singleton);
+            // Outfit アセットのキャッシュと適用はシーンを跨いで共通化する
+            builder.Register<OutfitAssetState>(Lifetime.Singleton);
+            builder.Register<OutfitAssetService>(Lifetime.Singleton);
+            builder.Register<CharacterOutfitService>(Lifetime.Singleton);
             builder.Register<UserItemInventoryState>(Lifetime.Singleton);
             builder.Register<UserItemInventoryService>(Lifetime.Singleton)
                 .As<IUserItemInventoryService>().AsSelf();

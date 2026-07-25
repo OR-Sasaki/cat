@@ -30,6 +30,7 @@ namespace Timer.Scope
             // Manager
             builder.RegisterComponentInHierarchy<UiSlideManager>();
             builder.RegisterComponentInHierarchy<TimerLifecycleManager>();
+            builder.RegisterComponentInHierarchy<CompleteSequenceManager>();
 
             // View
             builder.RegisterComponentInHierarchy<FocusPanelView>();

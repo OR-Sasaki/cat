@@ -11,7 +11,6 @@ namespace Timer.View
 
         static readonly int RunHash = Animator.StringToHash("Run");
         static readonly int RestHash = Animator.StringToHash("Rest");
-        static readonly int CompleteHash = Animator.StringToHash("Complete");
 
         PomodoroState _state;
         BackgroundScrollView _backgroundScroll;
@@ -76,8 +75,11 @@ namespace Timer.View
                     // 走行のまま減速し、背景スクロール停止と同時に寝そべりへ移る
                     break;
                 case PomodoroPhase.Complete:
+                    // 以降の見せ方は CompleteCharacterPopView が担当するため、
+                    // ここでは走行アニメーションを等速に戻すだけにする
+                    _isResting = false;
                     _animator.speed = 1f;
-                    _animator.SetTrigger(CompleteHash);
+                    _animator.SetBool(RestHash, false);
                     break;
             }
         }

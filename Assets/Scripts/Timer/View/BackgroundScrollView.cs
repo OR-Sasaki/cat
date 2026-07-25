@@ -9,10 +9,23 @@ namespace Timer.View
     public class BackgroundScrollView : MonoBehaviour
     {
         [SerializeField] ScrollElement[] _elements;
+        [SerializeField, Min(0f)] float _breakDecelerationSeconds = 2f;
+        [SerializeField, Min(0f)] float _focusAccelerationSeconds = 1.2f;
+        [SerializeField] AnimationCurve _rampCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
         readonly List<ScrollLayer> _layers = new List<ScrollLayer>();
         PomodoroState _state;
-        bool _isScrolling = true;
+        float _speedFactor = 1f;
+        float _rampFrom = 1f;
+        float _rampTarget = 1f;
+        float _rampSeconds;
+        float _rampElapsed;
+
+        /// 現在のスクロール速度係数（0=停止、1=全速）。キャラクター側が走行速度の同期に使う
+        public float CurrentSpeedFactor => _speedFactor;
+
+        /// 休憩フェーズの減速が完了しスクロールが停止した瞬間に発火する
+        public event Action BreakScrollStopped;
 
         [Inject]
         public void Construct(PomodoroState state)
@@ -28,25 +41,86 @@ namespace Timer.View
         void Start()
         {
             _state.OnPhaseChanged += OnPhaseChanged;
-            _state.OnPauseChanged += OnPauseChanged;
         }
 
         void OnDestroy()
         {
             if (_state == null) return;
             _state.OnPhaseChanged -= OnPhaseChanged;
-            _state.OnPauseChanged -= OnPauseChanged;
         }
 
         void Update()
         {
-            if (!_isScrolling) return;
+            if (_state.IsPaused) return;
 
-            var deltaTime = Time.deltaTime;
+            UpdateRamp(Time.deltaTime);
+
+            if (_speedFactor <= 0f) return;
+
+            var deltaTime = Time.deltaTime * _speedFactor;
             foreach (var layer in _layers)
             {
                 layer.Scroll(deltaTime);
             }
+        }
+
+        void UpdateRamp(float deltaTime)
+        {
+            if (_rampElapsed >= _rampSeconds) return;
+
+            _rampElapsed += deltaTime;
+            var t = Mathf.Clamp01(_rampElapsed / _rampSeconds);
+            _speedFactor = Mathf.LerpUnclamped(_rampFrom, _rampTarget, _rampCurve.Evaluate(t));
+
+            if (t < 1f) return;
+            _speedFactor = _rampTarget;
+            NotifyIfBreakScrollStopped();
+        }
+
+        void OnPhaseChanged(PomodoroPhase phase)
+        {
+            switch (phase)
+            {
+                case PomodoroPhase.Focus:
+                    StartRamp(1f, _focusAccelerationSeconds);
+                    break;
+                case PomodoroPhase.Break:
+                    StartRamp(0f, _breakDecelerationSeconds);
+                    break;
+                case PomodoroPhase.Complete:
+                    SetFactorImmediate(0f);
+                    break;
+            }
+        }
+
+        void StartRamp(float target, float seconds)
+        {
+            if (seconds <= 0f)
+            {
+                SetFactorImmediate(target);
+                return;
+            }
+
+            _rampFrom = _speedFactor;
+            _rampTarget = target;
+            _rampSeconds = seconds;
+            _rampElapsed = 0f;
+        }
+
+        void SetFactorImmediate(float target)
+        {
+            _speedFactor = target;
+            _rampTarget = target;
+            _rampSeconds = 0f;
+            _rampElapsed = 0f;
+            NotifyIfBreakScrollStopped();
+        }
+
+        void NotifyIfBreakScrollStopped()
+        {
+            if (_speedFactor > 0f) return;
+            if (_state.CurrentPhase != PomodoroPhase.Break) return;
+            BreakScrollStopped?.Invoke();
         }
 
         // Tiles that share a scroll speed belong to the same parallax layer. Each layer
@@ -84,16 +158,6 @@ namespace Timer.View
                         "different positions to loop seamlessly; skipping one.", this);
                 }
             }
-        }
-
-        void OnPhaseChanged(PomodoroPhase phase)
-        {
-            _isScrolling = phase != PomodoroPhase.Complete;
-        }
-
-        void OnPauseChanged(bool paused)
-        {
-            _isScrolling = !paused && _state.CurrentPhase != PomodoroPhase.Complete;
         }
 
         [Serializable]

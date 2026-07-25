@@ -35,6 +35,7 @@ namespace Timer.Scope
             builder.RegisterComponentInHierarchy<CompletePanelView>();
             builder.RegisterComponentInHierarchy<BackgroundScrollView>();
             builder.RegisterComponentInHierarchy<TimerCharacterView>();
+            builder.RegisterComponentInHierarchy<TimerEveningView>();
 
             // EntryPoint
             builder.RegisterEntryPoint<TimerStarter>();

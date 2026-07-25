@@ -1132,29 +1132,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Timer.View.BackgroundScrollView
   _elements:
   - _transform: {fileID: 78308843}
-    _scrollSpeed: 0.32
-    _width: 3500
+    _scrollSpeed: 7
   - _transform: {fileID: 453197805}
-    _scrollSpeed: 0.32
-    _width: 3500
+    _scrollSpeed: 7
   - _transform: {fileID: 2052627989}
-    _scrollSpeed: 0.62
-    _width: 5000
+    _scrollSpeed: 14
   - _transform: {fileID: 1938808380}
-    _scrollSpeed: 0.62
-    _width: 5000
+    _scrollSpeed: 14
   - _transform: {fileID: 1665526825}
-    _scrollSpeed: 3
-    _width: 4050
+    _scrollSpeed: 66
   - _transform: {fileID: 906141530}
-    _scrollSpeed: 3
-    _width: 4050
+    _scrollSpeed: 66
   - _transform: {fileID: 1126716463}
-    _scrollSpeed: 4
-    _width: 6000
+    _scrollSpeed: 88
   - _transform: {fileID: 292229011}
-    _scrollSpeed: 4
-    _width: 6000
+    _scrollSpeed: 88
 --- !u!1 &1024525736
 GameObject:
   m_ObjectHideFlags: 0

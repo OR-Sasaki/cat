@@ -17,6 +17,7 @@ namespace Root.Service
         readonly MasterDataState _masterDataState;
         readonly MasterDataImportService _masterDataImportService;
         readonly UserEquippedOutfitService _userEquippedOutfitService;
+        readonly InitialItemService _initialItemService;
 
         public event Action<FurnitureChange>? FurnitureChanged;
         public event Action<uint>? OutfitChanged;
@@ -27,13 +28,15 @@ namespace Root.Service
             PlayerPrefsService playerPrefsService,
             MasterDataState masterDataState,
             MasterDataImportService masterDataImportService,
-            UserEquippedOutfitService userEquippedOutfitService)
+            UserEquippedOutfitService userEquippedOutfitService,
+            InitialItemService initialItemService)
         {
             _state = state;
             _playerPrefsService = playerPrefsService;
             _masterDataState = masterDataState;
             _masterDataImportService = masterDataImportService;
             _userEquippedOutfitService = userEquippedOutfitService;
+            _initialItemService = initialItemService;
 
             // 未 import 時に Load すると全 ID が破棄されるため、import 完了を待つ
             if (_masterDataState.IsImported)
@@ -121,7 +124,7 @@ namespace Root.Service
         {
             _state.Clear();
 
-            UserItemInventorySnapshot? snapshot;
+            UserItemInventorySnapshot? snapshot = null;
             try
             {
                 snapshot = _playerPrefsService.Load<UserItemInventorySnapshot>(PlayerPrefsKey.UserItemInventory);
@@ -129,36 +132,57 @@ namespace Root.Service
             catch (Exception e)
             {
                 Debug.LogError($"[UserItemInventoryService] {e.Message}\n{e.StackTrace}");
-                EnsureEquippedOutfitsOwned();
-                return;
             }
 
-            if (snapshot is not { Version: UserItemInventorySnapshot.CurrentVersion })
+            var restored = snapshot is { Version: UserItemInventorySnapshot.CurrentVersion };
+            if (restored)
             {
-                EnsureEquippedOutfitsOwned();
-                return;
-            }
-
-            if (snapshot.Furnitures is not null)
-            {
-                foreach (var entry in snapshot.Furnitures)
+                if (snapshot!.Furnitures is not null)
                 {
-                    if (entry.Count <= 0) continue;
-                    if (!IsKnownFurnitureId(entry.FurnitureId)) continue;
-                    _state.SetFurnitureCount(entry.FurnitureId, entry.Count);
+                    foreach (var entry in snapshot.Furnitures)
+                    {
+                        if (entry.Count <= 0) continue;
+                        if (!IsKnownFurnitureId(entry.FurnitureId)) continue;
+                        _state.SetFurnitureCount(entry.FurnitureId, entry.Count);
+                    }
+                }
+
+                if (snapshot.OwnedOutfitIds is not null)
+                {
+                    foreach (var id in snapshot.OwnedOutfitIds)
+                    {
+                        if (!IsKnownOutfitId(id)) continue;
+                        _state.AddOwnedOutfit(id);
+                    }
                 }
             }
-
-            if (snapshot.OwnedOutfitIds is not null)
+            else
             {
-                foreach (var id in snapshot.OwnedOutfitIds)
-                {
-                    if (!IsKnownOutfitId(id)) continue;
-                    _state.AddOwnedOutfit(id);
-                }
+                // 保存データ無し (初回起動) / 破損 / 非互換バージョンは初期アイテムだけを持った状態から開始する
+                ApplyInitialItems();
             }
 
             EnsureEquippedOutfitsOwned();
+
+            // 初期アイテムを次回起動でも維持するため、この時点で永続化しておく
+            if (!restored)
+            {
+                Save();
+            }
+        }
+
+        void ApplyInitialItems()
+        {
+            // InitialItemService が Master 存在チェック済みの定義のみを返すため、ここでの再検証は不要
+            foreach (var initialFurniture in _initialItemService.GetInitialFurnitures())
+            {
+                _state.SetFurnitureCount(initialFurniture.FurnitureId, initialFurniture.Count);
+            }
+
+            foreach (var outfitId in _initialItemService.GetInitialOutfitIds())
+            {
+                _state.AddOwnedOutfit(outfitId);
+            }
         }
 
         void EnsureEquippedOutfitsOwned()

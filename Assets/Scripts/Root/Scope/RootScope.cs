@@ -30,9 +30,12 @@ namespace Root.Scope
             builder.Register<OutfitAssetState>(Lifetime.Singleton);
             builder.Register<OutfitAssetService>(Lifetime.Singleton);
             builder.Register<CharacterOutfitService>(Lifetime.Singleton);
+            builder.Register<InitialItemService>(Lifetime.Singleton);
             builder.Register<UserItemInventoryState>(Lifetime.Singleton);
             builder.Register<UserItemInventoryService>(Lifetime.Singleton)
                 .As<IUserItemInventoryService>().AsSelf();
+            // 数量ベースの所持家具を IsoGrid 用の UserFurnitureId へ射影する
+            builder.Register<UserFurnitureInstanceService>(Lifetime.Singleton);
             builder.Register<UserPointState>(Lifetime.Singleton);
             builder.Register<UserPointService>(Lifetime.Singleton)
                 .As<IUserPointService>().AsSelf();
@@ -58,8 +61,6 @@ namespace Root.Scope
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #endif
             builder.RegisterEntryPoint<RewardedAdServiceStarter>();
-
-            builder.RegisterEntryPoint<UserDataImportService>();
         }
     }
 }

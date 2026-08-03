@@ -14,6 +14,7 @@ namespace Home.Service
     {
         readonly FurniturePlacementService _furniturePlacementService;
         readonly UserState _userState;
+        readonly UserFurnitureInstanceService _userFurnitureInstanceService;
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
         readonly PlayerPrefsService _playerPrefsService;
@@ -24,6 +25,7 @@ namespace Home.Service
         public IsoGridLoadService(
             FurniturePlacementService furniturePlacementService,
             UserState userState,
+            UserFurnitureInstanceService userFurnitureInstanceService,
             MasterDataState masterDataState,
             FurnitureAssetState furnitureAssetState,
             PlayerPrefsService playerPrefsService,
@@ -32,6 +34,7 @@ namespace Home.Service
         {
             _furniturePlacementService = furniturePlacementService;
             _userState = userState;
+            _userFurnitureInstanceService = userFurnitureInstanceService;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
             _playerPrefsService = playerPrefsService;
@@ -164,10 +167,10 @@ namespace Home.Service
             // -1 sentinel または旧データの 0 は未設定扱い
             if (baseUserFurnitureId <= 0) return;
 
-            var userFurniture = _userState.UserFurnitures?.FirstOrDefault(f => f.Id == baseUserFurnitureId);
-            if (userFurniture is null) return;
+            var instance = _userFurnitureInstanceService.Find(baseUserFurnitureId);
+            if (instance is null) return;
 
-            var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == userFurniture.FurnitureID);
+            var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == instance.Value.FurnitureId);
             if (masterFurniture is null) return;
 
             var furnitureAsset = _furnitureAssetState.Get(masterFurniture.Name);
@@ -180,19 +183,19 @@ namespace Home.Service
 
         Cat.Furniture.Furniture GetFurnitureAsset(int userFurnitureId)
         {
-            // UserFurnitureIdからUserFurnitureを取得
-            var userFurniture = _userState.UserFurnitures?.FirstOrDefault(f => f.Id == userFurnitureId);
-            if (userFurniture is null)
+            // UserFurnitureIdから所持中の家具インスタンスを取得
+            var instance = _userFurnitureInstanceService.Find(userFurnitureId);
+            if (instance is null)
             {
                 Debug.LogWarning($"IsoGridLoadService: UserFurniture with Id {userFurnitureId} not found");
                 return null;
             }
 
             // FurnitureIDからマスタデータを取得
-            var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == userFurniture.FurnitureID);
+            var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == instance.Value.FurnitureId);
             if (masterFurniture is null)
             {
-                Debug.LogWarning($"IsoGridLoadService: MasterFurniture with Id {userFurniture.FurnitureID} not found");
+                Debug.LogWarning($"IsoGridLoadService: MasterFurniture with Id {instance.Value.FurnitureId} not found");
                 return null;
             }
 

@@ -23,7 +23,8 @@
 ### Root Services
 **Location**: `Assets/Scripts/Root/`
 **Purpose**: 全シーン共通のグローバルサービス (RootScope)。シーンと同じ層構造 (Service/State/View) を持つ
-**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `TimerRecordService/ITimerRecordService`, `IRewardedAdService` (`EditorRewardedAdService` / `LevelPlayRewardedAdService`), `IClock` (`SystemClock`)
+**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserEquippedOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `InitialItemService`, `UserFurnitureInstanceService`, `TimerRecordService/ITimerRecordService`, `IRewardedAdService` (`EditorRewardedAdService` / `LevelPlayRewardedAdService`), `IClock` (`SystemClock`)
+**所持アイテムの単一ソース**: `UserItemInventoryService` (PlayerPrefs・数量ベース)。初回起動時は `InitialItemService` が `initial_furnitures.csv` / `default_outfits.csv` から解決した初期アイテムのみを付与する。IsoGrid が要求する個体単位の `UserFurnitureId` は `UserFurnitureInstanceService` が所持数から決定論的に採番する (`FurnitureId * SlotStride + slot + 1`)
 **Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `UserPointState`, `UserItemInventoryState`, `TimerRecordState`, `SceneLoaderState`
 **Key Snapshots**: `UserPointSnapshot`, `UserItemInventorySnapshot`, `TimerRecordSnapshot` (状態系サービスのイミュータブル戻り値)
 **Key Configs**: `RewardedAdConfig` (`Resources/RewardedAdConfig.asset` からロードする ScriptableObject 構成)

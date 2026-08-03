@@ -21,6 +21,7 @@ namespace Home.Service
         readonly UserEquippedOutfitState _userEquippedOutfitState;
         readonly UserEquippedOutfitService _userEquippedOutfitService;
         readonly MasterDataState _masterDataState;
+        readonly IUserItemInventoryService _userItemInventoryService;
         readonly OutfitAssetState _outfitAssetState;
         readonly ClosetTabState _closetTabState;
         readonly ClosetTabService _closetTabService;
@@ -35,6 +36,7 @@ namespace Home.Service
             UserEquippedOutfitState UserEquippedOutfitState,
             UserEquippedOutfitService userEquippedOutfitService,
             MasterDataState masterDataState,
+            IUserItemInventoryService userItemInventoryService,
             OutfitAssetState outfitAssetState,
             ClosetTabState closetTabState,
             ClosetTabService closetTabService)
@@ -44,6 +46,7 @@ namespace Home.Service
             _userEquippedOutfitState = UserEquippedOutfitState;
             _userEquippedOutfitService = userEquippedOutfitService;
             _masterDataState = masterDataState;
+            _userItemInventoryService = userItemInventoryService;
             _outfitAssetState = outfitAssetState;
             _closetTabState = closetTabState;
             _closetTabService = closetTabService;
@@ -123,6 +126,9 @@ namespace Home.Service
 
             foreach (var masterOutfit in _masterDataState.Outfits)
             {
+                // 未所持の着せ替えは一覧に出さない
+                if (!_userItemInventoryService.HasOutfit(masterOutfit.Id)) continue;
+
                 var outfit = _outfitAssetState.Get(masterOutfit.Name);
                 if (outfit is null) continue;
 

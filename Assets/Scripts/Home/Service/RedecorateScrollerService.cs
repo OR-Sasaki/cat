@@ -4,6 +4,7 @@ using EnhancedUI;
 using EnhancedUI.EnhancedScroller;
 using Home.State;
 using Home.View;
+using Root.Service;
 using Root.State;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +16,7 @@ namespace Home.Service
     public class RedecorateScrollerService : IEnhancedScrollerDelegate, IStartable
     {
         readonly RedecorateUiView _redecorateUiView;
-        readonly UserState _userState;
+        readonly UserFurnitureInstanceService _userFurnitureInstanceService;
         readonly MasterDataState _masterDataState;
         readonly FurnitureAssetState _furnitureAssetState;
         readonly IsoGridState _isoGridState;
@@ -33,7 +34,7 @@ namespace Home.Service
         [Inject]
         public RedecorateScrollerService(
             RedecorateUiView redecorateUiView,
-            UserState userState,
+            UserFurnitureInstanceService userFurnitureInstanceService,
             MasterDataState masterDataState,
             FurnitureAssetState furnitureAssetState,
             IsoGridState isoGridState,
@@ -46,7 +47,7 @@ namespace Home.Service
             FurnitureStowService furnitureStowService)
         {
             _redecorateUiView = redecorateUiView;
-            _userState = userState;
+            _userFurnitureInstanceService = userFurnitureInstanceService;
             _masterDataState = masterDataState;
             _furnitureAssetState = furnitureAssetState;
             _isoGridState = isoGridState;
@@ -121,15 +122,9 @@ namespace Home.Service
 
             _data.Clear();
 
-            if (_userState.UserFurnitures is null)
+            foreach (var instance in _userFurnitureInstanceService.GetAll())
             {
-                Debug.LogError("[RedecorateScrollerService] UserState.UserFurnitures is null");
-                return;
-            }
-
-            foreach (var userFurniture in _userState.UserFurnitures)
-            {
-                var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == userFurniture.FurnitureID);
+                var masterFurniture = _masterDataState.Furnitures?.FirstOrDefault(f => f.Id == instance.FurnitureId);
                 if (masterFurniture is null) continue;
 
                 var furniture = _furnitureAssetState.Get(masterFurniture.Name);
@@ -137,7 +132,7 @@ namespace Home.Service
 
                 if (furniture.FurnitureType != _redecorateTabState.Current) continue;
 
-                var furnitureData = new RedecorateFurnitureData(userFurniture.Id, furniture);
+                var furnitureData = new RedecorateFurnitureData(instance.UserFurnitureId, furniture);
                 _data.Add(furnitureData);
             }
 

@@ -61,6 +61,11 @@ namespace Root.Scope
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #endif
             builder.RegisterEntryPoint<RewardedAdServiceStarter>();
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 画面左上の透明なデバッグボタン。エディタと開発ビルドでのみ生成する
+            builder.RegisterEntryPoint<DebugPanel.Starter.DebugPanelStarter>();
+#endif
         }
     }
 }

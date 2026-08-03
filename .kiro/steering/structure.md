@@ -51,8 +51,15 @@
 **Examples**:
 - `TimerSetting/` - `BaseDialogView<TArgs>` (`IDialogWithArgs<TArgs>` 契約) を継承。6層フォルダを先置きし `State/TimerSettingData.cs` と `View/TimerSettingDialog.cs` のみを持つ
 - `Menu/` - ホームのメニュー (設定) ダイアログ。`State/` と `View/` のみを作成し、`View/MenuDialog.cs` (引数なし `BaseDialogView` 継承) と再利用UI部品 `View/MenuSwitchView.cs` を置く
+- `DebugPanel/` - エディタ / 開発ビルド専用のデバッグパネル。`Starter/` と `View/` のみを作成し、`View/DebugPanelDialog.cs` (`BaseDialogView` 継承) と起点の `Starter/DebugPanelStarter.cs` を置く
 **Dialog の実体**: プレハブは `Assets/UI/Dialog/` に `{型名}.prefab` で置き、`BaseDialog.prefab` のネストプレハブとして作る。`Assets/UI/Dialog` 自体が Addressables のフォルダエントリ (address: `Dialogs`) なので、`DialogService` が組む `Dialogs/{型名}.prefab` キーへ自動で解決され個別登録は不要
+**UI をコード生成するダイアログ**: 見た目より拡張しやすさを優先する画面 (デバッグ用途など) は、プレハブを `RectTransform` + `CanvasGroup` + ダイアログ本体スクリプトだけの器に留め、UI は `[Inject] Construct` 内でコードから組み立てる (`DebugPanelDialog`)。`BaseDialogView` の `_animator` / `_closeButton` は未設定で構わない (開閉アニメはスキップされ、閉じるボタンは自前で `RequestClose` を呼ぶ)。生成ヘルパーは同じ View 層に置く (`DebugUiFactory`)
 **呼び出し側**: ダイアログを開くボタンはそのシーンの View 層に置き (例: `Home/View/HomeMenuButtonView.cs`)、`IDialogService.OpenAsync<TDialog>` を呼ぶ
+
+### Debug-Only Features
+**Pattern**: 開発時だけ有効にする機能は RootScope の `RegisterEntryPoint` を `#if UNITY_EDITOR || DEVELOPMENT_BUILD` で囲み、リリースビルドでは起点ごと存在しない状態にする。クラス本体は条件コンパイルしない (プレハブのスクリプト参照が切れるため)
+**Example**: `DebugPanel/Starter/DebugPanelStarter.cs` が `DontDestroyOnLoad` の Canvas と画面左上の透明ボタン (`DebugOpenButtonView`) を実行時に生成し、全シーンから `DebugPanelDialog` (アイテム / 毛糸の付与) を開けるようにする
+**Note**: 透明ボタンも raycast を奪うため、各シーン左上の UI (Shop / History の戻るボタンは上端から 90px 以降) と重ならないサイズに保つ。Canvas の sortingOrder は DialogCanvas (1000) より下に置き、ダイアログ表示中は押せないようにする
 
 ### Thin Scenes
 **Pattern**: 機能の薄いシーンも標準の6層フォルダを用意するが、必要な層のみにファイルを配置
@@ -127,4 +134,4 @@ Starter    Manager
 
 ---
 _Document patterns, not file trees. New files following patterns shouldn't require updates_
-_更新: 2026-08-03 — Menu ダイアログ追加に伴い Dialog-based Feature Folders を整理 (プレハブ配置・Addressables キー規約を明記)・シーン View への注入経路 (RegisterComponent / autoInjectGameObjects / 動的注入) を追記・Outfit 系を Root サービスとして反映_
+_更新: 2026-08-03 — DebugPanel 追加に伴い Debug-Only Features を新設・UI をコード生成するダイアログの規約を Dialog-based Feature Folders に追記_

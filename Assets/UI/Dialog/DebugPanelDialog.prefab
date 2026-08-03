@@ -61,6 +61,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929345349c9ac44e9ac1afdd3588c2ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DebugPanel.View.DebugPanelDialog
-  _animator: {fileID: 0}
   _closeButton: {fileID: 0}
   _canvasGroup: {fileID: 3692695058534055069}

@@ -224,6 +224,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -360,6 +361,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -496,6 +498,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -850,7 +853,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f3d687315b76f448576cda0e141083, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Root.View.SampleConfirmDialog
-  _animator: {fileID: 8001927587357556688}
   _closeButton: {fileID: 8712821026761240780}
   _canvasGroup: {fileID: 5635011168973744712}
   _okButton: {fileID: 4756446220751030874}
@@ -858,11 +860,6 @@ MonoBehaviour:
 --- !u!225 &5635011168973744712 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 5067156209134210951, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}
-  m_PrefabInstance: {fileID: 603961139379168719}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &8001927587357556688 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 7452680898040666655, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}
   m_PrefabInstance: {fileID: 603961139379168719}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8712821026761240780 stripped

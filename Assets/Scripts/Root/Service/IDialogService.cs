@@ -15,6 +15,11 @@ namespace Root.Service
             where TDialog : BaseDialogView, IDialogWithArgs<TArgs>
             where TArgs : IDialogArgs;
 
+        /// ダイアログのプレハブを事前にロードしてキャッシュする。
+        /// 初回オープン時のロードによるフレームヒッチを避けるために使う
+        UniTask PreloadAsync<TDialog>(CancellationToken cancellationToken)
+            where TDialog : BaseDialogView;
+
         void Close(DialogResult result, bool closeParent = false);
 
         bool HasOpenDialog { get; }

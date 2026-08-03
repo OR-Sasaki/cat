@@ -2733,7 +2733,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 935206e7422d04fe4883558dcd23affb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Menu.View.MenuDialog
-  _animator: {fileID: 5662331509386086709}
   _closeButton: {fileID: 6445216975819212329}
   _canvasGroup: {fileID: 8046735106685279405}
   _soundSwitch: {fileID: 2253527932004567825}
@@ -2743,11 +2742,6 @@ MonoBehaviour:
   _termsButton: {fileID: 6150309351787040188}
   _privacyPolicyButton: {fileID: 6113440665369671251}
   _contactButton: {fileID: 8459684788526655636}
---- !u!95 &5662331509386086709 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 7452680898040666655, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}
-  m_PrefabInstance: {fileID: 3024617174732378922}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6445216975819212329 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8109747057985426691, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}

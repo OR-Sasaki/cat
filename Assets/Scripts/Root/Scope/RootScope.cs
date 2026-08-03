@@ -46,6 +46,8 @@ namespace Root.Scope
             builder.Register<DialogState>(Lifetime.Singleton);
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DialogService>(Lifetime.Singleton).As<IDialogService>();
+            // 初回オープン時のロードでフェードが飛ばないよう、プレハブを起動時に先読みする
+            builder.RegisterEntryPoint<DialogPreloader>();
 
             var rewardedAdConfig = Resources.Load<RewardedAdConfig>("RewardedAdConfig");
             if (rewardedAdConfig == null)

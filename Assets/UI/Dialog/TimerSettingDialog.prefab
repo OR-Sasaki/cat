@@ -1219,11 +1219,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 3740563703707706189}
   m_SourcePrefab: {fileID: 100100000, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}
---- !u!95 &925485072549366393 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 7452680898040666655, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}
-  m_PrefabInstance: {fileID: 7762734676832604262}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1959450616296850789 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8109747057985426691, guid: f6d56fd9d16be6d4d9b6e74e35aff88d, type: 3}
@@ -1262,7 +1257,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 136e8d21f905f4e95bc86fc9ec2f72a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimerSetting.View.TimerSettingDialog
-  _animator: {fileID: 925485072549366393}
   _closeButton: {fileID: 1959450616296850789}
   _canvasGroup: {fileID: 3308142102280069089}
   _focusTimeText: {fileID: 7102339864404251204}

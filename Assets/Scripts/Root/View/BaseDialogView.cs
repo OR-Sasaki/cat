@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,18 +26,18 @@ namespace Root.View
     [RequireComponent(typeof(CanvasGroup))]
     public abstract class BaseDialogView : MonoBehaviour
     {
-        [SerializeField] Animator? _animator;
+        /// 開閉フェードの尺。旧 DialogOpen / DialogClose クリップと同じ 60fps 換算 5 フレーム
+        const float FadeDuration = 0.0833f;
+
         [SerializeField] Button? _closeButton;
         [SerializeField] CanvasGroup? _canvasGroup;
 
-        static readonly int OpenState = Animator.StringToHash("Open");
-        static readonly int CloseState = Animator.StringToHash("Close");
-
         public event Action<DialogResult>? OnCloseRequested;
+
+        Tween? _fadeTween;
 
         protected virtual void Reset()
         {
-            _animator = GetComponent<Animator>();
             _canvasGroup = GetComponent<CanvasGroup>();
         }
 
@@ -47,6 +48,23 @@ namespace Root.View
             if (_closeButton != null)
             {
                 _closeButton.onClick.AddListener(OnCloseButtonClicked);
+            }
+        }
+
+        /// プレハブはアクティブ / alpha 1 で保存されているため、Instantiate した時点で
+        /// 完成形が描画されうる。生成と同じフレームのうちに非表示へ落として 1 フレームの
+        /// ちらつきを防ぐ
+        public void PrepareForOpen()
+        {
+            _canvasGroup ??= GetComponent<CanvasGroup>();
+
+            KillFadeTween();
+
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 0f;
+                _canvasGroup.interactable = false;
+                _canvasGroup.blocksRaycasts = false;
             }
         }
 
@@ -62,16 +80,10 @@ namespace Root.View
 
         public async UniTask PlayOpenAnimationAsync(CancellationToken cancellationToken)
         {
-            if (_animator == null)
-            {
-                return;
-            }
-
             SetInteractable(false);
             try
             {
-                _animator.Play(OpenState);
-                await WaitForAnimationCompleteAsync(cancellationToken);
+                await PlayFadeAsync(1f, cancellationToken);
             }
             finally
             {
@@ -81,28 +93,49 @@ namespace Root.View
 
         public async UniTask PlayCloseAnimationAsync(CancellationToken cancellationToken)
         {
-            if (_animator == null)
+            SetInteractable(false);
+            await PlayFadeAsync(0f, cancellationToken);
+        }
+
+        async UniTask PlayFadeAsync(float endAlpha, CancellationToken cancellationToken)
+        {
+            if (_canvasGroup == null)
             {
                 return;
             }
 
-            SetInteractable(false);
-            _animator.Play(CloseState);
-            await WaitForAnimationCompleteAsync(cancellationToken);
+            KillFadeTween();
+
+            // OnKill は自然完了 (AutoKill) でも Kill でも必ず呼ばれるので待機の解除点にする
+            var completionSource = new UniTaskCompletionSource();
+            _fadeTween = _canvasGroup
+                .DOFade(endAlpha, FadeDuration)
+                .SetEase(Ease.Linear)
+                // ダイアログの開閉は Time.timeScale の影響を受けないようにする
+                .SetUpdate(true)
+                .OnKill(() => completionSource.TrySetResult());
+
+            using (cancellationToken.Register(KillFadeTween))
+            {
+                await completionSource.Task;
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
-        async UniTask WaitForAnimationCompleteAsync(CancellationToken cancellationToken)
+        void KillFadeTween()
         {
-            await UniTask.Yield(cancellationToken);
-
-            while (_animator != null)
+            if (_fadeTween == null)
             {
-                var stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-                if (stateInfo.normalizedTime >= 1.0f)
-                {
-                    break;
-                }
-                await UniTask.Yield(cancellationToken);
+                return;
+            }
+
+            var tween = _fadeTween;
+            _fadeTween = null;
+
+            if (tween.IsActive())
+            {
+                tween.Kill();
             }
         }
 
@@ -117,6 +150,8 @@ namespace Root.View
 
         protected virtual void OnDestroy()
         {
+            KillFadeTween();
+
             if (_closeButton != null)
             {
                 _closeButton.onClick.RemoveListener(OnCloseButtonClicked);

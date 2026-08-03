@@ -49,6 +49,17 @@ namespace Root.Service
             }, cancellationToken);
         }
 
+        public UniTask PreloadAsync<TDialog>(CancellationToken cancellationToken)
+            where TDialog : BaseDialogView
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(DialogService));
+            }
+
+            return _dialogContainer.PreloadAsync(GetAddressableKey<TDialog>(), cancellationToken);
+        }
+
         async UniTask<DialogResult> OpenDialogInternalAsync<TDialog>(
             string addressableKey,
             Action<BaseDialogView>? initializeAction,
@@ -179,6 +190,8 @@ namespace Root.Service
 
                 _dialogState.Pop();
                 _dialogContainer.SetBackdropInteractable(false);
+                // 閉じるアニメーションと同時にバックドロップもフェードさせる
+                _dialogContainer.UpdateBackdrop();
 
                 try
                 {
@@ -190,7 +203,6 @@ namespace Root.Service
                 }
 
                 _dialogContainer.DestroyDialog(instance);
-                _dialogContainer.UpdateBackdrop();
 
                 instance.CompletionSource.TrySetResult(result);
             }

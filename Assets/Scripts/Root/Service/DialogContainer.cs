@@ -62,9 +62,6 @@ namespace Root.Service
             var prefab = await LoadPrefabAsync(addressableKey, cancellationToken);
             var instance = UnityEngine.Object.Instantiate(prefab, _dialogCanvas.transform);
 
-            // Inject dependencies into dynamically instantiated dialog
-            _resolver.InjectGameObject(instance);
-
             var dialogView = instance.GetComponent<BaseDialogView>();
             if (dialogView == null)
             {
@@ -72,6 +69,13 @@ namespace Root.Service
                 throw new InvalidOperationException(
                     $"[DialogContainer] Prefab '{addressableKey}' does not have a BaseDialogView component.");
             }
+
+            // Instantiate した時点でプレハブの見た目のまま描画されうるので、
+            // 描画前 (同じフレーム内) に非表示へ落としてから初期化を進める
+            dialogView.PrepareForOpen();
+
+            // Inject dependencies into dynamically instantiated dialog
+            _resolver.InjectGameObject(instance);
 
             var canvas = instance.GetComponent<Canvas>();
             if (canvas == null)
@@ -92,31 +96,38 @@ namespace Root.Service
             return dialogView;
         }
 
+        /// 初回オープン時に Addressables のロードでフレームが伸び、開くアニメーションが飛ぶのを
+        /// 避けるため、プレハブだけ先に読み込んでキャッシュしておく
+        public async UniTask PreloadAsync(string addressableKey, CancellationToken cancellationToken)
+        {
+            await LoadPrefabAsync(addressableKey, cancellationToken);
+        }
+
         async UniTask<GameObject> LoadPrefabAsync(string addressableKey, CancellationToken cancellationToken)
         {
-            if (_prefabCache.TryGetValue(addressableKey, out var cachedHandle))
+            if (_prefabCache.TryGetValue(addressableKey, out var handle))
             {
-                if (cachedHandle.IsValid() && cachedHandle.Status == AsyncOperationStatus.Succeeded)
+                if (!handle.IsValid())
                 {
-                    return cachedHandle.Result;
+                    _prefabCache.Remove(addressableKey);
                 }
-                _prefabCache.Remove(addressableKey);
+                else if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    return handle.Result;
+                }
             }
 
-            var handle = Addressables.LoadAssetAsync<GameObject>(addressableKey);
+            if (!_prefabCache.TryGetValue(addressableKey, out handle))
+            {
+                handle = Addressables.LoadAssetAsync<GameObject>(addressableKey);
+                // 先読みとオープンが同じキーで重なってもハンドルを二重に作らないよう、
+                // await する前にキャッシュへ登録して進行中のロードを共有する
+                _prefabCache[addressableKey] = handle;
+            }
 
-            try
-            {
-                await handle.WithCancellation(cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                if (handle.IsValid())
-                {
-                    Addressables.Release(handle);
-                }
-                throw;
-            }
+            // キャンセルされてもハンドルは解放しない。同じロードを待っている呼び出しが残りうるため、
+            // 解放は Dispose にまとめる
+            await handle.WithCancellation(cancellationToken);
 
             if (handle.Status != AsyncOperationStatus.Succeeded)
             {
@@ -124,6 +135,7 @@ namespace Root.Service
                 var error = exception?.Message ?? "Unknown error";
                 var stackTrace = exception?.StackTrace ?? "";
                 Debug.LogError($"[DialogContainer] Failed to load prefab '{addressableKey}': {error}\n{stackTrace}");
+                _prefabCache.Remove(addressableKey);
                 if (handle.IsValid())
                 {
                     Addressables.Release(handle);
@@ -131,7 +143,6 @@ namespace Root.Service
                 throw new InvalidOperationException($"Failed to load dialog prefab: {addressableKey}");
             }
 
-            _prefabCache[addressableKey] = handle;
             return handle.Result;
         }
 
@@ -142,18 +153,18 @@ namespace Root.Service
                 return;
             }
 
-            var hasDialog = _dialogState.HasDialog;
-            _backdropView.gameObject.SetActive(hasDialog);
-
-            if (hasDialog)
+            if (!_dialogState.HasDialog)
             {
-                _backdropView.SetAlphaByStackIndex(_dialogState.Count - 1);
-
-                if (_backdropView.Canvas != null && _dialogState.Current is { } currentDialog)
-                {
-                    _backdropView.Canvas.sortingOrder = currentDialog.SortingOrder - 1;
-                }
+                _backdropView.Hide();
+                return;
             }
+
+            if (_backdropView.Canvas != null && _dialogState.Current is { } currentDialog)
+            {
+                _backdropView.Canvas.sortingOrder = currentDialog.SortingOrder - 1;
+            }
+
+            _backdropView.Show(_dialogState.Count - 1);
         }
 
         public void SetBackdropInteractable(bool interactable)

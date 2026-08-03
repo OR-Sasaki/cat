@@ -371,6 +371,7 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 1444508578}
   - {fileID: 1759482992}
+  - {fileID: 381911583}
   _characterView: {fileID: 8994825603251842679}
   _homeUiView: {fileID: 514082147}
   _closetUiView: {fileID: 902082513}
@@ -551,6 +552,8 @@ MonoBehaviour:
   _background: {fileID: 135054841}
   _normalColor: {r: 0, g: 0, b: 0, a: 0.55}
   _highlightColor: {r: 0.85, g: 0.25, b: 0.25, a: 0.85}
+  _idleAlpha: 0.4
+  _activeAlpha: 1
 --- !u!114 &135054841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1610,6 +1613,7 @@ GameObject:
   - component: {fileID: 381911587}
   - component: {fileID: 381911585}
   - component: {fileID: 381911588}
+  - component: {fileID: 381911589}
   m_Layer: 5
   m_Name: MenuButton
   m_TagString: Untagged
@@ -1740,6 +1744,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &381911589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 381911583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a71d94d47530491798d1bbf93e7e759, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Home.View.HomeMenuButtonView
+  _menuButton: {fileID: 381911587}
 --- !u!1 &407094330
 GameObject:
   m_ObjectHideFlags: 0

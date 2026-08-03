@@ -12,6 +12,7 @@ namespace Root.Service
         UserPoint,
         TimerRecord,
         RewardAdDailyCount,
+        MenuSetting,
     }
 
     public class PlayerPrefsService

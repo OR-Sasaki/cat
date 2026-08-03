@@ -1,11 +1,19 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "Assets/Scripts/Home/View/Closet*|Assets/Scripts/Home/Service/ClosetScrollerService*|Assets/Scripts/Home/State/ClosetOutfitData*|Assets/Scripts/Home/State/OutfitAssetState*|Assets/Scripts/Home/Starter/OutfitAssetStarter*|Assets/UI/Home/Closet/**|Assets/Arts/Character/Scripts/Outfit*|Assets/Arts/Character/Scripts/Outfits/*"
+fileMatchPattern: "Assets/Scripts/Home/View/Closet*|Assets/Scripts/Home/Service/ClosetScrollerService*|Assets/Scripts/Home/Service/ClosetTabService*|Assets/Scripts/Home/State/ClosetOutfitData*|Assets/Scripts/Home/State/ClosetTabState*|Assets/Scripts/Home/State/MajorTab*|Assets/Scripts/Home/Starter/OutfitAssetStarter*|Assets/Scripts/Root/State/OutfitAssetState*|Assets/Scripts/Root/Service/OutfitAssetService*|Assets/Scripts/Root/Service/CharacterOutfitService*|Assets/Scripts/Root/Starter/CharacterOutfitStarter*|Assets/UI/Home/Closet/**|Assets/Arts/Character/Scripts/Outfit*|Assets/Arts/Character/Scripts/Outfits/*"
 ---
 
 # Closet (クローゼット) 機能 実装ガイド
 
-> **⚠️ 更新中 (2026-07-19)**: 2階層タブ UI (メジャー/マイナータブ) が別 spec `closet-two-level-tabs` で実装中です。`Home.State.ClosetTabState` / `Home.State.MajorTab`、`Home.Service.ClosetTabService`、`Home.View.ClosetMajorTabsView` / `ClosetMajorTabItemView` / `ClosetMinorTabsView` / `ClosetMinorTabItemView` が追加され (C# はコミット済み)、`ClosetScrollerService` もタブ連携を持ちます。Editor 配線 (DI 登録・プレハブ/シーン階層, tasks 7.x) は一部未完。**本ガイド下部の「`HeadingItem`/`TabItem` は未結線」「タブ切替は未実装」といった記述はこの実装により置き換えられます。** タブ配線完了後に本ガイドの全面更新を推奨。`fileMatchPattern` も新タブファイルを含むよう追補が必要。
+> **⚠️ 更新中 (2026-08-03 時点)**: 2階層タブ UI (メジャー/マイナータブ) が別 spec `closet-two-level-tabs` で実装中です。`Home.State.ClosetTabState` / `Home.State.MajorTab`、`Home.Service.ClosetTabService`、`Home.View.ClosetMajorTabsView` / `ClosetMajorTabItemView` / `ClosetMinorTabsView` / `ClosetMinorTabItemView` が追加され (C# はコミット済み・DI 登録済み)、`ClosetScrollerService` もタブ連携を持ちます。プレハブ/シーン階層の配線 (tasks 7) と自動テスト (tasks 8) は未完。**本ガイド下部の「`HeadingItem`/`TabItem` は未結線」「タブ切替は未実装」といった記述はこの実装により置き換えられます。** タブ配線完了後に本ガイドの全面更新を推奨。
+>
+> また **Outfit のロード基盤は Root スコープへ移設済み**です。以下は現行の対応関係で、本文中の該当箇所は追記で補正してありますが、シーケンス図など細部は旧構成の記述が残っています。
+> | 旧 | 現行 |
+> | --- | --- |
+> | `Home.State.OutfitAssetState` (`IsLoaded` / `OnLoaded` / `NotifyLoaded`) | `Root.State.OutfitAssetState` (`IsAllLoaded` / `OnAllLoaded` / `NotifyAllLoaded` / `Contains`) |
+> | `Home.Starter.OutfitAssetStarter` が Addressables を直接叩く | `Root.Service.OutfitAssetService.LoadAllAsync` へ委譲 (Starter は先読みトリガのみ) |
+> | `Home.Starter.HomeStarter` (デフォルト装備 + 起動時適用) | **削除**。`Root.Starter.CharacterOutfitStarter` → `Root.Service.CharacterOutfitService.ApplyEquippedAsync` が担当 (未装備部位のデフォルトは `default_outfits.csv` から補完) |
+> | 全マスター Outfit を表示 | `IUserItemInventoryService.HasOutfit(id)` で所持分のみ表示 (実装済み) |
 
 Homeシーン内の「服を着替える」UI機能。`HomeFooterView` のクローゼットボタン押下で `HomeState.State.Closet` に遷移し、所持しているOutfitアセットをグリッド表示する。セル選択でキャラクター (`CharacterView`) に即時適用 + `PlayerPrefs` に保存される。
 
@@ -89,16 +97,18 @@ Homeシーン内の「服を着替える」UI機能。`HomeFooterView` のクロ
 - API: `Outfit Outfit { get; }`, `bool Selected { get; set; }` (差分のみ Invoke), `UnityEvent<bool> SelectedChanged`
 - 寿命: `ClosetScrollerService._data` (`SmallList<ClosetOutfitData>`) が所有。`LoadData` 時に毎回 `RemoveAllListeners` → 新規構築する。
 
-#### `Home.State.OutfitAssetState` (`Assets/Scripts/Home/State/OutfitAssetState.cs`)
-- 役割: Addressables からロード済みの `Outfit` アセット (キャラクター用ScriptableObject) のキャッシュ。
+#### `Root.State.OutfitAssetState` (`Assets/Scripts/Root/State/OutfitAssetState.cs`)
+- 役割: Addressables からロード済みの `Outfit` アセット (キャラクター用ScriptableObject) のキャッシュ。Home で着替えた見た目を Timer など他シーンでも再現するため **Root スコープに常駐**する。
+- 名前空間の注意: 同じ `Root.State` にマスタデータの `Outfit` があるため、アセット側は常に `Cat.Character.Outfit` と完全修飾する。
 - API:
-  - `bool IsLoaded { get; set; }`
-  - `event Action OnLoaded` — 全件ロード完了通知
-  - `void Add(string name, Outfit outfit)`
-  - `Outfit Get(string name)` — 未ロードは null
-  - `IReadOnlyDictionary<string, Outfit> GetAll()`
-  - `void NotifyLoaded()` — `IsLoaded = true` + `OnLoaded` 発火
-- 寿命: `HomeScope` で `Lifetime.Scoped`。
+  - `bool IsAllLoaded { get; }` — マスタ全件ロード済みか (装備分だけのロードでは true にならない)
+  - `event Action? OnAllLoaded` — 全件ロード完了通知。**Root 常駐なので購読側はシーン破棄時に必ず解除する**
+  - `void Add(string name, Cat.Character.Outfit outfit)`
+  - `bool Contains(string name)`
+  - `Cat.Character.Outfit? Get(string name)` — 未ロードは null
+  - `IReadOnlyDictionary<string, Cat.Character.Outfit> GetAll()`
+  - `void NotifyAllLoaded()` — `IsAllLoaded = true` + `OnAllLoaded` 発火
+- 寿命: `RootScope` で `Lifetime.Singleton`。ロード済みアセットは意図的に Release しない。
 
 #### `Home.State.HomeState` (`Assets/Scripts/Home/State/HomeState.cs`)
 - Closet 関連で重要なのは `enum State { Home, Redecorate, Closet, Timer, Shop, History }` と `OnStateChange(prev, curr)`。
@@ -119,13 +129,16 @@ Homeシーン内の「服を着替える」UI機能。`HomeFooterView` のクロ
   - `Root.State.UserEquippedOutfitState` (装備済みID参照)
   - `Root.Service.UserEquippedOutfitService` (装備変更 + 永続化)
   - `Root.State.MasterDataState` (Outfitsマスター)
-  - `Home.State.OutfitAssetState` (Addressablesキャッシュ)
+  - `Root.Service.IUserItemInventoryService` (所持判定)
+  - `Root.State.OutfitAssetState` (Addressablesキャッシュ)
+  - `Home.State.ClosetTabState` / `Home.Service.ClosetTabService` (2階層タブ連携)
 - ライフサイクル:
-  - `Start()` で `_closetUiView.OnOpen` に `Initialize` を、`_cellSelectedEvent` に `OnCellViewSelected` を購読。
-  - `Initialize()` は Open 毎に呼ばれ、`scroller.Delegate = this` を再設定。`OutfitAssetState.IsLoaded` 済なら `LoadData()`、未ロードなら `OnLoaded` を1回だけ購読。
+  - `Start()` で `_closetUiView.OnOpen` に `OnOpen` を、`ClosetTabState.MinorChanged` に `OnMinorChanged` を、`_cellSelectedEvent` に `OnCellViewSelected` を購読。
+  - `OnOpen()` は `ClosetTabService.ResetToDefault()` (この間の `MinorChanged` は `_suppressMinorReload` で抑止して二重 `LoadData` を防ぐ) → `Initialize()`。
+  - `Initialize()` は Open 毎に呼ばれ、`scroller.Delegate = this` を再設定。`OutfitAssetState.IsAllLoaded` 済なら `LoadData()`、未ロードなら `OnAllLoaded` を1回だけ購読。
 - データ構築 (`LoadData`):
   1. 既存 `_data` の `SelectedChanged` リスナを全クリア。
-  2. `MasterDataState.Outfits` を順に走査し `OutfitAssetState.Get(masterOutfit.Name)` で実体取得 (null はスキップ)。
+  2. `MasterDataState.Outfits` を順に走査し、`IUserItemInventoryService.HasOutfit(masterOutfit.Id)` が false のものはスキップ (**所持分のみ表示**)。さらに `OutfitAssetState.Get(masterOutfit.Name)` で実体取得 (null はスキップ)。選択中タブ (`ClosetTabState`) でも絞る。
   3. `UserEquippedOutfitState.GetAllEquippedOutfitIds()` を引き、対応 `OutfitType` の装備IDが `masterOutfit.Id` と一致するなら `Selected = true`。
   4. `Scroller.ReloadData()`。
 - 選択処理 (`OnCellViewSelected`):
@@ -152,16 +165,19 @@ Homeシーン内の「服を着替える」UI機能。`HomeFooterView` のクロ
 
 ### Starter 層
 
-#### `Home.Starter.OutfitAssetStarter` (`IStartable`)
-- 役割: Homeシーン起動直後に `MasterDataState.Outfits` を全件 Addressables ロードし `OutfitAssetState` に投入する。
-- アドレス規約: `address = $"{masterOutfit.Type}/{outfitName}.asset"` (例: `Body/Body001.asset`)。
-- 同時並列ロード: `_pendingLoadCount` をデクリメントし 0 になったら `_outfitAssetState.NotifyLoaded()`。
-- マスターが空なら即 `NotifyLoaded()` (ClosetScrollerService 側のハンドラがフリーズしないように)。
+#### `Home.Starter.OutfitAssetStarter` (`IStartable`, `IDisposable`)
+- 役割: **一覧表示用の先読みトリガ**。`Root.Service.OutfitAssetService.LoadAllAsync` を叩くだけで、Addressables を直接扱わない。
+- `_cts` (`CancellationTokenSource`) を持ち `Dispose` でキャンセル。`OperationCanceledException` はシーン破棄の正常動作として無視し、それ以外は `[OutfitAssetStarter]` 付きで LogError。
 
-#### `Home.Starter.HomeStarter` (`IStartable`)
-- 役割: 起動時の装備適用。`OutfitAssetState.IsLoaded` を待って `ApplyDefaultOutfits` → `ApplyPlayerOutfits` を実行。
-- `ApplyDefaultOutfits`: 新規ユーザー向け。`Resources/default_outfits.csv` (id,outfit_id) を読み、未装備の `OutfitType` のみデフォルトを Equip → 1度だけ Save。
-- `ApplyPlayerOutfits`: 永続化済みの装備 (UserEquippedOutfitState) を `CharacterView.SetOutfit` で適用。
+#### 関連: `Root.Service.OutfitAssetService`
+- Outfit アセットの Addressables ロードとキャッシュを一元管理 (`LoadAllAsync` / `LoadAsync(names)`)。
+- アドレス規約: `address = $"{masterOutfit.Type}/{outfitName}.asset"` (例: `Body/Body001.asset`)。
+- `LoadAllAsync` 完了時に `OutfitAssetState.NotifyAllLoaded()`。マスターが空でも通知する (一覧側が待ち続けないように)。
+
+#### 関連: `Root.Starter.CharacterOutfitStarter` + `Root.Service.CharacterOutfitService`
+- 起動時の装備適用は Root 側に集約されており、`CharacterView` を持つシーン (Home / Timer) が `RegisterEntryPoint<CharacterOutfitStarter>()` する。
+- `CharacterOutfitService.ApplyEquippedAsync(characterView, ct)`: 装備分 + `default_outfits.csv` 分のアセットを `OutfitAssetService.LoadAsync` でまとめてロード → 未装備スロットにデフォルトを Equip → `CharacterView` へ適用。
+- ※ 旧 `Home.Starter.HomeStarter` はこの2つに置き換わり削除済み。新規ユーザーへの**所持**アイテム付与は `Root.Service.InitialItemService` の役割 (装備の補完とは別)。
 
 ## DI 登録 (`Home.Scope.HomeScope`)
 
@@ -170,25 +186,27 @@ Homeシーン内の「服を着替える」UI機能。`HomeFooterView` のクロ
 builder.RegisterComponent(_closetUiView);
 // State
 builder.Register<HomeState>(Lifetime.Scoped);
-builder.Register<OutfitAssetState>(Lifetime.Scoped);
+builder.Register<ClosetTabState>(Lifetime.Scoped);
 // Service (DIのみ)
 builder.Register<HomeStateSetService>(Lifetime.Scoped);
+builder.Register<ClosetTabService>(Lifetime.Scoped);
 // EntryPoint (IStartable / IInitializable / ITickable)
 builder.RegisterEntryPoint<OutfitAssetStarter>();
 builder.RegisterEntryPoint<ClosetScrollerService>();
 builder.RegisterEntryPoint<HomeViewService>();
-builder.RegisterEntryPoint<HomeStarter>();
+builder.RegisterEntryPoint<CharacterOutfitStarter>();
 ```
+※ `OutfitAssetState` / `OutfitAssetService` / `CharacterOutfitService` は `RootScope` 側で `Lifetime.Singleton` 登録済み。`HomeScope` では登録しない。
 
 ## データフロー (シーケンス)
 
 ### A. Homeシーン起動 → クローゼット使用可能になるまで
 
 1. `HomeScope.Awake` (`SceneScope`) → `MasterDataImportService.Import()` で `MasterDataState.Outfits` 構築 (CSV)。
-2. `OutfitAssetStarter.Start()` → 全 Outfit を Addressables 並列ロード → 完了で `OutfitAssetState.NotifyLoaded()`。
-3. `HomeStarter.Start()` → ロード待ち (購読 or 即時) → デフォルト装備適用 + 既存装備適用 → `CharacterView.SetOutfit`。
+2. `OutfitAssetStarter.Start()` → `OutfitAssetService.LoadAllAsync` で全 Outfit を先読み → 完了で `OutfitAssetState.NotifyAllLoaded()`。
+3. `CharacterOutfitStarter.Start()` → `CharacterOutfitService.ApplyEquippedAsync` (装備分 + デフォルト分をロード → 未装備スロットを補完 → `CharacterView` へ適用)。2 とは独立に走る。
 4. `HomeViewService.Initialize()` → `HomeState.ForceSetState(Home)` → Home の View が Open。
-5. `ClosetScrollerService.Start()` → `_closetUiView.OnOpen` を購読 (Closet が開かれるたびに `Initialize()` を呼ぶ)。
+5. `ClosetScrollerService.Start()` → `_closetUiView.OnOpen` を購読 (Closet が開かれるたびに `OnOpen()` → `Initialize()` を呼ぶ)。
 
 ### B. クローゼットを開く → セル表示
 
@@ -212,8 +230,7 @@ builder.RegisterEntryPoint<HomeStarter>();
 
 ### CSV (`Assets/Resources/`)
 - `outfits.csv` — マスター。`id, type, name` (例: `1,Body,Body001`)。`type` は `Cat.Character.OutfitType` の文字列名 (アルファベット順: `Body, Cloth, Face, HandAccessory, HeadAccessory, LegAccessory, Tail`)。
-- `default_outfits.csv` — 新規ユーザーへの初期装備。`id, outfit_id` (`outfit_id` はマスターの `name`)。
-- `user_outfits.csv` — 参考 (現状コードからの直接参照なし)。
+- `default_outfits.csv` — 新規ユーザーへの初期装備。`id, outfit_id` (`outfit_id` はマスターの `name`)。`CharacterOutfitService` (未装備スロットの補完) と `InitialItemService` (初期所持の付与) の両方が参照する。
 
 ### Addressables 配置
 - アドレス: `"{type}/{outfitName}.asset"` (例: `Body/Body001.asset`)
@@ -240,9 +257,9 @@ builder.RegisterEntryPoint<HomeStarter>();
 | キー | 内容 | 書き込み元 |
 | --- | --- | --- |
 | `PlayerPrefsKey.UserEquippedOutfit` | OutfitType ごとの装備 OutfitId | `UserEquippedOutfitService.Save()` (Closet 選択時) |
-| `PlayerPrefsKey.UserItemInventory` | 所持 Outfit/Furniture | `UserItemInventoryService.Save()` (Shop購入等) — Closet からは未参照 |
+| `PlayerPrefsKey.UserItemInventory` | 所持 Outfit/Furniture | `UserItemInventoryService.Save()` (Shop購入・初期アイテム付与等) |
 
-`UserItemInventoryService` は `MasterDataState.IsImported` を待って Load し、`EnsureEquippedOutfitsOwned()` で「装備中のOutfitは強制的に所持済みにする」整合保証を行う。Closet から所持Outfitに絞った表示をする場合、この `IUserItemInventoryService.HasOutfit / GetAllOwnedOutfitIds` を導入してフィルタする (現状未実装)。
+`UserItemInventoryService` は `MasterDataState.IsImported` を待って Load し、`EnsureEquippedOutfitsOwned()` で「装備中のOutfitは強制的に所持済みにする」整合保証を行う。Closet は `IUserItemInventoryService.HasOutfit(id)` で**所持分のみに絞って表示する (実装済み)**。
 
 ## Prefab 構成 (`Assets/UI/Home/Closet/Prefabs/`)
 
@@ -280,11 +297,15 @@ builder.RegisterEntryPoint<HomeStarter>();
 | Service | `Home.Service.HomeStateSetService` | `Assets/Scripts/Home/Service/HomeStateSetService.cs` |
 | Service | `Home.Service.HomeViewService` | `Assets/Scripts/Home/Service/HomeViewService.cs` |
 | State | `Home.State.ClosetOutfitData` | `Assets/Scripts/Home/State/ClosetOutfitData.cs` |
-| State | `Home.State.OutfitAssetState` | `Assets/Scripts/Home/State/OutfitAssetState.cs` |
+| State | `Home.State.ClosetTabState` / `MajorTab` | `Assets/Scripts/Home/State/ClosetTabState.cs` / `MajorTab.cs` |
 | State | `Home.State.HomeState` | `Assets/Scripts/Home/State/HomeState.cs` |
+| Service | `Home.Service.ClosetTabService` | `Assets/Scripts/Home/Service/ClosetTabService.cs` |
 | Starter | `Home.Starter.OutfitAssetStarter` | `Assets/Scripts/Home/Starter/OutfitAssetStarter.cs` |
-| Starter | `Home.Starter.HomeStarter` | `Assets/Scripts/Home/Starter/HomeStarter.cs` |
 | Scope | `Home.Scope.HomeScope` | `Assets/Scripts/Home/Scope/HomeScope.cs` |
+| Root State | `Root.State.OutfitAssetState` | `Assets/Scripts/Root/State/OutfitAssetState.cs` |
+| Root Service | `Root.Service.OutfitAssetService` | `Assets/Scripts/Root/Service/OutfitAssetService.cs` |
+| Root Service | `Root.Service.CharacterOutfitService` | `Assets/Scripts/Root/Service/CharacterOutfitService.cs` |
+| Root Starter | `Root.Starter.CharacterOutfitStarter` | `Assets/Scripts/Root/Starter/CharacterOutfitStarter.cs` |
 | Asset | `Cat.Character.Outfit` (abstract) | `Assets/Arts/Character/Scripts/Outfit.cs` |
 | Asset | `Cat.Character.OutfitPart` | `Assets/Arts/Character/Scripts/OutfitPart.cs` |
 | View | `Cat.Character.CharacterView` | `Assets/Arts/Character/Scripts/CharacterView.cs` |
@@ -295,9 +316,9 @@ builder.RegisterEntryPoint<HomeStarter>();
 
 ## 実装時の注意 (拡張・改修指針)
 
-1. **データ追加のフロー**: 新Outfitを追加するなら `outfits.csv` (id/type/name) → Addressables に `{type}/{name}.asset` 配置 → 必要なら `default_outfits.csv` 追記、の3点。コード変更不要 (`MasterDataImportService` と `OutfitAssetStarter` が自動で追従する)。
+1. **データ追加のフロー**: 新Outfitを追加するなら `outfits.csv` (id/type/name) → Addressables に `{type}/{name}.asset` 配置 → 必要なら `default_outfits.csv` 追記、の3点。コード変更不要 (`MasterDataImportService` と `OutfitAssetService` が自動で追従する)。ただし Closet は**所持分のみ表示**なので、新Outfitを一覧に出すには入手経路 (Shop / 初期アイテム) が必要。
 2. **OutfitType を追加するなら** `OutfitType` enum に **アルファベット順で挿入** + `CharacterView.GetPartTypes` の switch に対応 PartType を追加 + 必要なら `OutfitPart` の `PartType` enum もアルファベット順で追加 + `OutfitPartOrderSetting` の `_partOrder` にも追加 (OnValidate で自動検査される)。
-3. **Closet で所持/未所持を区別する場合** `IUserItemInventoryService.HasOutfit(uint)` を `ClosetScrollerService.LoadData()` の各イテレーションで呼び、`ClosetOutfitData` に `Owned` プロパティを追加 → `ClosetRowCellView` でロック表示。`UserItemInventoryService.OutfitChanged` を購読して動的に更新できる。
+3. **未所持アイテムをロック表示したい場合** 現状は `HasOutfit` が false のものを `LoadData` で除外している。グレーアウトして見せるなら除外をやめ、`ClosetOutfitData` に `Owned` を追加 → `ClosetRowCellView` でロック表示。`UserItemInventoryService.OutfitChanged` を購読して動的更新もできる。
 4. **タブ切替を実装する場合** `HeadingItem` / `TabItem` プレハブを使い、選択された `OutfitType` を `ClosetScrollerService` 側に通知 → `LoadData` のフィルタ条件として使用。EnhancedScroller の差分更新 (`ReloadData(scrollPositionFactor: 0)`) を呼ぶ。
 5. **再描画の最適化**: 現状 `LoadData` は毎 Open ごとに全件再構築。マスター数が増えたら `ClosetOutfitData` のキャッシュ + `Selected` だけ書き換える方式に置換可能。
 6. **キャンセル**: Closet 内に async は無いが、将来追加する場合は `CancellationToken` を末尾引数にとる (`tech.md` のUniTask規約)。
@@ -306,7 +327,11 @@ builder.RegisterEntryPoint<HomeStarter>();
 ## 既知の制限・TODO
 
 - `CharacterView.SetOutfit` のリフレクション依存 (本人コメント済 TODO)。
-- `Closet` から **所持判定をしていない**: 全マスター Outfit を表示する。Shop で購入したかどうかは `IUserItemInventoryService` に保持されているが Closet 側未連携。
-- `HeadingItem.prefab` / `TabItem.prefab` は **未結線**: タブUI実装時に `ClosetUiView` への SerializeField 追加 + Service 側でフィルタロジック実装が必要。
+- 2階層タブのプレハブ/シーン配線 (`closet-two-level-tabs` tasks 7) と自動テスト (tasks 8) が未完。C#・DI 登録は完了済み。
+- `HeadingItem.prefab` / `TabItem.prefab` は **未結線**: タブUI実装時に `ClosetUiView` への SerializeField 追加が必要 (フィルタロジック自体は `ClosetTabService` / `ClosetTabState` 側に実装済み)。
 - `EnhancedScroller` の `cellViewPrefab` 切替・行内セル数の動的化は未対応 (`NumberOfCellsPerRow` は固定)。
 - `Outfit.Thumbnail` 未設定の Outfit を扱った場合 `Image.sprite = null` になる (Logは出ない)。マスター追加時の運用注意。
+- Closet 系の一部ファイル (`ClosetOutfitData` / `ClosetCellView` / `ClosetRowCellView`) が `/// <summary>` 形式のまま。`tech.md` の Doc Comments 規約 (`/// comment`) に合わせて整理したい。
+
+---
+_更新: 2026-08-03 — Outfit ロード基盤の Root 移設 (OutfitAssetState/OutfitAssetService/CharacterOutfitService) と HomeStarter 削除を反映・所持判定が実装済みである点を修正・fileMatchPattern を追補_

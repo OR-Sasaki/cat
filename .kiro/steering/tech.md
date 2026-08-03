@@ -33,6 +33,7 @@
 - **Doc Comments**: `/// <summary>` ブロックは使わず `/// comment` で記述
 - **UniTask**: 非同期メソッドは末尾引数に `CancellationToken` を受け取り、外部キャンセル可能にする
 - **DI Constructors**: VContainerが注入するコンストラクタには `[Inject]` を付与 (IL2CPPでのストリッピング対策)
+- **DOTween**: MonoBehaviour から回す Tween は `SetLink(gameObject)` でオブジェクト寿命に紐付け、保持している Tween は再生前と `OnDestroy` で `Kill()` する (例: `Menu.View.MenuSwitchView`)
 
 ### Error Logging
 常にクラスコンテキスト付き:
@@ -61,7 +62,7 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ## Key Technical Decisions
 
 ### VContainer DI Pattern
-- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserDataImportService`, `UserEquippedOutfitService`, `UserPointService`, `UserItemInventoryService`, `TimerRecordService`, `IRewardedAdService`, `RewardedAdConfig`, `IClock` (`SystemClock`) など)。インターフェースを持つサービスは `.As<IXxx>().AsSelf()` で契約と実体の両方を解決可能に登録
+- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserEquippedOutfitService`, `OutfitAssetService`, `CharacterOutfitService`, `InitialItemService`, `UserPointService`, `UserItemInventoryService`, `TimerRecordService`, `IRewardedAdService`, `RewardedAdConfig`, `IClock` (`SystemClock`) など)。インターフェースを持つサービスは `.As<IXxx>().AsSelf()` で契約と実体の両方を解決可能に登録
 - **SceneScope**: 抽象基底クラス `SceneScope` を継承。Awake時にMasterDataImportを保証。各シーンスコープ (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope`, `LogoScope` など)
 - **Lifetime**: `Singleton` (RootScope), `Scoped` (SceneScope)
 - **ITickable**: VContainerの毎フレーム更新インターフェース。継続的な状態更新が必要なサービスに採用 (例: `ShopService` が時限ショップのサイクル監視に使用、`DialogContainer`、`Home/Service/IsoInputService`、`Home/Service/RedecorateCameraService`)。コンストラクタDIに加え `RegisterEntryPoint` も併用
@@ -91,4 +92,4 @@ App Key / Ad Unit ID などの構成値・機密はコードリテラルから�
 
 ---
 _Document standards and patterns, not every dependency_
-_更新: 2026-07-19 — リワード広告SDK / EditMode テスト方針 / プラットフォーム条件付きDI を追記_
+_更新: 2026-08-03 — 存在しない `UserDataImportService` を削除し Outfit 系 Root サービスへ差し替え・DOTween の Tween 寿命規約を追記_

@@ -14,7 +14,8 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 - **リワード広告**: LevelPlay SDK 経由のリワード広告視聴でアイテムを付与 (Shop に統合、日次視聴上限を管理)。`IRewardedAdService` で SDK を抽象化
 - **タイマー**: タイマー機能および設定 (TimerSettingダイアログ経由)、Pomodoro機能はTimerシーン内に統合
 - **集中時間の記録**: 日別の集中時間 (秒) を永続化 (TimerRecordService)。Historyシーンのカレンダー表示・ストリーク集計の単一ソース
-- **ユーザー資産管理**: ポイント (UserPointService) とアイテム所持 (UserItemInventoryService) の状態保持・スナップショット
+- **ユーザー資産管理**: ポイント (UserPointService) とアイテム所持 (UserItemInventoryService) の状態保持・スナップショット。初回起動時の付与は初期アイテム (InitialItemService) のみで、それ以外はショップ等の獲得経路を通す
+- **メニュー / 設定**: ホーム右上のメニューボタンから開く設定ダイアログ (MenuDialog)。サウンド・通知のON/OFFを永続化し、所持金 (毛糸) 残高の確認と規約類への導線を持つ
 - **時刻抽象**: テスト容易性と決定論のため `IClock` 経由で現在時刻を取得
 
 ## Target Use Cases
@@ -24,6 +25,7 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 - ショップ (Shop): 商品・ガチャ機能
 - タイマー (Timer): タイマー機能 (設定はTimerSettingDialogで実施)
 - 履歴 (History): 集中時間のカレンダー表示・月次集計・連続日数 (ストリーク) 表示
+- メニュー (Menu): 設定トグル・所持金確認・規約類の確認 (ホームシーン上のダイアログ)
 - プレイヤーデータの永続化 (PlayerPrefs)
 - ダイアログを介したユーザーインタラクション (確認、メッセージ通知)
 
@@ -33,4 +35,4 @@ VContainerによる堅牢な依存性注入により、各シーンが独立し�
 
 ---
 _Focus on patterns and purpose, not exhaustive feature lists_
-_更新: 2026-07-19 — リワード広告 / 集中時間記録 (History カレンダー) を反映_
+_更新: 2026-08-03 — メニュー (設定) ダイアログを追加・初期アイテム付与の方針を追記_

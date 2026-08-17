@@ -52,5 +52,15 @@ namespace Root.AudioLogic.Tests
         {
             Assert.AreEqual(-1, SeSourcePicker.Pick(System.Array.Empty<bool>(), System.Array.Empty<int>()));
         }
+
+        [Test]
+        [Description("配列の長さが一致しない場合は ArgumentException を送出する")]
+        public void Pick_LengthMismatch_ThrowsArgumentException()
+        {
+            var isPlaying = new[] { true, true };
+            var startOrder = new[] { 0 };
+
+            Assert.Throws<System.ArgumentException>(() => SeSourcePicker.Pick(isPlaying, startOrder));
+        }
     }
 }

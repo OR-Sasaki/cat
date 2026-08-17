@@ -8,6 +8,9 @@ namespace Root.AudioLogic
         /// 空きがあれば最小インデックスの空きを、全て使用中なら startOrder が最小（最古）のインデックスを返す
         public static int Pick(bool[] isPlaying, int[] startOrder)
         {
+            if (isPlaying.Length != startOrder.Length)
+                throw new System.ArgumentException("isPlaying and startOrder must have the same length.", nameof(startOrder));
+
             if (isPlaying.Length == 0)
                 return -1;
 

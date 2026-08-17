@@ -11,12 +11,14 @@ namespace Root.Service
     {
         readonly IAudioService _audioService;
         readonly AudioRegistry _audioRegistry;
+        readonly ButtonSeAttacher _buttonSeAttacher;
 
         [Inject]
-        public AudioSceneService(IAudioService audioService, AudioRegistry audioRegistry)
+        public AudioSceneService(IAudioService audioService, AudioRegistry audioRegistry, ButtonSeAttacher buttonSeAttacher)
         {
             _audioService = audioService;
             _audioRegistry = audioRegistry;
+            _buttonSeAttacher = buttonSeAttacher;
         }
 
         public void Initialize()
@@ -30,12 +32,12 @@ namespace Root.Service
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             var bgmId = _audioRegistry.ResolveSceneBgm(scene.name);
-            if (bgmId is null)
+            if (bgmId is not null)
             {
-                return;
+                _audioService.PlayBgm(bgmId.Value);
             }
 
-            _audioService.PlayBgm(bgmId.Value);
+            _buttonSeAttacher.AttachToScene(scene);
         }
 
         public void Dispose()

@@ -1,6 +1,7 @@
 using System;
 using Root.Service;
 using Root.State;
+using Root.View;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -9,6 +10,8 @@ namespace Root.Scope
 {
     public class RootScope : LifetimeScope
     {
+        [SerializeField] AudioPlayerView _audioPlayerView;
+
         protected override void Awake()
         {
             base.Awake();
@@ -55,6 +58,19 @@ namespace Root.Scope
                 throw new InvalidOperationException("[RootScope] Assets/Resources/RewardedAdConfig.asset が見つかりません。");
             }
             builder.RegisterInstance(rewardedAdConfig);
+
+            var audioRegistry = Resources.Load<AudioRegistry>("AudioRegistry");
+            if (audioRegistry == null)
+            {
+                throw new InvalidOperationException("[RootScope] Assets/Resources/AudioRegistry.asset が見つかりません。");
+            }
+            builder.RegisterInstance(audioRegistry);
+            builder.RegisterComponent(_audioPlayerView);
+            builder.Register<AudioState>(Lifetime.Singleton);
+            builder.Register<AudioService>(Lifetime.Singleton).As<IAudioService>().AsSelf();
+            builder.RegisterEntryPoint<AudioSceneService>();
+            // DI 経路外 (動的生成ボタン等) から IAudioService へ到達するための静的ブリッジを初期化する
+            builder.RegisterBuildCallback(container => AudioServiceHandle.SetCurrent(container.Resolve<IAudioService>()));
 #if UNITY_EDITOR
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #elif UNITY_ANDROID || UNITY_IOS

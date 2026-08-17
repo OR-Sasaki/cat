@@ -6,7 +6,6 @@ namespace Menu.State
     [Serializable]
     public class MenuSettingData
     {
-        public bool soundEnabled = true;
         public bool notificationEnabled = true;
     }
 }

@@ -53,7 +53,7 @@ namespace Root.Service
                 return;
 
             var resolved = _registry.Resolve(id);
-            if (resolved == null)
+            if (resolved is null)
             {
                 Debug.LogError($"[AudioService] BgmId '{id}' に対応する AudioClip が見つかりません。");
                 return;
@@ -70,7 +70,7 @@ namespace Root.Service
 
         public void StopBgm()
         {
-            if (_state.CurrentBgm == null)
+            if (_state.CurrentBgm is null)
                 return;
 
             _playerView.FadeOutAndStop(BgmFadeDuration);
@@ -81,7 +81,7 @@ namespace Root.Service
         {
             _state.BgmVolume = AudioVolumeLogic.Clamp(volume);
 
-            if (_state.CurrentBgm != null)
+            if (_state.CurrentBgm is not null)
             {
                 var effectiveVolume = AudioVolumeLogic.CalcBgmVolume(_state.SoundEnabled, _state.CurrentBgmBaseVolume, _state.BgmVolume);
                 _playerView.SetBgmVolumeImmediate(effectiveVolume);
@@ -100,7 +100,7 @@ namespace Root.Service
         {
             _state.SoundEnabled = enabled;
 
-            if (_state.CurrentBgm != null)
+            if (_state.CurrentBgm is not null)
             {
                 var effectiveVolume = AudioVolumeLogic.CalcBgmVolume(_state.SoundEnabled, _state.CurrentBgmBaseVolume, _state.BgmVolume);
                 _playerView.SetBgmVolumeImmediate(effectiveVolume);

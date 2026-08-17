@@ -30,7 +30,7 @@ namespace Root.Service
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             var bgmId = _audioRegistry.ResolveSceneBgm(scene.name);
-            if (bgmId == null)
+            if (bgmId is null)
             {
                 return;
             }

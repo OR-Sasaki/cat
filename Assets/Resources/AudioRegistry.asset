@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Root.Service.AudioRegistry
   _seEntries:
   - _id: 1
-    _clip: {fileID: 0}
+    _clip: {fileID: 8300000, guid: 0497b3bd27664ae4b8e5a8b493a21d69, type: 3}
   _bgmEntries:
   - _id: 0
-    _clip: {fileID: 0}
-    _baseVolume: 1
+    _clip: {fileID: 8300000, guid: de3a73470e8a22c48a32a0daca35717f, type: 3}
+    _baseVolume: 0.7
   _sceneBgmEntries:
-  - _sceneName: Home
+  - _sceneName: Title
     _id: 0

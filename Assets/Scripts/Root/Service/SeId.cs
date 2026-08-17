@@ -10,5 +10,6 @@ namespace Root.Service
         RoomPick,
         RoomPlace,
         RoomStow,
+        OutfitEquip,
     }
 }

@@ -25,6 +25,7 @@ namespace Home.Service
         readonly OutfitAssetState _outfitAssetState;
         readonly ClosetTabState _closetTabState;
         readonly ClosetTabService _closetTabService;
+        readonly IAudioService _audioService;
         readonly UnityEvent<ClosetRowCellView> _cellSelectedEvent = new();
         SmallList<ClosetOutfitData> _data = new();
         bool _suppressMinorReload;
@@ -39,7 +40,8 @@ namespace Home.Service
             IUserItemInventoryService userItemInventoryService,
             OutfitAssetState outfitAssetState,
             ClosetTabState closetTabState,
-            ClosetTabService closetTabService)
+            ClosetTabService closetTabService,
+            IAudioService audioService)
         {
             _characterView = characterView;
             _closetUiView = closetUiView;
@@ -50,6 +52,7 @@ namespace Home.Service
             _outfitAssetState = outfitAssetState;
             _closetTabState = closetTabState;
             _closetTabService = closetTabService;
+            _audioService = audioService;
         }
 
         public void Start()
@@ -178,6 +181,9 @@ namespace Home.Service
             {
                 _userEquippedOutfitService.Equip(selectedOutfitType, masterOutfit.Id);
                 _userEquippedOutfitService.Save();
+
+                // 服タブでは同じ SE をピッチを下げて鳴らし分ける
+                _audioService.PlaySe(SeId.OutfitEquip, _closetTabState.Major == MajorTab.Body ? 1f : 0.8f);
             }
         }
 

@@ -417,4 +417,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
-  _seId: 1
+  _seId: 0

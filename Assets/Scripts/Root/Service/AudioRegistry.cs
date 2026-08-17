@@ -96,7 +96,7 @@ namespace Root.Service
         }
 
 #if UNITY_EDITOR
-        static readonly string[] s_knownSceneNames =
+        static readonly string[] _knownSceneNames =
         {
             Const.SceneName.Fade,
             Const.SceneName.Title,
@@ -184,7 +184,7 @@ namespace Root.Service
                 }
 
                 var isKnownScene = false;
-                foreach (var sceneName in s_knownSceneNames)
+                foreach (var sceneName in _knownSceneNames)
                 {
                     if (sceneName == entry.SceneName)
                     {

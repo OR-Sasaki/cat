@@ -55,6 +55,13 @@ namespace Root.Scope
                 throw new InvalidOperationException("[RootScope] Assets/Resources/RewardedAdConfig.asset が見つかりません。");
             }
             builder.RegisterInstance(rewardedAdConfig);
+
+            var audioRegistry = Resources.Load<AudioRegistry>("AudioRegistry");
+            if (audioRegistry == null)
+            {
+                throw new InvalidOperationException("[RootScope] Assets/Resources/AudioRegistry.asset が見つかりません。");
+            }
+            builder.RegisterInstance(audioRegistry);
 #if UNITY_EDITOR
             builder.Register<EditorRewardedAdService>(Lifetime.Singleton).As<IRewardedAdService>();
 #elif UNITY_ANDROID || UNITY_IOS

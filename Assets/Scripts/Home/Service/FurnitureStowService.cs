@@ -1,4 +1,5 @@
 using Home.View;
+using Root.Service;
 using UnityEngine;
 using UnityEngine.Events;
 using VContainer;
@@ -11,6 +12,7 @@ namespace Home.Service
     {
         readonly FurnitureStowView _stowView;
         readonly IsoGridService _isoGridService;
+        readonly IAudioService _audioService;
 
         /// 直近のドラッグ位置がしまうゾーン内にあるか（ドラッグ終了時の判定に使用）
         public bool IsPointerInZone { get; private set; }
@@ -19,10 +21,11 @@ namespace Home.Service
         public readonly UnityEvent OnFurnitureStowed = new();
 
         [Inject]
-        public FurnitureStowService(FurnitureStowView stowView, IsoGridService isoGridService)
+        public FurnitureStowService(FurnitureStowView stowView, IsoGridService isoGridService, IAudioService audioService)
         {
             _stowView = stowView;
             _isoGridService = isoGridService;
+            _audioService = audioService;
         }
 
         /// ドラッグ中に呼ぶ。バーをうっすら表示しつつ、ポインター位置に応じてゾーン判定と強調表示を更新する
@@ -53,6 +56,8 @@ namespace Home.Service
             }
 
             Object.Destroy(view.gameObject);
+
+            _audioService.PlaySe(SeId.RoomStow);
 
             OnFurnitureStowed.Invoke();
         }

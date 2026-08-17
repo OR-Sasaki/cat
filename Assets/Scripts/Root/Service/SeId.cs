@@ -9,5 +9,6 @@ namespace Root.Service
         ShopPurchase,
         RoomPick,
         RoomPlace,
+        RoomStow,
     }
 }

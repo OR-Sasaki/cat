@@ -7,13 +7,11 @@ using UnityEngine.UI;
 
 namespace Root.View
 {
-    /// ボタンのクリック SE を既定から上書きする、または動的生成ボタンへ事前付与するための自己配線コンポーネント
+    /// ButtonSeAttacher が付与する、既定クリック SE を自前で再生するコンポーネント
     /// onClick に相乗りしないため、View 側の onClick.RemoveAllListeners() の影響を受けない
     [RequireComponent(typeof(Button))]
-    public sealed class ButtonSe : MonoBehaviour, IPointerClickHandler
+    public sealed class ButtonDefaultSe : MonoBehaviour, IPointerClickHandler
     {
-        [SerializeField] SeId _seId = SeId.Click;
-
         Button? _button;
 
         void Awake()
@@ -23,11 +21,6 @@ namespace Root.View
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (_seId == SeId.None)
-            {
-                return;
-            }
-
             if (eventData.button != PointerEventData.InputButton.Left)
             {
                 return;
@@ -38,7 +31,7 @@ namespace Root.View
                 return;
             }
 
-            AudioServiceHandle.Current?.PlaySe(_seId);
+            AudioServiceHandle.Current?.PlaySe(SeId.Click);
         }
     }
 }

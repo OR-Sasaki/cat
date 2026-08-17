@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Root.Service
 {
-    /// シーン内・生成階層内の Button を走査し、既定クリック SE の再生リスナーを自動付与する
+    /// シーン内・生成階層内の Button を走査し、既定クリック SE を再生する ButtonDefaultSe を自動付与する
     public sealed class ButtonSeAttacher
     {
         public void AttachToScene(Scene scene)
@@ -34,13 +34,12 @@ namespace Root.Service
                 return;
             }
 
-            if (button.TryGetComponent<ButtonSeAttachedMarker>(out _))
+            if (button.TryGetComponent<ButtonDefaultSe>(out _))
             {
                 return;
             }
 
-            button.onClick.AddListener(() => AudioServiceHandle.Current?.PlaySe(SeId.Click));
-            button.gameObject.AddComponent<ButtonSeAttachedMarker>();
+            button.gameObject.AddComponent<ButtonDefaultSe>();
         }
     }
 }

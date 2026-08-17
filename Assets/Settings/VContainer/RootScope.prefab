@@ -64,6 +64,7 @@ GameObject:
   - component: {fileID: 7000000000000000003}
   - component: {fileID: 7000000000000000004}
   - component: {fileID: 7000000000000000005}
+  - component: {fileID: 7000000000000000006}
   m_Layer: 0
   m_Name: AudioPlayer
   m_TagString: Untagged
@@ -290,11 +291,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b76d108a0433e4f49b25f730f408f629, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Root.View.AudioPlayerView
   _bgmSourceA: {fileID: 7000000000000000003}
   _bgmSourceB: {fileID: 7000000000000000004}
   _sePoolSize: 8
+--- !u!81 &7000000000000000006
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000000000000000001}
+  m_Enabled: 1
 --- !u!1001 &8249245196899584753
 PrefabInstance:
   m_ObjectHideFlags: 0

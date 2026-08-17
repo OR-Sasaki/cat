@@ -18,6 +18,7 @@ namespace Root.Service
     {
         readonly DialogState _dialogState;
         readonly IObjectResolver _resolver;
+        readonly ButtonSeAttacher _buttonSeAttacher;
         readonly Dictionary<string, AsyncOperationHandle<GameObject>> _prefabCache = new();
 
         Canvas? _dialogCanvas;
@@ -27,10 +28,11 @@ namespace Root.Service
         public event Action? OnBackButtonPressed;
 
         [Inject]
-        public DialogContainer(DialogState dialogState, IObjectResolver resolver)
+        public DialogContainer(DialogState dialogState, IObjectResolver resolver, ButtonSeAttacher buttonSeAttacher)
         {
             _dialogState = dialogState;
             _resolver = resolver;
+            _buttonSeAttacher = buttonSeAttacher;
         }
 
         public void SetCanvas(Canvas canvas)
@@ -76,6 +78,7 @@ namespace Root.Service
 
             // Inject dependencies into dynamically instantiated dialog
             _resolver.InjectGameObject(instance);
+            _buttonSeAttacher.AttachToHierarchy(instance);
 
             var canvas = instance.GetComponent<Canvas>();
             if (canvas == null)

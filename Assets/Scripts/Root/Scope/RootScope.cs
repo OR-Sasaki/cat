@@ -68,6 +68,7 @@ namespace Root.Scope
             builder.RegisterComponent(_audioPlayerView);
             builder.Register<AudioState>(Lifetime.Singleton);
             builder.Register<AudioService>(Lifetime.Singleton).As<IAudioService>().AsSelf();
+            builder.Register<ButtonSeAttacher>(Lifetime.Singleton).AsSelf();
             builder.RegisterEntryPoint<AudioSceneService>();
             // DI 経路外 (動的生成ボタン等) から IAudioService へ到達するための静的ブリッジを初期化する
             builder.RegisterBuildCallback(container => AudioServiceHandle.SetCurrent(container.Resolve<IAudioService>()));

@@ -5,5 +5,6 @@ namespace Root.Service
         /// SE なしを表す番兵値
         None = 0,
         Click,
+        ShopPurchase,
     }
 }

@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 namespace Root.View
 {
-    /// ボタンのクリック SE を既定から上書きする、または動的生成ボタンへ事前付与するための自己配線コンポーネント
+    /// ボタンのクリック SE を再生する自己配線コンポーネント
+    /// ButtonSeAttacher により既定 SE として自動付与される他、個別ボタンへ設置し SeId を上書きする用途にも使う（SeId.None で鳴らさない）
     /// onClick に相乗りしないため、View 側の onClick.RemoveAllListeners() の影響を受けない
     [RequireComponent(typeof(Button))]
     public sealed class ButtonSe : MonoBehaviour, IPointerClickHandler, IPointerDownHandler

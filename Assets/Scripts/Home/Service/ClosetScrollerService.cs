@@ -16,6 +16,9 @@ namespace Home.Service
 {
     public class ClosetScrollerService : IEnhancedScrollerDelegate, IStartable, IDisposable
     {
+        /// 服タブで OutfitEquip SE を鳴らす際のピッチ
+        const float OutfitEquipLoweredPitch = 0.8f;
+
         readonly CharacterView _characterView;
         readonly ClosetUiView _closetUiView;
         readonly UserEquippedOutfitState _userEquippedOutfitState;
@@ -183,7 +186,7 @@ namespace Home.Service
                 _userEquippedOutfitService.Save();
 
                 // 服タブでは同じ SE をピッチを下げて鳴らし分ける
-                _audioService.PlaySe(SeId.OutfitEquip, _closetTabState.Major == MajorTab.Body ? 1f : 0.8f);
+                _audioService.PlaySe(SeId.OutfitEquip, _closetTabState.Major == MajorTab.Body ? 1f : OutfitEquipLoweredPitch);
             }
         }
 

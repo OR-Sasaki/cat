@@ -16,6 +16,7 @@ namespace Root.View
 
         AudioSource[] _seSources = null!;
         int[] _seStartOrder = null!;
+        bool[] _seIsPlaying = null!;
         int _seOrderCounter;
 
         AudioSource _activeBgmSource = null!;
@@ -30,6 +31,7 @@ namespace Root.View
 
             _seSources = new AudioSource[_sePoolSize];
             _seStartOrder = new int[_sePoolSize];
+            _seIsPlaying = new bool[_sePoolSize];
             for (var i = 0; i < _sePoolSize; i++)
             {
                 var source = gameObject.AddComponent<AudioSource>();
@@ -42,13 +44,12 @@ namespace Root.View
         /// SE をワンショット再生する。空きがなければ最古のソースを奪う
         public void PlaySe(AudioClip clip, float volume, float pitch = 1f)
         {
-            var isPlaying = new bool[_seSources.Length];
             for (var i = 0; i < _seSources.Length; i++)
             {
-                isPlaying[i] = _seSources[i].isPlaying;
+                _seIsPlaying[i] = _seSources[i].isPlaying;
             }
 
-            var index = SeSourcePicker.Pick(isPlaying, _seStartOrder);
+            var index = SeSourcePicker.Pick(_seIsPlaying, _seStartOrder);
             if (index < 0)
                 return;
 

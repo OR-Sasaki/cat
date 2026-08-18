@@ -517,7 +517,8 @@ namespace Shop.Service
             else
                 completeMessage = $"{data.Name}を購入しました！";
 
-            _audioService.PlaySe(SeId.ShopPurchase);
+            if (!grantFailed && !yarnPackAddFailed)
+                _audioService.PlaySe(SeId.ShopPurchase);
 
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(

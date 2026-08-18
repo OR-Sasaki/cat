@@ -88,6 +88,7 @@ namespace Root.View
         public void FadeOutAndStop(float duration)
         {
             _bgmTween?.Kill();
+            _inactiveBgmSource.Stop();
 
             var source = _activeBgmSource;
             _bgmTween = source.DOFade(0f, duration)

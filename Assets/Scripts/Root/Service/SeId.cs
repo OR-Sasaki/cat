@@ -11,5 +11,6 @@ namespace Root.Service
         RoomPlace,
         RoomStow,
         OutfitEquip,
+        Back,
     }
 }

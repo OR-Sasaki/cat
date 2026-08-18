@@ -26,6 +26,7 @@ namespace Menu.View
         PlayerPrefsService _playerPrefsService = null!;
         IDialogService _dialogService = null!;
         IUserPointService _userPointService = null!;
+        IAudioService _audioService = null!;
 
         MenuSettingData _settingData = new();
 
@@ -33,15 +34,17 @@ namespace Menu.View
         public void Construct(
             PlayerPrefsService playerPrefsService,
             IDialogService dialogService,
-            IUserPointService userPointService)
+            IUserPointService userPointService,
+            IAudioService audioService)
         {
             _playerPrefsService = playerPrefsService;
             _dialogService = dialogService;
             _userPointService = userPointService;
+            _audioService = audioService;
 
             LoadSettings();
 
-            _soundSwitch.SetValueWithoutNotify(_settingData.soundEnabled);
+            _soundSwitch.SetValueWithoutNotify(_audioService.GetSettingSnapshot().SoundEnabled);
             _notificationSwitch.SetValueWithoutNotify(_settingData.notificationEnabled);
 
             _soundSwitch.ValueChanged += OnSoundSwitchChanged;
@@ -66,8 +69,7 @@ namespace Menu.View
 
         void OnSoundSwitchChanged(bool isOn)
         {
-            _settingData.soundEnabled = isOn;
-            SaveSettings();
+            _audioService.SetSoundEnabled(isOn);
         }
 
         void OnNotificationSwitchChanged(bool isOn)

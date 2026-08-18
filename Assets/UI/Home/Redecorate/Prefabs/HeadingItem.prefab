@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5453242211029149296}
   - component: {fileID: 2341190352764657736}
   - component: {fileID: 6269417100108078861}
+  - component: {fileID: 6906507321106342842}
   m_Layer: 5
   m_Name: HeadingItem
   m_TagString: Untagged
@@ -137,6 +138,19 @@ MonoBehaviour:
   _button: {fileID: 2341190352764657736}
   _backgroundImage: {fileID: 5453242211029149296}
   _iconImage: {fileID: 3761747070669815150}
+--- !u!114 &6906507321106342842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3080248215760035925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 1
 --- !u!1 &7306180312983147506
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,6 +14,7 @@ namespace Root.Service
     {
         readonly DialogState _dialogState;
         readonly DialogContainer _dialogContainer;
+        readonly IAudioService _audioService;
         readonly CancellationTokenSource _cancellationTokenSource = new();
 
         bool _isDisposed;
@@ -21,10 +22,11 @@ namespace Root.Service
         public bool HasOpenDialog => _dialogState.HasDialog;
 
         [Inject]
-        public DialogService(DialogState dialogState, DialogContainer dialogContainer)
+        public DialogService(DialogState dialogState, DialogContainer dialogContainer, IAudioService audioService)
         {
             _dialogState = dialogState;
             _dialogContainer = dialogContainer;
+            _audioService = audioService;
             _dialogContainer.OnBackButtonPressed += HandleBackButtonPressed;
         }
 
@@ -123,6 +125,7 @@ namespace Root.Service
         {
             if (_dialogState.Current is { } currentDialog)
             {
+                _audioService.PlaySe(SeId.Back);
                 CloseDialogFireAndForget(currentDialog, DialogResult.Cancel).Forget();
             }
         }

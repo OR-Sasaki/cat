@@ -1232,6 +1232,7 @@ GameObject:
   - component: {fileID: 7546776757757474189}
   - component: {fileID: 5929918025172706437}
   - component: {fileID: 2980923451340895278}
+  - component: {fileID: 4055567933267653214}
   m_Layer: 5
   m_Name: HomeButton
   m_TagString: Untagged
@@ -1340,6 +1341,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4055567933267653214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6452199670576099737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 7
 --- !u!1 &6503416654120069611
 GameObject:
   m_ObjectHideFlags: 0

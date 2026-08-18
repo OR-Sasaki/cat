@@ -1,6 +1,7 @@
 using Cat.Furniture;
 using Home.State;
 using Home.View;
+using Root.Service;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -15,6 +16,7 @@ namespace Home.Service
         readonly IsoInputService _isoInputService;
         readonly RedecorateCameraService _redecorateCameraService;
         readonly FurnitureStowService _furnitureStowService;
+        readonly IAudioService _audioService;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -28,12 +30,13 @@ namespace Home.Service
         Vector2Int _dragStartLocalGridPos;
 
         [Inject]
-        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService)
+        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService, IAudioService audioService)
         {
             _isoInputService = isoInputService;
             _isoGridService = isoGridService;
             _redecorateCameraService = redecorateCameraService;
             _furnitureStowService = furnitureStowService;
+            _audioService = audioService;
         }
 
         public void Start()
@@ -151,6 +154,7 @@ namespace Home.Service
         void BeginDrag(Vector3 worldPos)
         {
             _currentIsoDraggableView.SetDragging(true);
+            _audioService.PlaySe(SeId.RoomPick);
 
             // マウス位置とオブジェクト位置の差分を記録
             _dragOffset = _currentIsoDraggableView.Position - worldPos;
@@ -218,6 +222,8 @@ namespace Home.Service
             {
                 EndFloorDrag();
             }
+
+            _audioService.PlaySe(SeId.RoomPlace);
         }
 
         void EndFloorDrag()

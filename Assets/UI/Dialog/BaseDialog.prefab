@@ -101,6 +101,7 @@ GameObject:
   - component: {fileID: 8109747057985426691}
   - component: {fileID: 1296930428484442383}
   - component: {fileID: 6651184094645687222}
+  - component: {fileID: 2675214705954313803}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -209,3 +210,16 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2675214705954313803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2861215441716483854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 7

@@ -28,7 +28,7 @@ namespace Root.Service
             Load();
         }
 
-        public void PlaySe(SeId id)
+        public void PlaySe(SeId id, float pitch = 1f)
         {
             if (id == SeId.None)
                 return;
@@ -44,7 +44,7 @@ namespace Root.Service
                 return;
             }
 
-            _playerView.PlaySe(clip, effectiveVolume);
+            _playerView.PlaySe(clip, effectiveVolume, pitch);
         }
 
         public void PlayBgm(BgmId id)

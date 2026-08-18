@@ -5,7 +5,7 @@ namespace Root.Service
     public interface IAudioService
     {
         /// SE をワンショット再生する。未登録識別子はログのみで無視
-        void PlaySe(SeId id);
+        void PlaySe(SeId id, float pitch = 1f);
         /// BGM をループ再生する。同一 BGM は何もしない。切替はクロスフェード
         void PlayBgm(BgmId id);
         /// BGM をフェードアウトして停止する。未再生時は何もしない

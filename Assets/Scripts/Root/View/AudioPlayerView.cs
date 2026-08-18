@@ -40,7 +40,7 @@ namespace Root.View
         }
 
         /// SE をワンショット再生する。空きがなければ最古のソースを奪う
-        public void PlaySe(AudioClip clip, float volume)
+        public void PlaySe(AudioClip clip, float volume, float pitch = 1f)
         {
             var isPlaying = new bool[_seSources.Length];
             for (var i = 0; i < _seSources.Length; i++)
@@ -56,6 +56,7 @@ namespace Root.View
             source.Stop();
             source.clip = clip;
             source.volume = volume;
+            source.pitch = pitch;
             _seStartOrder[index] = _seOrderCounter++;
             source.Play();
         }

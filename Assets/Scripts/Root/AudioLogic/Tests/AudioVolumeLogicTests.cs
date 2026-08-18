@@ -57,6 +57,34 @@ namespace Root.AudioLogic.Tests
         }
 
         [Test]
+        [Description("基準音量が負値なら 0 として計算する")]
+        public void CalcBgmVolume_NegativeClipBaseVolume_ClampedToZero()
+        {
+            Assert.AreEqual(0f, AudioVolumeLogic.CalcBgmVolume(true, -0.5f, 0.5f));
+        }
+
+        [Test]
+        [Description("BGM 音量が 1 を超えるなら 1 として計算する")]
+        public void CalcBgmVolume_BgmVolumeOverOne_ClampedToOne()
+        {
+            Assert.AreEqual(0.8f, AudioVolumeLogic.CalcBgmVolume(true, 0.8f, 1.5f), 0.0001f);
+        }
+
+        [Test]
+        [Description("基準音量が NaN なら 0 として計算する")]
+        public void CalcBgmVolume_ClipBaseVolumeNaN_ClampedToZero()
+        {
+            Assert.AreEqual(0f, AudioVolumeLogic.CalcBgmVolume(true, float.NaN, 0.5f));
+        }
+
+        [Test]
+        [Description("BGM 音量が NaN なら 0 として計算する")]
+        public void CalcBgmVolume_BgmVolumeNaN_ClampedToZero()
+        {
+            Assert.AreEqual(0f, AudioVolumeLogic.CalcBgmVolume(true, 0.8f, float.NaN));
+        }
+
+        [Test]
         [Description("有効時は SE 音量をそのまま返す")]
         public void CalcSeVolume_Enabled_ReturnsAsIs()
         {
@@ -75,6 +103,27 @@ namespace Root.AudioLogic.Tests
         public void CalcSeVolume_Disabled_AlwaysZero()
         {
             Assert.AreEqual(0f, AudioVolumeLogic.CalcSeVolume(false, 0.6f));
+        }
+
+        [Test]
+        [Description("SE 音量が負値なら 0 に丸める")]
+        public void CalcSeVolume_Negative_ClampedToZero()
+        {
+            Assert.AreEqual(0f, AudioVolumeLogic.CalcSeVolume(true, -0.6f));
+        }
+
+        [Test]
+        [Description("SE 音量が 1 を超えるなら 1 に丸める")]
+        public void CalcSeVolume_OverOne_ClampedToOne()
+        {
+            Assert.AreEqual(1f, AudioVolumeLogic.CalcSeVolume(true, 1.6f));
+        }
+
+        [Test]
+        [Description("SE 音量が NaN なら 0 に丸める")]
+        public void CalcSeVolume_NaN_ClampedToZero()
+        {
+            Assert.AreEqual(0f, AudioVolumeLogic.CalcSeVolume(true, float.NaN));
         }
     }
 }

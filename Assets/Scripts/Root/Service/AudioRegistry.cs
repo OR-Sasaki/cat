@@ -48,6 +48,10 @@ namespace Root.Service
         [SerializeField] List<BgmEntry> _bgmEntries = new();
         [SerializeField] List<SceneBgmEntry> _sceneBgmEntries = new();
 
+        Dictionary<SeId, SeEntry>? _seEntriesById;
+        Dictionary<BgmId, BgmEntry>? _bgmEntriesById;
+        Dictionary<string, BgmId>? _sceneBgmById;
+
         /// SeId に対応するクリップを返す。未登録・未割当・None の場合は null
         public AudioClip? Resolve(SeId id)
         {
@@ -56,43 +60,63 @@ namespace Root.Service
                 return null;
             }
 
-            foreach (var entry in _seEntries)
-            {
-                if (entry.Id == id)
-                {
-                    return entry.Clip;
-                }
-            }
+            _seEntriesById ??= BuildSeEntriesById();
 
-            return null;
+            return _seEntriesById.TryGetValue(id, out var entry) ? entry.Clip : null;
         }
 
         /// BgmId に対応するクリップと基準音量を返す。未登録・未割当の場合は null
         public (AudioClip clip, float baseVolume)? Resolve(BgmId id)
         {
-            foreach (var entry in _bgmEntries)
+            _bgmEntriesById ??= BuildBgmEntriesById();
+
+            if (!_bgmEntriesById.TryGetValue(id, out var entry))
             {
-                if (entry.Id == id)
-                {
-                    return entry.Clip == null ? null : (entry.Clip, entry.BaseVolume);
-                }
+                return null;
             }
 
-            return null;
+            return entry.Clip == null ? null : (entry.Clip, entry.BaseVolume);
         }
 
         /// シーン名に対応する BgmId を返す。マッピングがない場合は null
         public BgmId? ResolveSceneBgm(string sceneName)
         {
-            foreach (var entry in _sceneBgmEntries)
+            _sceneBgmById ??= BuildSceneBgmById();
+
+            return _sceneBgmById.TryGetValue(sceneName, out var id) ? id : null;
+        }
+
+        Dictionary<SeId, SeEntry> BuildSeEntriesById()
+        {
+            var result = new Dictionary<SeId, SeEntry>(_seEntries.Count);
+            foreach (var entry in _seEntries)
             {
-                if (entry.SceneName == sceneName)
-                {
-                    return entry.Id;
-                }
+                result[entry.Id] = entry;
             }
 
-            return null;
+            return result;
+        }
+
+        Dictionary<BgmId, BgmEntry> BuildBgmEntriesById()
+        {
+            var result = new Dictionary<BgmId, BgmEntry>(_bgmEntries.Count);
+            foreach (var entry in _bgmEntries)
+            {
+                result[entry.Id] = entry;
+            }
+
+            return result;
+        }
+
+        Dictionary<string, BgmId> BuildSceneBgmById()
+        {
+            var result = new Dictionary<string, BgmId>(_sceneBgmEntries.Count);
+            foreach (var entry in _sceneBgmEntries)
+            {
+                result[entry.SceneName] = entry.Id;
+            }
+
+            return result;
         }
 
 #if UNITY_EDITOR

@@ -15,7 +15,7 @@
 
 - **Async**: UniTask (async/await拡張、UniTaskVoid、CancellationToken対応)
 - **Tweening**: DOTween / DOTween Pro (`Assets/Plugins/Demigiant/`)。UniTaskとの連携 (`DOTweenAsyncExtensions`) を利用可能
-- **Input System**: New Input System 1.19.0
+- **Input System**: New Input System 1.19.0 (Active Input Handling は新のみ)。UI は `InputSystemUIInputModule`、Home の家具ドラッグは `EnhancedTouch` ポーリング (`IsoInputService`)、全画面共通の押下検出は PassThrough `InputAction` (`TapEffect.View.TapEffectView`) を使う
 - **Navigation**: NavMeshPlus (2D用NavMesh)
 - **Animation**: 2D Animation 13.0.4, Cinemachine 3.1.5
 - **Asset Management**: Addressables 2.9.1
@@ -92,4 +92,4 @@ App Key / Ad Unit ID などの構成値・機密はコードリテラルから�
 
 ---
 _Document standards and patterns, not every dependency_
-_更新: 2026-08-03 — 存在しない `UserDataImportService` を削除し Outfit 系 Root サービスへ差し替え・DOTween の Tween 寿命規約を追記_
+_更新: 2026-08-16 — Input System の利用パターン (UI / EnhancedTouch / PassThrough Action) を追記_

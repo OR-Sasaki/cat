@@ -61,6 +61,10 @@
 **Example**: `DebugPanel/Starter/DebugPanelStarter.cs` が `DontDestroyOnLoad` の Canvas と画面左上の透明ボタン (`DebugOpenButtonView`) を実行時に生成し、全シーンから `DebugPanelDialog` (アイテム / 毛糸の付与) を開けるようにする
 **Note**: 透明ボタンも raycast を奪うため、各シーン左上の UI (Shop / History の戻るボタンは上端から 90px 以降) と重ならないサイズに保つ。Canvas の sortingOrder は DialogCanvas (1000) より下に置き、ダイアログ表示中は押せないようにする
 
+### Root-Resident Overlay Effects
+**Pattern**: 全シーン共通で常に動く演出 (タップエフェクトなど) は、機能フォルダに View だけを置き (`TapEffect/View/TapEffectView.cs`)、専用の Overlay Canvas プレハブ (`Assets/UI/TapEffect/Prefabs/TapEffectCanvas.prefab`) を DialogCanvas と同じ要領で `RootScope.prefab` にネストする。DI が不要なら Starter / Scope への登録は行わず、プレハブの `[SerializeField]` で見た目を調整する。スプライト (`Assets/UI/TapEffect/Textures/`) は差し替え可能なアセットとして持つ
+**Note**: 描画順は sortingOrder で最前面 (TapEffect は 30000。フェード 999 / ダイアログ 1000+ より上) に置き、GraphicRaycaster を付けず Image は `raycastTarget = false` にして入力を奪わない。全画面の押下検出は New Input System の PassThrough `InputAction` (`<Touchscreen>/touch*/press`, `<Mouse>/leftButton`, `<Pen>/tip`) の変化通知で拾い、`wasPressedThisFrame` のポーリングによる同一フレーム内の押下→離しの取りこぼしとマルチタッチの欠落を避ける
+
 ### Thin Scenes
 **Pattern**: 機能の薄いシーンも標準の6層フォルダを用意するが、必要な層のみにファイルを配置
 **Example**: `Title/` - `Scope/TitleScope.cs` と `View/TitleStartButtonView.cs` のみ。他層は空。`Logo/` も `Scope` + `Starter` のみの薄いシーン
@@ -134,4 +138,4 @@ Starter    Manager
 
 ---
 _Document patterns, not file trees. New files following patterns shouldn't require updates_
-_更新: 2026-08-03 — DebugPanel 追加に伴い Debug-Only Features を新設・UI をコード生成するダイアログの規約を Dialog-based Feature Folders に追記_
+_更新: 2026-08-16 — タップエフェクト追加に伴い Root-Resident Overlay Effects を新設 (RootScope.prefab へネストする常駐 Canvas と PassThrough Action による押下検出)_

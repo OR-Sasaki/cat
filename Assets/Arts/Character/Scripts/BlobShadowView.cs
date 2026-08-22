@@ -15,7 +15,7 @@ namespace Cat.Character
         {
             if (_spriteRenderer == null)
             {
-                Debug.LogError("[BlobShadowView] SpriteRenderer が設定されていません");
+                Debug.LogError("[BlobShadowView] SpriteRenderer が設定されていません", this);
                 return;
             }
 

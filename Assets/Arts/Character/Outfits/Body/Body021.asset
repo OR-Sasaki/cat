@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11043b679d77416ca9b37489a0cfe42f, type: 3}
   m_Name: Body021
   m_EditorClassIdentifier: Assembly-CSharp::Cat.Character.Outfits.Body
-  Thumbnail: {fileID: 21300000, guid: 17bc2e82a58a47488bc00a10b3e3e08f, type: 3}
+  Thumbnail: {fileID: 21300000, guid: 1b64662bbf6784475890dbf75f9a7dad, type: 3}
   BackFootPart: {fileID: 11400000, guid: 84ae2ec0e3339476e9c0f9dff9260ccc, type: 2}
   BackHandPart: {fileID: 11400000, guid: 5a1b973930e7e45448ff9385fb506ac0, type: 2}
   BodyPart: {fileID: 11400000, guid: 0ea32a87fd3a14da892a399ad3b9c5f4, type: 2}

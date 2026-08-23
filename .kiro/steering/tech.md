@@ -6,34 +6,30 @@
 
 ## Core Technologies
 
-- **Platform**: Unity 6 (6000.x.x)
-- **Render Pipeline**: Universal Render Pipeline (URP) 17.3.0
+- **Platform**: Unity 6 (6000.x.x) + Universal Render Pipeline (URP) 17.3.0
 - **Language**: C# (.NET Standard 2.1)
 - **DI Framework**: VContainer 1.17.0 (GitHub経由)
 
 ## Key Libraries
 
-- **Async**: UniTask (async/await拡張、UniTaskVoid、CancellationToken対応)
-- **Tweening**: DOTween / DOTween Pro (`Assets/Plugins/Demigiant/`)。UniTaskとの連携 (`DOTweenAsyncExtensions`) を利用可能
-- **Input System**: New Input System 1.19.0 (Active Input Handling は新のみ)。UI は `InputSystemUIInputModule`、Home の家具ドラッグは `EnhancedTouch` ポーリング (`IsoInputService`)、全画面共通の押下検出は PassThrough `InputAction` (`TapEffect.View.TapEffectView`) を使う
-- **Navigation**: NavMeshPlus (2D用NavMesh)
-- **Animation**: 2D Animation 13.0.4, Cinemachine 3.1.5
-- **Asset Management**: Addressables 2.9.1
-- **Timeline**: Unity Timeline 1.8.11
-- **Ads**: LevelPlay (ironSource) SDK — リワード広告。実装 (`LevelPlayRewardedAdService`) は `IRewardedAdService` ポートで隠蔽し、SDK 型を上位層に露出させない
+- **Async**: UniTask (async/await拡張、CancellationToken対応)
+- **Tweening**: DOTween / DOTween Pro (`Assets/Plugins/Demigiant/`)。UniTask連携は `DOTweenAsyncExtensions`
+- **Input System**: New Input System (Active Input Handling は新のみ)。UI は `InputSystemUIInputModule`、Home の家具ドラッグは `EnhancedTouch` ポーリング (`IsoInputService`)、全画面共通の押下検出は PassThrough `InputAction` (`TapEffectView`)
+- **Audio**: 自作基盤 `IAudioService` (`AudioService`)。SE はプリロード・BGM はストリーム再生。クリップは `AudioRegistry` (ScriptableObject) に登録し、ボタン押下 SE は `ButtonSe` コンポーネントで共通付与
+- **Asset Management**: Addressables
+- **その他**: NavMeshPlus (2D NavMesh)、2D Animation、Cinemachine、Timeline
+- **Ads**: LevelPlay (ironSource) SDK — `IRewardedAdService` ポートで隠蔽し、SDK 型を上位層に露出させない
 
 ## Development Standards
 
 ### Coding Conventions
-- **Access Modifiers**: `private`は省略 (デフォルト)
-- **Field Naming**: privateフィールドは `_fieldName` (アンダースコアプレフィックス)
-- **Readonly**: コンストラクタでのみ初期化されるフィールドは `readonly`
-- **Pattern Matching**: 推奨 - `while (asyncLoad is { isDone: false })`
-- **Nullable**: 利用する場合はファイル先頭に `#nullable enable` を付与
-- **Doc Comments**: `/// <summary>` ブロックは使わず `/// comment` で記述
-- **UniTask**: 非同期メソッドは末尾引数に `CancellationToken` を受け取り、外部キャンセル可能にする
-- **DI Constructors**: VContainerが注入するコンストラクタには `[Inject]` を付与 (IL2CPPでのストリッピング対策)
-- **DOTween**: MonoBehaviour から回す Tween は `SetLink(gameObject)` でオブジェクト寿命に紐付け、保持している Tween は再生前と `OnDestroy` で `Kill()` する (例: `Menu.View.MenuSwitchView`)
+- `private` は省略 (デフォルト)。private フィールドは `_fieldName`、コンストラクタでのみ初期化するなら `readonly`
+- パターンマッチング推奨 — `while (asyncLoad is { isDone: false })`
+- Nullable を使う場合はファイル先頭に `#nullable enable`
+- Doc Comments は `/// <summary>` ブロックを使わず `/// comment` で記述
+- UniTask 非同期メソッドは末尾引数に `CancellationToken` を受け取り、外部キャンセル可能にする
+- VContainer が注入するコンストラクタには `[Inject]` を付与 (IL2CPP ストリッピング対策)
+- MonoBehaviour から回す Tween は `SetLink(gameObject)` で寿命に紐付け、保持している Tween は再生前と `OnDestroy` で `Kill()` (例: `Menu.View.MenuSwitchView`)
 
 ### Error Logging
 常にクラスコンテキスト付き:
@@ -41,55 +37,31 @@
 Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 ```
 
-### Scene Naming
-シーン名定数は `Assets/Scripts/Utils/Const.cs` で管理
-
 ### Testing
-決定論的な純粋ロジックは EditMode ユニットテスト (NUnit) で検証する。テスト対象は UnityEngine 非依存の独立アセンブリ (例: `Cat.Shop.RewardAdLogic`, `noEngineReferences: true`) に切り出し、`{Name}.Tests` アセンブリ (`includePlatforms: [Editor]`, `defineConstraints: [UNITY_INCLUDE_TESTS]`) から参照してテストする。日付・CSVパース・上限計算などはこのパターンで検証 (`JstDateHelper`, `ShopProductCsvParser`, `RewardAdDailyCount`)。時刻依存は `IClock` を注入して決定化する
-
-## Development Environment
-
-### Required Tools
-- Unity 6 with URP support
-- Unity Hub
-
-### Common Commands
-```bash
-# Unity起動: Unity Hubからプロジェクト選択
-# 初期シーン: Assets/Scenes/Logo.unity
-```
+決定論的な純粋ロジックは UnityEngine 非依存の独立アセンブリに切り出し、EditMode (NUnit) で検証する (配置ルールと実例は structure.md の Testable Logic Assemblies)。時刻依存は `IClock` を注入して決定化する
 
 ## Key Technical Decisions
 
 ### VContainer DI Pattern
-- **RootScope**: 全シーン共通のシングルトンサービス (`SceneLoader`, `PlayerPrefsService`, `DialogService`, `DialogContainer`, `MasterDataImportService`, `UserEquippedOutfitService`, `OutfitAssetService`, `CharacterOutfitService`, `InitialItemService`, `UserPointService`, `UserItemInventoryService`, `TimerRecordService`, `IRewardedAdService`, `RewardedAdConfig`, `IClock` (`SystemClock`) など)。インターフェースを持つサービスは `.As<IXxx>().AsSelf()` で契約と実体の両方を解決可能に登録
-- **SceneScope**: 抽象基底クラス `SceneScope` を継承。Awake時にMasterDataImportを保証。各シーンスコープ (`HomeScope`, `TitleScope`, `ShopScope`, `TimerScope`, `HistoryScope`, `LogoScope` など)
-- **Lifetime**: `Singleton` (RootScope), `Scoped` (SceneScope)
-- **ITickable**: VContainerの毎フレーム更新インターフェース。継続的な状態更新が必要なサービスに採用 (例: `ShopService` が時限ショップのサイクル監視に使用、`DialogContainer`、`Home/Service/IsoInputService`、`Home/Service/RedecorateCameraService`)。コンストラクタDIに加え `RegisterEntryPoint` も併用
+- **RootScope**: `Lifetime.Singleton`。登録の全量は `RootScope.cs` を参照。インターフェースを持つサービスは `.As<IXxx>().AsSelf()` で契約と実体の両方を解決可能に登録
+- **SceneScope**: 抽象基底クラス `SceneScope` を継承し `Lifetime.Scoped` で登録。Awake 時に MasterDataImport を保証
+- **ITickable**: 毎フレーム更新が必要なサービスに採用 (例: `ShopService` の時限サイクル監視、`IsoInputService`)。コンストラクタ DI に加え `RegisterEntryPoint` も併用
 
 ### Scene Transition System
-Fadeシーンを加算的にロードし、FadeOut → ターゲットロード → FadeIn → Fadeアンロードの順でシーン遷移を実行。`SceneLoader._isLoading`フラグによる多重呼び出し防止機構あり
+Fade シーンを加算ロードし、FadeOut → ターゲットロード → FadeIn → Fade アンロードの順で遷移。`SceneLoader._isLoading` フラグで多重呼び出しを防止
 
 ### Time Abstraction
-`IClock` (実装: `SystemClock`) 経由で `DateTimeOffset.UtcNow` を取得。テスト容易性および時限機能 (時限ショップのサイクル決定論など) の決定的計算のために `DateTimeOffset.UtcNow` を直接呼ばず常に `IClock` を経由する
+`DateTimeOffset.UtcNow` を直接呼ばず常に `IClock` (`SystemClock`) を経由する (テスト容易性・時限機能の決定論)
 
 ### State Snapshot Pattern
-`UserPointSnapshot`, `UserItemInventorySnapshot` のようにユーザー資産系サービスは「現在状態のイミュータブルなスナップショット」を返すアクセサを提供。Viewへ渡す際の参照整合性とテスト容易性を確保
-
-### Dependency Direction (厳密なルール)
-```
-View → Service → State
-  ↓        ↓
-Starter  Manager  (Scope が全体を構成)
-```
-逆方向の依存は禁止 (例: State → Service)
+ユーザー資産系サービスは `UserPointSnapshot` のようなイミュータブルスナップショットを返すアクセサを提供し、View への参照整合性とテスト容易性を確保
 
 ### Platform-Conditional Service Registration
-外部SDK依存サービスは抽象ポート (インターフェース) で隠蔽し、RootScope で `#if UNITY_EDITOR / #elif UNITY_ANDROID || UNITY_IOS` によって実装を切替える。例: `IRewardedAdService` は Editor で `EditorRewardedAdService` (スタブ)、実機で `LevelPlayRewardedAdService` を登録。上位層 (Shop) は SDK 型を参照しない
+外部 SDK 依存はインターフェースで隠蔽し、RootScope で `#if UNITY_EDITOR / #elif UNITY_ANDROID || UNITY_IOS` により実装を切替える (例: `IRewardedAdService` は Editor でスタブ、実機で `LevelPlayRewardedAdService`)
 
 ### Config-as-Asset (機密のコード排除)
-App Key / Ad Unit ID などの構成値・機密はコードリテラルから排除し、`ScriptableObject` (`RewardedAdConfig`) として `Resources/RewardedAdConfig.asset` から `Resources.Load` する。キーはビルド時に env / ローカル `.env` から注入。アセット欠落時は RootScope で fail-fast (例外送出)
+構成値・機密はコードリテラルから排除し、ScriptableObject として `Resources` からロードする。アセット欠落時は RootScope で fail-fast (例: `RewardedAdConfig`, `AudioRegistry`)。キーはビルド時に env / ローカル `.env` から注入
 
 ---
 _Document standards and patterns, not every dependency_
-_更新: 2026-08-16 — Input System の利用パターン (UI / EnhancedTouch / PassThrough Action) を追記_
+_更新: 2026-08-23 — 全体縮小 (structure.md との重複を排除)。オーディオ基盤を追記_

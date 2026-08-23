@@ -6,7 +6,7 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 
 - **シーン遷移**: フェード効果を用いた滑らかなシーン間の移動
 - **依存性注入**: VContainerによる疎結合なアーキテクチャ
-- **キャラクター管理**: プレイヤーの衣装や状態管理 (UserEquippedOutfit)
+- **キャラクター管理**: プレイヤーの衣装や状態管理 (UserEquippedOutfit)。足元の丸影は BlobShadowView (タイマー完了ポップ中は非表示)
 - **マスターデータ管理**: ゲーム内データの一元管理 (MasterDataImportService)
 - **ダイアログシステム**: Addressables経由の動的ダイアログ表示。DialogService/IDialogService、BaseDialogView継承による確認・メッセージ等のプリセット対応、BackdropView連携
 - **アイソメトリックグリッド**: Homeシーン内のIsoGrid機能 (Service/State/View)
@@ -17,6 +17,7 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 - **ユーザー資産管理**: ポイント (UserPointService) とアイテム所持 (UserItemInventoryService) の状態保持・スナップショット。初回起動時の付与は初期アイテム (InitialItemService) のみで、それ以外はショップ等の獲得経路を通す
 - **メニュー / 設定**: ホーム右上のメニューボタンから開く設定ダイアログ (MenuDialog)。サウンド・通知のON/OFFを永続化し、所持金 (毛糸) 残高の確認と規約類への導線を持つ
 - **タップエフェクト**: 画面のどこを押しても指先で波紋 (リング) と粒が弾ける共通演出 (`TapEffectView`)。RootScope 常駐の最前面 Canvas で全シーン共通に動き、入力は消費しない
+- **オーディオ**: BGM / SE の共通再生基盤 (`IAudioService`)。ボタン押下 SE は `ButtonSe` で共通付与し、メニューのサウンド設定と連動
 - **時刻抽象**: テスト容易性と決定論のため `IClock` 経由で現在時刻を取得
 
 ## Target Use Cases
@@ -36,4 +37,4 @@ VContainerによる堅牢な依存性注入により、各シーンが独立し�
 
 ---
 _Focus on patterns and purpose, not exhaustive feature lists_
-_更新: 2026-08-16 — タップエフェクト (全シーン共通の押下演出) を追加_
+_更新: 2026-08-23 — オーディオ基盤とキャラクター丸影を追記_

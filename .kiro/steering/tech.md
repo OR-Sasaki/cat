@@ -45,7 +45,7 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 シーン名定数は `Assets/Scripts/Utils/Const.cs` で管理
 
 ### Testing
-決定論的な純粋ロジックは EditMode ユニットテスト (NUnit) で検証する。テスト対象は UnityEngine 非依存の独立アセンブリ (例: `Cat.Shop.RewardAdLogic`, `noEngineReferences: true`) に切り出し、`{Name}.Tests` アセンブリ (`includePlatforms: [Editor]`, `defineConstraints: [UNITY_INCLUDE_TESTS]`) から参照してテストする。日付・CSVパース・上限計算などはこのパターンで検証 (`JstDateHelper`, `ShopProductCsvParser`, `RewardAdDailyCount`)。時刻依存は `IClock` を注入して決定化する
+決定論的な純粋ロジックは EditMode ユニットテスト (NUnit) で検証する。テスト対象は UnityEngine 非依存の独立アセンブリ (例: `Cat.Shop.RewardAdLogic`, `Root/AudioLogic` の音量計算・SE ソース選択, `noEngineReferences: true`) に切り出し、`{Name}.Tests` アセンブリ (`includePlatforms: [Editor]`, `defineConstraints: [UNITY_INCLUDE_TESTS]`) から参照してテストする。日付・CSVパース・上限計算などはこのパターンで検証 (`JstDateHelper`, `ShopProductCsvParser`, `RewardAdDailyCount`)。時刻依存は `IClock` を注入して決定化する
 
 ## Development Environment
 
@@ -88,8 +88,11 @@ Starter  Manager  (Scope が全体を構成)
 外部SDK依存サービスは抽象ポート (インターフェース) で隠蔽し、RootScope で `#if UNITY_EDITOR / #elif UNITY_ANDROID || UNITY_IOS` によって実装を切替える。例: `IRewardedAdService` は Editor で `EditorRewardedAdService` (スタブ)、実機で `LevelPlayRewardedAdService` を登録。上位層 (Shop) は SDK 型を参照しない
 
 ### Config-as-Asset (機密のコード排除)
-App Key / Ad Unit ID などの構成値・機密はコードリテラルから排除し、`ScriptableObject` (`RewardedAdConfig`) として `Resources/RewardedAdConfig.asset` から `Resources.Load` する。キーはビルド時に env / ローカル `.env` から注入。アセット欠落時は RootScope で fail-fast (例外送出)
+App Key / Ad Unit ID などの構成値・機密はコードリテラルから排除し、`ScriptableObject` (`RewardedAdConfig`) として `Resources/RewardedAdConfig.asset` から `Resources.Load` する。キーはビルド時に env / ローカル `.env` から注入。アセット欠落時は RootScope で fail-fast (例外送出)。機密でない構成アセットも同パターン (`AudioRegistry` — SE/BGM の ID→クリップ対応とシーン別 BGM 割り当てを `Resources/AudioRegistry.asset` に持ち、欠落時 fail-fast)
+
+### Audio System
+`IAudioService` (実装: `AudioService`) が BGM クロスフェード・SE 再生・音量/ON-OFF 設定の永続化を担う。純粋計算 (`AudioVolumeLogic`, `SeSourcePicker`) は `Root/AudioLogic` のエンジン非依存アセンブリに分離。`AudioSceneService` (`IInitializable`) が `SceneManager.sceneLoaded` を購読してシーン対応 BGM を自動再生し、`ButtonSeAttacher` がシーン内 Button に既定クリック SE を自動付与する。DI 経路外 (動的生成ボタン等) からは静的ブリッジ `AudioServiceHandle` 経由で到達する。`SeId` / `BgmId` enum は追加時に必ず末尾へ (シリアライズ済み値の保護)
 
 ---
 _Document standards and patterns, not every dependency_
-_更新: 2026-08-16 — Input System の利用パターン (UI / EnhancedTouch / PassThrough Action) を追記_
+_更新: 2026-08-23 — Audio System (IAudioService / AudioRegistry / AudioLogic) を追記_

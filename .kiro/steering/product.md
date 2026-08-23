@@ -17,6 +17,8 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 - **ユーザー資産管理**: ポイント (UserPointService) とアイテム所持 (UserItemInventoryService) の状態保持・スナップショット。初回起動時の付与は初期アイテム (InitialItemService) のみで、それ以外はショップ等の獲得経路を通す
 - **メニュー / 設定**: ホーム右上のメニューボタンから開く設定ダイアログ (MenuDialog)。サウンド・通知のON/OFFを永続化し、所持金 (毛糸) 残高の確認と規約類への導線を持つ
 - **タップエフェクト**: 画面のどこを押しても指先で波紋 (リング) と粒が弾ける共通演出 (`TapEffectView`)。RootScope 常駐の最前面 Canvas で全シーン共通に動き、入力は消費しない
+- **オーディオ (BGM / SE)**: `IAudioService` による BGM クロスフェード再生と SE 再生。シーンロードに応じた BGM 自動切替 (`AudioSceneService`) とボタンクリック SE の自動付与 (`ButtonSeAttacher`)。音量・ON/OFF 設定は PlayerPrefs に永続化
+- **ブロブシャドウ**: キャラクター足元の楕円影 (`BlobShadowView`)。Character プレハブに常駐し、Timer の完了ポップ演出中は非表示にする
 - **時刻抽象**: テスト容易性と決定論のため `IClock` 経由で現在時刻を取得
 
 ## Target Use Cases
@@ -36,4 +38,4 @@ VContainerによる堅牢な依存性注入により、各シーンが独立し�
 
 ---
 _Focus on patterns and purpose, not exhaustive feature lists_
-_更新: 2026-08-16 — タップエフェクト (全シーン共通の押下演出) を追加_
+_更新: 2026-08-23 — オーディオ (BGM/SE) とブロブシャドウを追加_

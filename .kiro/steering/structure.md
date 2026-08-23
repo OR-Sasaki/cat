@@ -23,13 +23,13 @@
 ### Root Services
 **Location**: `Assets/Scripts/Root/`
 **Purpose**: 全シーン共通のグローバルサービス (RootScope)。シーンと同じ層構造 (Service/State/View) を持つ
-**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserEquippedOutfitService`, `OutfitAssetService`, `CharacterOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `InitialItemService`, `UserFurnitureInstanceService`, `TimerRecordService/ITimerRecordService`, `IRewardedAdService` (`EditorRewardedAdService` / `LevelPlayRewardedAdService`), `IClock` (`SystemClock`)
+**Key Services**: `SceneLoader`, `PlayerPrefsService`, `DialogService/IDialogService`, `DialogContainer`, `MasterDataImportService`, `UserEquippedOutfitService`, `OutfitAssetService`, `CharacterOutfitService`, `UserPointService/IUserPointService`, `UserItemInventoryService/IUserItemInventoryService`, `InitialItemService`, `UserFurnitureInstanceService`, `TimerRecordService/ITimerRecordService`, `IRewardedAdService` (`EditorRewardedAdService` / `LevelPlayRewardedAdService`), `IAudioService` (`AudioService`), `AudioSceneService`, `ButtonSeAttacher`, `IClock` (`SystemClock`)
 **見た目のシーン横断共有**: Outfit アセットのロード/キャッシュ (`OutfitAssetService` + `OutfitAssetState`) と `CharacterView` への適用 (`CharacterOutfitService`) は Root に置き、`CharacterView` を持つシーンが `CharacterOutfitStarter` を `RegisterEntryPoint` して呼び出す。未装備部位のデフォルトは `default_outfits.csv` から補完する
 **所持アイテムの単一ソース**: `UserItemInventoryService` (PlayerPrefs・数量ベース)。初回起動時は `InitialItemService` が `initial_furnitures.csv` / `default_outfits.csv` から解決した初期アイテムのみを付与する。IsoGrid が要求する個体単位の `UserFurnitureId` は `UserFurnitureInstanceService` が所持数から決定論的に採番する (`FurnitureId * SlotStride + slot + 1`)
-**Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `OutfitAssetState`, `UserPointState`, `UserItemInventoryState`, `TimerRecordState`, `SceneLoaderState`
+**Key States**: `MasterDataState`, `DialogState`, `UserState`, `UserEquippedOutfitState`, `OutfitAssetState`, `UserPointState`, `UserItemInventoryState`, `TimerRecordState`, `AudioState`, `SceneLoaderState`
 **Key Snapshots**: `UserPointSnapshot`, `UserItemInventorySnapshot`, `TimerRecordSnapshot` (状態系サービスのイミュータブル戻り値)
-**Key Configs**: `RewardedAdConfig` (`Resources/RewardedAdConfig.asset` からロードする ScriptableObject 構成)
-**Key Views**: `DialogCanvasView`, `BackdropView`, `BaseDialogView` (継承ベースのダイアログ基底クラス), `CommonConfirmDialog`, `CommonMessageDialog`
+**Key Configs**: `RewardedAdConfig` (`Resources/RewardedAdConfig.asset` からロードする ScriptableObject 構成), `AudioRegistry` (`Resources/AudioRegistry.asset` — SE/BGM 対応表とシーン別 BGM)
+**Key Views**: `DialogCanvasView`, `BackdropView`, `BaseDialogView` (継承ベースのダイアログ基底クラス), `CommonConfirmDialog`, `CommonMessageDialog`, `AudioPlayerView` (AudioSource 実体を持つ受動 View。RootScope プレハブの子で DDoL)
 
 ### Utilities
 **Location**: `Assets/Scripts/Utils/`
@@ -44,7 +44,7 @@
 ### Testable Logic Assemblies
 **Pattern**: 決定論的な純粋ロジックはシーンフォルダ配下の独立アセンブリ (`.asmdef`, `noEngineReferences: true`) に切り出し、`Tests/` サブフォルダに EditMode テストアセンブリ (`{Name}.Tests`, `includePlatforms: [Editor]`) を同居させる
 **Location**: `Assets/Scripts/{Scene}/{Feature}Logic/`
-**Example**: `Shop/RewardAdLogic/` — `JstDateHelper` / `RewardAdDailyCount` / `ShopProductCsvParser` (本体) + `Tests/*Tests.cs`。UnityEngine 非依存に保つことで純粋にユニットテスト可能
+**Example**: `Shop/RewardAdLogic/` — `JstDateHelper` / `RewardAdDailyCount` / `ShopProductCsvParser` (本体) + `Tests/*Tests.cs`。`Root/AudioLogic/` — `AudioVolumeLogic` / `SeSourcePicker` + `Tests/`。UnityEngine 非依存に保つことで純粋にユニットテスト可能
 
 ### Dialog-based Feature Folders
 **Pattern**: シーンではないがシーン構造に準じたフォルダ (State/View) を持つ機能。使う層だけフォルダを作れば足りる (6層すべてを空フォルダで先置きするかは任意)
@@ -138,4 +138,4 @@ Starter    Manager
 
 ---
 _Document patterns, not file trees. New files following patterns shouldn't require updates_
-_更新: 2026-08-16 — タップエフェクト追加に伴い Root-Resident Overlay Effects を新設 (RootScope.prefab へネストする常駐 Canvas と PassThrough Action による押下検出)_
+_更新: 2026-08-23 — Audio 系 (AudioState / AudioRegistry / AudioPlayerView / Root/AudioLogic) を追記_

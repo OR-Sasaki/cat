@@ -1136,7 +1136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d22fbd53a621b490f9ebfd77e6ebbbce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Home.View.IsoDraggableView
-  _footprintSize: {x: 2, y: 3}
+  _footprintSize: {x: 3, y: 3}
   _pivotGridPosition: {x: 0, y: 0}
   _viewPivot: {fileID: 3149847080431059872}
   _userFurnitureId: 0

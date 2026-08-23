@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using Root.Service;
 using Root.State;
 using Root.View;
@@ -11,7 +12,7 @@ using VContainer;
 
 namespace DebugPanel.View
 {
-    /// 指定アイテム (家具 / 着せ替え) の付与と毛糸の付与を行うデバッグ用ダイアログ
+    /// 指定アイテム (家具 / 着せ替え) の付与・全アイテムの一括付与と毛糸の付与を行うデバッグ用ダイアログ
     /// デバッグ専用のためプレハブは空の器のみとし、UI はすべてコードから生成する
     public class DebugPanelDialog : BaseDialogView
     {
@@ -50,9 +51,11 @@ namespace DebugPanel.View
         const float YarnLabelHeight = 52f;
         const float YarnButtonsTop = 172f;
         const float YarnButtonsHeight = 88f;
-        const float TabsTop = 280f;
+        const float GrantAllTop = 280f;
+        const float GrantAllHeight = 88f;
+        const float TabsTop = 388f;
         const float TabsHeight = 88f;
-        const float ListTop = 388f;
+        const float ListTop = 496f;
         const float ListBottom = 108f;
         const float StatusBottom = 24f;
         const float StatusHeight = 64f;
@@ -109,6 +112,7 @@ namespace DebugPanel.View
 
             BuildHeader(panel);
             BuildYarnSection(panel);
+            BuildGrantAllSection(panel);
             BuildCategoryTabs(panel);
             BuildItemList(panel);
             BuildStatus(panel);
@@ -145,6 +149,13 @@ namespace DebugPanel.View
             DebugUiFactory.CreateButton("ResetYarn", buttons, "RESET", MutedColor, OnResetYarnClicked);
 
             RefreshYarnLabel();
+        }
+
+        void BuildGrantAllSection(RectTransform panel)
+        {
+            var button = DebugUiFactory.CreateButton(
+                "GrantAllButton", panel, "GRANT ALL ITEMS", AccentColor, OnGrantAllItemsClicked);
+            DebugUiFactory.AnchorTop((RectTransform)button.transform, GrantAllTop, GrantAllHeight, Padding);
         }
 
         void BuildCategoryTabs(RectTransform panel)
@@ -320,6 +331,56 @@ namespace DebugPanel.View
 
             RefreshRow(row);
             SetStatus($"{row.Name} granted");
+        }
+
+        /// 全家具を +1、全着せ替えを付与する (着せ替えの既所持は冪等成功)
+        /// 部分成功からの再試行で所持数が乖離しないよう、失敗し得る家具が 1 件でもあれば何も付与せず中止する
+        void OnGrantAllItemsClicked()
+        {
+            var furnitures = _masterDataState.Furnitures;
+            var outfits = _masterDataState.Outfits;
+            if (furnitures is null || outfits is null)
+            {
+                SetStatus("master data is not imported");
+                return;
+            }
+
+            foreach (var furniture in furnitures)
+            {
+                if (_userItemInventoryService.GetFurnitureCount(furniture.Id) == int.MaxValue)
+                {
+                    SetStatus($"aborted: furniture {furniture.Id} is at max count");
+                    return;
+                }
+            }
+
+            var failedCount = 0;
+
+            // マスタに同一 ID の行が重複していても付与は 1 回に留め、「各 +1」と事前走査の整合を保つ
+            var furnitureIds = new HashSet<uint>();
+            foreach (var furniture in furnitures)
+            {
+                if (!furnitureIds.Add(furniture.Id)) continue;
+                if (!_userItemInventoryService.AddFurniture(furniture.Id, 1).IsSuccess)
+                {
+                    failedCount++;
+                }
+            }
+
+            var outfitIds = new HashSet<uint>();
+            foreach (var outfit in outfits)
+            {
+                if (!outfitIds.Add(outfit.Id)) continue;
+                if (!_userItemInventoryService.GrantOutfit(outfit.Id).IsSuccess)
+                {
+                    failedCount++;
+                }
+            }
+
+            RebuildList();
+            SetStatus(failedCount == 0
+                ? $"all items granted (furniture x{furnitureIds.Count}, outfit x{outfitIds.Count})"
+                : $"grant all finished ({failedCount} failed)");
         }
 
         void OnAddYarnClicked(int amount)

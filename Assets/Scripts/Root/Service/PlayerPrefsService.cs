@@ -13,6 +13,7 @@ namespace Root.Service
         TimerRecord,
         RewardAdDailyCount,
         MenuSetting,
+        AudioSetting,
     }
 
     public class PlayerPrefsService

@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 3020934030021492961}
   - component: {fileID: 8582742862191957225}
   - component: {fileID: 2756780812876797098}
+  - component: {fileID: 4497525357199211889}
   m_Layer: 5
   m_Name: DayCell
   m_TagString: Untagged
@@ -428,3 +429,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4497525357199211889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8268723815698065806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 1

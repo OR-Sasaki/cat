@@ -29,6 +29,7 @@ namespace Shop.Service
         readonly IRewardedAdService _rewardedAdService;
         readonly PlayerPrefsService _playerPrefsService;
         readonly RewardedAdConfig _rewardedAdConfig;
+        readonly IAudioService _audioService;
 
         Furniture[]? _cachedFurnitureSource;
         Dictionary<uint, Furniture>? _furnitureLookup;
@@ -56,7 +57,8 @@ namespace Shop.Service
             IClock clock,
             IRewardedAdService rewardedAdService,
             PlayerPrefsService playerPrefsService,
-            RewardedAdConfig rewardedAdConfig)
+            RewardedAdConfig rewardedAdConfig,
+            IAudioService audioService)
         {
             _state = state;
             _userPointService = userPointService;
@@ -68,6 +70,7 @@ namespace Shop.Service
             _rewardedAdService = rewardedAdService;
             _playerPrefsService = playerPrefsService;
             _rewardedAdConfig = rewardedAdConfig;
+            _audioService = audioService;
         }
 
         public void Initialize()
@@ -514,6 +517,9 @@ namespace Shop.Service
             else
                 completeMessage = $"{data.Name}を購入しました！";
 
+            if (!grantFailed && !yarnPackAddFailed)
+                _audioService.PlaySe(SeId.ShopPurchase);
+
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(
                 new CommonMessageDialogArgs(
                     Title: "購入完了",
@@ -586,7 +592,10 @@ namespace Shop.Service
         {
             var grantSucceeded = TryGrantPurchasedItem(data);
             if (grantSucceeded)
+            {
                 IncrementDailyCount(productId);
+                _audioService.PlaySe(SeId.ShopPurchase);
+            }
 
             var message = grantSucceeded
                 ? $"「{data.Name}」を獲得しました！"

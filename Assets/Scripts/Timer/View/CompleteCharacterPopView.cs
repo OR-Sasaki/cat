@@ -30,6 +30,8 @@ namespace Timer.View
         [SerializeField, Min(0f)] float _duckOvershoot = 1.2f;
         [SerializeField, Min(0.01f)] float _popDuration = 0.62f;
         [SerializeField, Min(0f)] float _popOvershoot = 1.35f;
+        /// 完了演出中に非表示にする足元の丸影。Home には無いので null 許容
+        [SerializeField] GameObject _blobShadow;
 
         /// 画面外へ隠すときの頭頂の高さ。下端に張り付かないよう少しだけ外へ出す
         const float HiddenViewportY = -0.02f;
@@ -90,6 +92,11 @@ namespace Timer.View
             if (_sortingGroup != null)
             {
                 _sortingGroup.sortingOrder = _popSortingOrder;
+            }
+
+            if (_blobShadow != null)
+            {
+                _blobShadow.SetActive(false);
             }
 
             StopAnimation();

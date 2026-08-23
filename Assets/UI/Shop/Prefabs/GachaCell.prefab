@@ -105,6 +105,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -263,6 +264,7 @@ GameObject:
   - component: {fileID: 3637939395168529210}
   - component: {fileID: 1195240484458772539}
   - component: {fileID: 543498309320342949}
+  - component: {fileID: 442169709409993525}
   m_Layer: 5
   m_Name: 1RollButton
   m_TagString: Untagged
@@ -372,6 +374,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &442169709409993525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7050501253896922586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 1
 --- !u!1 &7058452451794518051
 GameObject:
   m_ObjectHideFlags: 0
@@ -384,6 +399,7 @@ GameObject:
   - component: {fileID: 5430179717673217406}
   - component: {fileID: 6508989706086719967}
   - component: {fileID: 6361951718460730763}
+  - component: {fileID: 3400916730668992901}
   m_Layer: 5
   m_Name: 10RollButton
   m_TagString: Untagged
@@ -493,6 +509,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3400916730668992901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7058452451794518051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 1
 --- !u!1 &9205031839227307614
 GameObject:
   m_ObjectHideFlags: 0
@@ -598,6 +627,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

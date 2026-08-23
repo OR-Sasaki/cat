@@ -1220,7 +1220,6 @@ GameObject:
   m_Component:
   - component: {fileID: 913987825}
   - component: {fileID: 913987824}
-  - component: {fileID: 913987823}
   - component: {fileID: 913987826}
   m_Layer: 0
   m_Name: Main Camera
@@ -1229,14 +1228,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &913987823
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 913987822}
-  m_Enabled: 1
 --- !u!20 &913987824
 Camera:
   m_ObjectHideFlags: 0
@@ -1845,6 +1836,7 @@ MonoBehaviour:
     _fromDirection: {x: -1, y: -1}
   _slideDuration: 0.55
   _slideInterval: 0.3
+  _cornerClearance: 48
   _starLayer: {fileID: 807300300}
   _starScrollSpeed: {x: 0.03, y: 0.02}
   _starTilePixelSize: 360
@@ -3514,6 +3506,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Timer.View.TimerCharacterView
   _animator: {fileID: 7821075597418121928}
   _slowestRunAnimationSpeed: 0.55
+--- !u!1 &7821075597418121930 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5612214818309624151, guid: 6c49e824f24d24a7999702ec20912d6a, type: 3}
+  m_PrefabInstance: {fileID: 7821075597418121926}
+  m_PrefabAsset: {fileID: 0}
 --- !u!210 &7821075597418121932 stripped
 SortingGroup:
   m_CorrespondingSourceObject: {fileID: 2397248990814532233, guid: 6c49e824f24d24a7999702ec20912d6a, type: 3}
@@ -3544,6 +3541,7 @@ MonoBehaviour:
   _duckOvershoot: 1.2
   _popDuration: 0.62
   _popOvershoot: 1.35
+  _blobShadow: {fileID: 7821075597418121930}
 --- !u!222 &7864967088813364555
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -241,6 +241,7 @@ GameObject:
   - component: {fileID: 1872152666438132824}
   - component: {fileID: 8377697679823948220}
   - component: {fileID: 5915222353309033515}
+  - component: {fileID: 6195782692937554885}
   m_Layer: 5
   m_Name: FurnitureCell
   m_TagString: Untagged
@@ -360,6 +361,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &6195782692937554885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7114524310570021015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5b6cec7fe99b64e94c4879a1751b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Root.View.ButtonSe
+  _seId: 1
 --- !u!1 &8101173770867308489
 GameObject:
   m_ObjectHideFlags: 0

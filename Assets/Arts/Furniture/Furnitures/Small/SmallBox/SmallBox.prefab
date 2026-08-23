@@ -100,12 +100,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.001565909, y: 0.65335935}
-      - {x: -0.46187988, y: 0.51792717}
-      - {x: -0.4707072, y: 0.13400301}
-      - {x: -0.00006098766, y: -0.00066673756}
-      - {x: 0.4653631, y: 0.13509053}
-      - {x: 0.4756409, y: 0.5141939}
+    - - {x: -0.48107195, y: -0.831716}
+      - {x: 0.48907197, y: -0.831716}
+      - {x: 0.48907197, y: -0.14168394}
+      - {x: -0.48107195, y: -0.14168394}
   m_UseDelaunayMesh: 0
 --- !u!1 &1192750532095144803
 GameObject:
@@ -186,10 +184,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 0.26327586}
-      - {x: -0.45531797, y: 0.13722041}
-      - {x: 0, y: 0.0072948933}
-      - {x: 0.44992724, y: 0.1369521}
+    - - {x: -0.48107195, y: -0.831716}
+      - {x: 0.48907197, y: -0.831716}
+      - {x: 0.48907197, y: -0.14168394}
+      - {x: -0.48107195, y: -0.14168394}
   m_UseDelaunayMesh: 0
 --- !u!114 &6593014516555153563
 MonoBehaviour:
@@ -252,6 +250,7 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &8822679124735688141
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,14 +277,15 @@ Transform:
   m_GameObject: {fileID: 8822679124735688141}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.1267, z: 0}
-  m_LocalScale: {x: 0.3943455, y: 0.3943455, z: 0.3943455}
+  m_LocalPosition: {x: 0.004, y: -0.6177, z: 0}
+  m_LocalScale: {x: 0.6832, y: 0.6832, z: 0.6832}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6747029884075364657}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4839586412241802766
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -331,14 +331,14 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -8829076095670358118, guid: bb42d162cef9a4ca5bb8963d5c20ece0, type: 3}
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: bb42d162cef9a4ca5bb8963d5c20ece0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.07, y: 0.07}
+  m_Size: {x: 1.42, y: 1.01}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0

@@ -220,11 +220,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: b4e2e5acc38e448b4bd8fc9a005dccaa
-    m_Address: Furnitures/MidBox
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: baa37da9f24a1419b8c8a48dd8e4e976
     m_Address: Furnitures/Stove
     m_ReadOnly: 0

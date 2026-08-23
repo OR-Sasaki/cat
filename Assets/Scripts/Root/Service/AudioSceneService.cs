@@ -7,7 +7,9 @@ using VContainer.Unity;
 namespace Root.Service
 {
     /// sceneLoaded を購読し、シーンに対応する BGM を自動再生するサービス
-    public sealed class AudioSceneService : IInitializable, System.IDisposable
+    /// IInitializable は RootScope.Awake 中に同期実行され、子の AudioPlayerView.Awake 前に
+    /// PlayBgm へ到達して NRE になるため、全 Awake 完了後の IStartable で初期化する
+    public sealed class AudioSceneService : IStartable, System.IDisposable
     {
         readonly IAudioService _audioService;
         readonly AudioRegistry _audioRegistry;
@@ -21,7 +23,7 @@ namespace Root.Service
             _buttonSeAttacher = buttonSeAttacher;
         }
 
-        public void Initialize()
+        public void Start()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
 

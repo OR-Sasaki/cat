@@ -24,6 +24,7 @@
 - **登録の単一ソース**: `Root/Scope/RootScope.cs`。全シーン共通サービス (SceneLoader, DialogService, MasterDataImportService, ユーザー資産系, TimerRecordService, AudioService, IRewardedAdService, IClock など) を `Lifetime.Singleton` で登録。一覧はここに列挙せず現物を参照する
 - **シーン横断の見た目共有**: Outfit のロード/キャッシュ (`OutfitAssetService` / `OutfitAssetState`) と適用 (`CharacterOutfitService`) は Root に常駐し、`CharacterView` を持つシーンが `CharacterOutfitStarter` を `RegisterEntryPoint` する。未装備部位は `default_outfits.csv` で補完
 - **所持アイテムの単一ソース**: `UserItemInventoryService` (PlayerPrefs・数量ベース)。初回起動時の付与は `InitialItemService` のみ。個体単位の `UserFurnitureId` は `UserFurnitureInstanceService` が所持数から決定論的に採番 (`FurnitureId * SlotStride + slot + 1`)
+- **Root 常駐の受動 View**: 全シーンで使う View (例: AudioSource 実体のみを持ち判断ロジックを持たない `AudioPlayerView`) は `RootScope.prefab` の子に置いて DDoL させ、Scope の `[SerializeField]` + `RegisterComponent` で注入する
 - **DI 経路外への提供**: 動的生成ボタン等からは `AudioServiceHandle` の静的ブリッジで `IAudioService` に到達する (RootScope の `RegisterBuildCallback` で初期化)
 
 ### Utilities

@@ -15,7 +15,7 @@
 - **Async**: UniTask (async/await拡張、CancellationToken対応)
 - **Tweening**: DOTween / DOTween Pro (`Assets/Plugins/Demigiant/`)。UniTask連携は `DOTweenAsyncExtensions`
 - **Input System**: New Input System (Active Input Handling は新のみ)。UI は `InputSystemUIInputModule`、Home の家具ドラッグは `EnhancedTouch` ポーリング (`IsoInputService`)、全画面共通の押下検出は PassThrough `InputAction` (`TapEffectView`)
-- **Audio**: 自作基盤 `IAudioService` (`AudioService`)。SE はプリロード・BGM はストリーム再生。クリップは `AudioRegistry` (ScriptableObject) に登録し、ボタン押下 SE は `ButtonSe` コンポーネントで共通付与
+- **Audio**: 自作基盤 `IAudioService` (`AudioService`)。SE はプリロード・BGM はストリーム再生 (インポート設定)。クリップは `AudioRegistry` (ScriptableObject) に登録 (詳細は Audio System)
 - **Asset Management**: Addressables
 - **その他**: NavMeshPlus (2D NavMesh)、2D Animation、Cinemachine、Timeline
 - **Ads**: LevelPlay (ironSource) SDK — `IRewardedAdService` ポートで隠蔽し、SDK 型を上位層に露出させない
@@ -46,6 +46,7 @@ Debug.LogError($"[ClassName] {e.Message}\n{e.StackTrace}");
 - **RootScope**: `Lifetime.Singleton`。登録の全量は `RootScope.cs` を参照。インターフェースを持つサービスは `.As<IXxx>().AsSelf()` で契約と実体の両方を解決可能に登録
 - **SceneScope**: 抽象基底クラス `SceneScope` を継承し `Lifetime.Scoped` で登録。Awake 時に MasterDataImport を保証
 - **ITickable**: 毎フレーム更新が必要なサービスに採用 (例: `ShopService` の時限サイクル監視、`IsoInputService`)。コンストラクタ DI に加え `RegisterEntryPoint` も併用
+- **IInitializable vs IStartable**: RootScope の `IInitializable` は Awake 中に同期実行され、プレハブ子 View (`AudioPlayerView` 等) の Awake より先に走る。子 View に触れる初期化は `IStartable` にする (例: `AudioSceneService`)
 
 ### Scene Transition System
 Fade シーンを加算ロードし、FadeOut → ターゲットロード → FadeIn → Fade アンロードの順で遷移。`SceneLoader._isLoading` フラグで多重呼び出しを防止
@@ -62,6 +63,11 @@ Fade シーンを加算ロードし、FadeOut → ターゲットロード → F
 ### Config-as-Asset (機密のコード排除)
 構成値・機密はコードリテラルから排除し、ScriptableObject として `Resources` からロードする。アセット欠落時は RootScope で fail-fast (例: `RewardedAdConfig`, `AudioRegistry`)。キーはビルド時に env / ローカル `.env` から注入
 
+### Audio System
+- `IAudioService` (`AudioService`) が BGM クロスフェード・SE 再生・音量/ON-OFF 設定の永続化 (PlayerPrefs) を担う。音量計算・SE ソース選択の純粋計算は `Root/AudioLogic` に分離
+- `AudioSceneService` が `sceneLoaded` でシーン対応 BGM (`AudioRegistry` のシーン別割当) を再生し、`ButtonSeAttacher` でシーン内の Button に `ButtonSe` を自動付与する。個別ボタンの SE 上書き・無音化は `ButtonSe` を手置きして `SeId` を指定 (`None` で無音)
+- `SeId` / `BgmId` enum は追加時に必ず末尾へ (シリアライズ済み値の保護)
+
 ---
 _Document standards and patterns, not every dependency_
-_更新: 2026-08-23 — 全体縮小 (structure.md との重複を排除)。オーディオ基盤を追記_
+_更新: 2026-08-23 — 全体縮小 (structure.md との重複を排除)。Audio System (IAudioService / AudioRegistry / AudioLogic) を追記_

@@ -1,5 +1,6 @@
 using Home.Service;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Home.View
 {
@@ -23,6 +24,14 @@ namespace Home.View
                 IsoGridSettingsView.CellSize,
                 IsoGridSettingsView.Angle
             );
+
+            // 面グループ: 予告 -1 と子家具 0 以上を親スプライトより手前に並べる
+            if (GetComponent<SortingGroup>() == null)
+            {
+                var sg = gameObject.AddComponent<SortingGroup>();
+                sg.sortingOrder = 1;
+                sg.sortAtRoot = false;
+            }
         }
 
         void Start()

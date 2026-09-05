@@ -50,6 +50,7 @@ namespace Home.Scope
             builder.Register<RedecorateTabService>(Lifetime.Scoped);
             builder.Register<RoomBaseDefaultService>(Lifetime.Scoped);
             builder.Register<FurnitureStowService>(Lifetime.Scoped);
+            builder.Register<GridPreviewService>(Lifetime.Scoped);
 
             // EntryPoint & Service
             // 本来であれば、EntryPointとなるServiceは、他のServiceなどから参照されるべきではない

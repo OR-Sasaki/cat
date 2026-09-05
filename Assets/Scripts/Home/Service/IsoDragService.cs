@@ -17,6 +17,7 @@ namespace Home.Service
         readonly RedecorateCameraService _redecorateCameraService;
         readonly FurnitureStowService _furnitureStowService;
         readonly IAudioService _audioService;
+        readonly GridPreviewService _gridPreviewService;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -33,13 +34,14 @@ namespace Home.Service
         Vector2Int _dragStartLocalGridPos;
 
         [Inject]
-        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService, IAudioService audioService)
+        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService, IAudioService audioService, GridPreviewService gridPreviewService)
         {
             _isoInputService = isoInputService;
             _isoGridService = isoGridService;
             _redecorateCameraService = redecorateCameraService;
             _furnitureStowService = furnitureStowService;
             _audioService = audioService;
+            _gridPreviewService = gridPreviewService;
         }
 
         public void Start()
@@ -91,6 +93,7 @@ namespace Home.Service
 
             // WallSide反転後に落下先を解決する
             _currentDropTarget = ResolveDropTarget(newPos);
+            _gridPreviewService.OnFurnitureDragMove(_currentDropTarget);
 
             if (_currentIsoDraggableView.IsWallPlacement)
             {
@@ -164,6 +167,7 @@ namespace Home.Service
             // しまうゾーン内で離したかどうかを、UIを閉じる前に確定させる
             var stowRequested = _furnitureStowService.IsPointerInZone;
             _furnitureStowService.OnFurnitureDragEnd();
+            _gridPreviewService.OnFurnitureDragEnd();
 
             if (_currentIsoDraggableView == null) return;
 
@@ -197,6 +201,8 @@ namespace Home.Service
             {
                 BeginFloorDrag();
             }
+
+            _gridPreviewService.OnFurnitureDragBegin(_currentIsoDraggableView);
         }
 
         void BeginFloorDrag()

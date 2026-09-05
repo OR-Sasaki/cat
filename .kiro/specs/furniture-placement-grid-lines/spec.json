@@ -1,0 +1,22 @@
+{
+  "feature_name": "furniture-placement-grid-lines",
+  "created_at": "2026-09-05T08:55:37Z",
+  "updated_at": "2026-09-05T10:54:19Z",
+  "language": "ja",
+  "phase": "implementation-in-progress",
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": true
+    },
+    "design": {
+      "generated": true,
+      "approved": true
+    },
+    "tasks": {
+      "generated": true,
+      "approved": true
+    }
+  },
+  "ready_for_implementation": true
+}

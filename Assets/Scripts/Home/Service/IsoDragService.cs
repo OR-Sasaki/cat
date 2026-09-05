@@ -202,6 +202,9 @@ namespace Home.Service
                 BeginFloorDrag();
             }
 
+            // ドラッグせずに離した場合に備えて初期の落下先を解決する
+            _currentDropTarget = ResolveDropTarget(_currentIsoDraggableView.Position);
+
             _gridPreviewService.OnFurnitureDragBegin(_currentIsoDraggableView);
         }
 
@@ -266,7 +269,7 @@ namespace Home.Service
         {
             _currentIsoDraggableView.SetDragging(false);
 
-            var target = ResolveDropTarget(_currentIsoDraggableView.Position);
+            var target = _currentDropTarget;
 
             if (target.Surface == DropSurface.Fragmented && target.CanPlace)
             {
@@ -341,7 +344,7 @@ namespace Home.Service
         {
             var footprintSize = _currentIsoDraggableView.FootprintSize;
 
-            var target = ResolveDropTarget(_currentIsoDraggableView.Position);
+            var target = _currentDropTarget;
 
             Vector2Int finalFootprintPos;
             WallSide finalWallSide;

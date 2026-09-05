@@ -322,6 +322,13 @@ namespace Home.Service
 
         #region FragmentedIsoGrid操作
 
+        /// FragmentedIsoGrid上の指定セルのUserFurnitureIdを取得
+        public int GetFragmentedUserFurnitureId(FragmentedIsoGrid grid, Vector2Int localGridPos)
+        {
+            if (!grid.IsValidLocalPosition(localGridPos)) return 0;
+            return _state.FragmentedGrids.TryGetValue(grid.GetParentUserFurnitureId(), out var entry) ? entry.Cells[localGridPos.x, localGridPos.y] : 0;
+        }
+
         /// FragmentedIsoGridのGridEntry を取得（なければ生成）
         GridEntry GetOrCreateFragmentedGridEntry(FragmentedIsoGrid grid)
         {

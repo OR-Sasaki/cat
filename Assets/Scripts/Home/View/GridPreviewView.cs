@@ -93,12 +93,7 @@ namespace Home.View
 
                 for (var i = 0; i < 4; i++) colors.Add(_lineColor);
 
-                indices.Add(baseIndex);
-                indices.Add(baseIndex + 1);
-                indices.Add(baseIndex + 2);
-                indices.Add(baseIndex);
-                indices.Add(baseIndex + 2);
-                indices.Add(baseIndex + 3);
+                AddQuadIndices(indices, baseIndex);
             }
 
             var mesh = new Mesh();
@@ -134,19 +129,11 @@ namespace Home.View
 
             if (parent != null && footprintTransform.parent != parent)
             {
-                footprintTransform.SetParent(parent, false);
-                footprintTransform.localPosition = Vector3.zero;
-                footprintTransform.localRotation = Quaternion.identity;
-                footprintTransform.localScale = Vector3.one;
-                _footprintRenderer.sortingOrder = _footprintSortingOrderInGroup;
+                ReparentFootprint(parent, _footprintSortingOrderInGroup);
             }
             else if (parent == null && footprintTransform.parent != _footprintHome)
             {
-                footprintTransform.SetParent(_footprintHome, false);
-                footprintTransform.localPosition = Vector3.zero;
-                footprintTransform.localRotation = Quaternion.identity;
-                footprintTransform.localScale = Vector3.one;
-                _footprintRenderer.sortingOrder = _footprintSortingOrder;
+                ReparentFootprint(_footprintHome, _footprintSortingOrder);
             }
 
             _verts.Clear();
@@ -166,12 +153,7 @@ namespace Home.View
                     _colors.Add(color);
                 }
 
-                _indices.Add(baseIndex);
-                _indices.Add(baseIndex + 1);
-                _indices.Add(baseIndex + 2);
-                _indices.Add(baseIndex);
-                _indices.Add(baseIndex + 2);
-                _indices.Add(baseIndex + 3);
+                AddQuadIndices(_indices, baseIndex);
             }
 
             _footprintMesh.Clear();
@@ -196,14 +178,31 @@ namespace Home.View
             _linesRenderer.enabled = false;
             _footprintRenderer.enabled = false;
 
-            var footprintTransform = _footprintRenderer.transform;
-            if (footprintTransform.parent == _footprintHome) return;
+            if (_footprintRenderer.transform.parent == _footprintHome) return;
 
-            footprintTransform.SetParent(_footprintHome, false);
+            ReparentFootprint(_footprintHome, _footprintSortingOrder);
+        }
+
+        /// 予告面の親付け替えとローカル座標のリセット
+        void ReparentFootprint(Transform parent, int sortingOrder)
+        {
+            var footprintTransform = _footprintRenderer.transform;
+            footprintTransform.SetParent(parent, false);
             footprintTransform.localPosition = Vector3.zero;
             footprintTransform.localRotation = Quaternion.identity;
             footprintTransform.localScale = Vector3.one;
-            _footprintRenderer.sortingOrder = _footprintSortingOrder;
+            _footprintRenderer.sortingOrder = sortingOrder;
+        }
+
+        /// 矩形1枚分（4頂点）のインデックスを追加
+        static void AddQuadIndices(List<int> indices, int baseIndex)
+        {
+            indices.Add(baseIndex);
+            indices.Add(baseIndex + 1);
+            indices.Add(baseIndex + 2);
+            indices.Add(baseIndex);
+            indices.Add(baseIndex + 2);
+            indices.Add(baseIndex + 3);
         }
     }
 }

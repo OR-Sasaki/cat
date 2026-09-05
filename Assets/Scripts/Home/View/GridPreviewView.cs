@@ -45,7 +45,7 @@ namespace Home.View
         {
             if (_material == null)
             {
-                Debug.LogError("[GridPreviewView] Material is not set");
+                Debug.LogError("[GridPreviewView] Material is not set", this);
                 enabled = false;
                 return;
             }

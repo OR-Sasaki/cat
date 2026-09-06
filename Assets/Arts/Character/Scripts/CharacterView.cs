@@ -66,7 +66,9 @@ namespace Cat.Character
         public Bounds CalculateOutfitBounds()
         {
             var canvas = _body.bounds;
-            var center = new Vector3(canvas.min.x + canvas.size.x * 0.40f, canvas.min.y + canvas.size.y * 0.52f, canvas.center.z);
+            // 右向きは CharacterWalk が localScale.x を反転させるので、不透明領域の X オフセットも鏡映する
+            var facing = Mathf.Sign(_body.transform.lossyScale.x);
+            var center = new Vector3(canvas.center.x + facing * canvas.size.x * (0.40f - 0.5f), canvas.min.y + canvas.size.y * 0.52f, canvas.center.z);
             var size = new Vector3(canvas.size.x * 0.63f, canvas.size.y * 0.66f, canvas.size.z);
             return new Bounds(center, size);
         }

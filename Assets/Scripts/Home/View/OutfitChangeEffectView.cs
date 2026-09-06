@@ -75,6 +75,10 @@ namespace Home.View
         readonly List<SpriteRenderer> _pawPool = new();
         readonly List<GlintUnit> _glintPool = new();
 
+        /// 演出スプライトの親。キャラの移動差分だけ動かして、再生中に歩いても演出が置き去りにならないようにする
+        Transform? _container;
+        Vector3 _lastCharacterPosition;
+
         Sequence? _sequence;
         Transform? _character;
         Vector3 _characterOriginalScale;
@@ -109,6 +113,10 @@ namespace Home.View
             _character = characterTransform;
             _characterOriginalScale = characterTransform.localScale;
             _pendingSwapOutfit = swapOutfit;
+            _container ??= CreateContainer();
+            // 以降の座標はコンテナ原点基準 (= ワールド) で置くため、毎回原点へ戻す
+            _container.localPosition = Vector3.zero;
+            _lastCharacterPosition = characterTransform.position;
 
             var bounds = character.CalculateOutfitBounds();
             var h = bounds.size.y;
@@ -130,11 +138,11 @@ namespace Home.View
                 var renderer = GetPooledCloud();
                 renderer.sprite = _cloudSprite;
                 renderer.color = RandomColor(_cloudColors);
-                renderer.transform.position = position;
+                renderer.transform.localPosition = position;
                 renderer.transform.localScale = Vector3.zero;
 
                 sequence.Insert(0f, renderer.transform.DOScale(targetScale, CoverDuration).SetEase(Ease.OutQuad));
-                sequence.Insert(ClearStart, renderer.transform.DOMove(position + driftDir * DriftRatio * h, ClearDuration).SetEase(Ease.InQuad));
+                sequence.Insert(ClearStart, renderer.transform.DOLocalMove(position + driftDir * DriftRatio * h, ClearDuration).SetEase(Ease.InQuad));
                 sequence.Insert(ClearStart, renderer.DOFade(0f, ClearDuration));
             }
 
@@ -170,14 +178,14 @@ namespace Home.View
                 glint.Tinted.color = RandomColor(_glintColors);
                 glint.White.sprite = _glintSprite;
                 glint.White.color = Color.white;
-                glint.Root.position = spawn;
-                glint.Core.position = spawn;
+                glint.Root.localPosition = spawn;
+                glint.Core.localPosition = Vector3.zero;
                 glint.Core.rotation = Quaternion.identity;
                 glint.Tinted.transform.localScale = Vector3.one * visualScale;
                 glint.White.transform.localScale = Vector3.one * visualScale * 0.55f;
                 glint.Core.localScale = Vector3.zero;
 
-                sequence.Insert(delay, glint.Root.DOMove(target, FlowMoveDuration).SetEase(Ease.OutCubic));
+                sequence.Insert(delay, glint.Root.DOLocalMove(target, FlowMoveDuration).SetEase(Ease.OutCubic));
                 sequence.Insert(delay, glint.Core.DOScale(Vector3.one * 1.25f, 0.05f).SetEase(Ease.OutQuad));
                 sequence.Insert(delay + 0.05f, glint.Core.DOScale(Vector3.one, 0.04f));
                 sequence.Insert(delay, glint.Core.DORotate(new Vector3(0f, 0f, 30f), FlowMoveDuration, RotateMode.LocalAxisAdd).SetEase(Ease.Linear));
@@ -194,7 +202,7 @@ namespace Home.View
                 var renderer = GetPooledPaw();
                 renderer.sprite = _pawSprite;
                 renderer.color = RandomColor(_pawColors);
-                renderer.transform.position = spawn;
+                renderer.transform.localPosition = spawn;
                 renderer.transform.localScale = Vector3.zero;
                 renderer.transform.rotation = Quaternion.identity;
 
@@ -202,7 +210,7 @@ namespace Home.View
                 var fadeDuration = Mathf.Max(0.05f, 0.5f - fadeStart);
 
                 sequence.Insert(delay, renderer.transform.DOScale(targetScale, 0.08f).SetEase(Ease.OutBack));
-                sequence.Insert(delay, renderer.transform.DOMove(target, FlowMoveDuration).SetEase(Ease.OutCubic));
+                sequence.Insert(delay, renderer.transform.DOLocalMove(target, FlowMoveDuration).SetEase(Ease.OutCubic));
                 sequence.Insert(fadeStart, renderer.DOFade(0f, fadeDuration));
             }
 
@@ -214,6 +222,26 @@ namespace Home.View
             ReturnAllToPool();
             _sequence = null;
             _pendingSwapOutfit = null;
+        }
+
+        void LateUpdate()
+        {
+            if (_container == null || _character == null || _sequence == null || !_sequence.IsActive())
+            {
+                return;
+            }
+
+            var current = _character.position;
+            _container.localPosition += current - _lastCharacterPosition;
+            _lastCharacterPosition = current;
+        }
+
+        /// この View 自体は原点・等倍に置く前提 (コンテナのローカル座標をワールド座標として扱う)
+        Transform CreateContainer()
+        {
+            var go = new GameObject("Container");
+            go.transform.SetParent(transform, false);
+            return go.transform;
         }
 
         void OnDestroy()
@@ -244,7 +272,7 @@ namespace Home.View
             }
 
             var go = new GameObject(name, typeof(SpriteRenderer));
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(_container, false);
             var newRenderer = go.GetComponent<SpriteRenderer>();
             newRenderer.sortingOrder = sortingOrder;
             pool.Add(newRenderer);
@@ -270,7 +298,7 @@ namespace Home.View
         GlintUnit CreateGlintUnit()
         {
             var rootGo = new GameObject("Glint");
-            rootGo.transform.SetParent(transform, false);
+            rootGo.transform.SetParent(_container, false);
 
             var coreGo = new GameObject("Core");
             coreGo.transform.SetParent(rootGo.transform, false);

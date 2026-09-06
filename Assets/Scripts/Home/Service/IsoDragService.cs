@@ -18,6 +18,7 @@ namespace Home.Service
         readonly FurnitureStowService _furnitureStowService;
         readonly IAudioService _audioService;
         readonly GridPreviewService _gridPreviewService;
+        readonly FurniturePlaceEffectView _furniturePlaceEffectView;
 
         IsoDraggableView _currentIsoDraggableView;
 
@@ -34,7 +35,7 @@ namespace Home.Service
         Vector2Int _dragStartLocalGridPos;
 
         [Inject]
-        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService, IAudioService audioService, GridPreviewService gridPreviewService)
+        public IsoDragService(IsoInputService isoInputService, IsoGridService isoGridService, RedecorateCameraService redecorateCameraService, FurnitureStowService furnitureStowService, IAudioService audioService, GridPreviewService gridPreviewService, FurniturePlaceEffectView furniturePlaceEffectView)
         {
             _isoInputService = isoInputService;
             _isoGridService = isoGridService;
@@ -42,6 +43,7 @@ namespace Home.Service
             _furnitureStowService = furnitureStowService;
             _audioService = audioService;
             _gridPreviewService = gridPreviewService;
+            _furniturePlaceEffectView = furniturePlaceEffectView;
         }
 
         public void Start()
@@ -262,6 +264,7 @@ namespace Home.Service
                 EndFloorDrag();
             }
 
+            _furniturePlaceEffectView.Play(_currentIsoDraggableView);
             _audioService.PlaySe(SeId.RoomPlace);
         }
 

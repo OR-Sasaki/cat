@@ -52,22 +52,27 @@ namespace Home.Service
             return PlaceFloorFurniture(userFurnitureId, furniture);
         }
 
+        /// シーン上からUserFurnitureIdが一致するIsoDraggableViewを探す
+        public IsoDraggableView FindView(int userFurnitureId)
+        {
+            var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
+            foreach (var draggable in allDraggables)
+            {
+                if (draggable.UserFurnitureId == userFurnitureId)
+                {
+                    return draggable;
+                }
+            }
+
+            return null;
+        }
+
         /// 家具をシーンとグリッドから削除する
         public bool RemoveFurniture(int userFurnitureId, Furniture furniture)
         {
             if (furniture.SceneObject is null) return false;
 
-            // シーン上からUserFurnitureIdが一致するIsoDraggableViewを探す
-            var allDraggables = Object.FindObjectsByType<IsoDraggableView>(FindObjectsSortMode.None);
-            IsoDraggableView targetView = null;
-            foreach (var draggable in allDraggables)
-            {
-                if (draggable.UserFurnitureId == userFurnitureId)
-                {
-                    targetView = draggable;
-                    break;
-                }
-            }
+            var targetView = FindView(userFurnitureId);
 
             if (targetView is null)
             {

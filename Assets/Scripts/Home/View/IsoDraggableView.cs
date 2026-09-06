@@ -35,6 +35,7 @@ namespace Home.View
         public Vector2Int PivotGridPosition => _pivotGridPosition;
         public int UserFurnitureId => _userFurnitureId;
         public float ViewPivotY => _viewPivot.position.y;
+        public Transform ViewPivot => _viewPivot;
         public Vector3 Position => transform.position;
         public PlacementType PlacementType => _placementType;
         public WallSide WallSide => _wallSide;

@@ -22,6 +22,7 @@ namespace Home.Scope
         [SerializeField] RoomBackGroundView _roomBackGroundView;
         [SerializeField] FurnitureStowView _furnitureStowView;
         [SerializeField] OutfitChangeEffectView _outfitChangeEffectView;
+        [SerializeField] FurniturePlaceEffectView _furniturePlaceEffectView;
 
         protected override void Configure(IContainerBuilder builder)
         {
@@ -35,6 +36,7 @@ namespace Home.Scope
             builder.RegisterComponent(_roomBackGroundView);
             builder.RegisterComponent(_furnitureStowView);
             builder.RegisterComponent(_outfitChangeEffectView);
+            builder.RegisterComponent(_furniturePlaceEffectView);
 
             // State
             builder.Register<HomeState>(Lifetime.Scoped);

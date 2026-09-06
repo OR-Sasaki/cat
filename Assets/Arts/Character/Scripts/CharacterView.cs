@@ -61,6 +61,16 @@ namespace Cat.Character
             }
         }
 
+        /// 衣装演出の基準 Bounds。胴体スプライトは 1000px キャンバスのうち x 86-711 / y 189-849 だけが不透明 (Body001 実測) なので、
+        /// 余白を除いた見た目の範囲を返す
+        public Bounds CalculateOutfitBounds()
+        {
+            var canvas = _body.bounds;
+            var center = new Vector3(canvas.min.x + canvas.size.x * 0.40f, canvas.min.y + canvas.size.y * 0.52f, canvas.center.z);
+            var size = new Vector3(canvas.size.x * 0.63f, canvas.size.y * 0.66f, canvas.size.z);
+            return new Bounds(center, size);
+        }
+
         public void RemoveOutfit(OutfitType outfitType)
         {
             var partTypes = GetPartTypes(outfitType);

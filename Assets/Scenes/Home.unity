@@ -381,6 +381,7 @@ MonoBehaviour:
   _isoGridSettingsView: {fileID: 1759482995}
   _roomBackGroundView: {fileID: 1133747557}
   _furnitureStowView: {fileID: 135054840}
+  _outfitChangeEffectView: {fileID: 972195144}
 --- !u!4 &126049569
 Transform:
   m_ObjectHideFlags: 0
@@ -1787,7 +1788,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -69.17999}
+  m_AnchoredPosition: {x: 0, y: -69.18001}
   m_SizeDelta: {x: 0, y: -138.34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &407094332
@@ -3454,7 +3455,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 100}
+  m_AnchoredPosition: {x: 0, y: 100.000015}
   m_SizeDelta: {x: 0, y: 100}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &909588730
@@ -3595,6 +3596,17 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &972195144 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7007259343666794581, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+  m_PrefabInstance: {fileID: 8779293553364023549}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db448001f44e1a442a0715005e634085, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Home.View.OutfitChangeEffectView
 --- !u!1 &994865882
 GameObject:
   m_ObjectHideFlags: 0
@@ -7612,6 +7624,67 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f5c51ea96b262468999ff1bf7d98be70, type: 3}
+--- !u!1001 &8779293553364023549
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3160806279107039558, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4686462287585193440, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: m_Name
+      value: OutfitChangeEffect
+      objectReference: {fileID: 0}
+    - target: {fileID: 7007259343666794581, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
+      propertyPath: _sortingOrder
+      value: 32000
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5990e7c6ea4f9954ab471e7127f8aef6, type: 3}
 --- !u!224 &8972141790287502322 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5222724132774879175, guid: f5c51ea96b262468999ff1bf7d98be70, type: 3}
@@ -7648,3 +7721,4 @@ SceneRoots:
   - {fileID: 1209929619}
   - {fileID: 126049569}
   - {fileID: 1220964331}
+  - {fileID: 8779293553364023549}

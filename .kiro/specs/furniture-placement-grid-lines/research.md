@@ -4,7 +4,7 @@
 - **Feature**: `furniture-placement-grid-lines`
 - **Discovery Scope**: Extension (light discovery)
 - **Key Findings**:
-  - 描画順の実測値: 部屋の背景 (Base プレハブ) は `sortingOrder -47 / -46`、床家具は `SortingGroup 0`、家具上家具は `(x+y)*1000+x` の正値。2D Renderer は `TransparencySortMode = CustomAxis (0,1,0)`。グリッド線は `-10`、床・壁の予告面は `-9` で背景と家具の間に確定的に入る
+  - 描画順の実測値: 部屋の背景 (Base プレハブ) は `sortingOrder -47 / -46`、床家具は `SortingGroup 0`、家具上家具は `(x+y)*1000+x` の正値。2D Renderer は `TransparencySortMode = CustomAxis (0,1,0)`。グリッド線は `-10` で背景と家具の間に入る。予告面は当初 `-9` / 面グループ内 `-1` だったが、実機確認後に家具より手前 (`100` / 面グループ内 `32000`) へ変更 (後述)
   - 家具上グリッド (`FragmentedIsoGrid`) の予告は、親家具の `SortingGroup` 内で親スプライト (order 0) と子家具 (order ≥ 0) の間に整数の空きがない。`FragmentedIsoGrid` に order 1 の `SortingGroup` を挟んで「面グループ」を作り、その中で予告を -1 に置く (Codex 相談の結論)
   - 予告の可否判定と離した時の判定を構造的に一致させるため、`IsoDragService` がドラッグ中に毎フレーム「落下先 (`DropTarget`)」を解決して保持し、離した時も同じ値で配置する
   - ランタイム描画は手続きメッシュ 1 枚 + `Sprite-Unlit-Default` (URP 2D) + 頂点カラーで足りる。線メッシュは面ごとに一度だけ生成し、予告メッシュだけ毎フレーム再構築する
@@ -101,6 +101,15 @@
 - **Rationale**: `structure.md` の既存経路そのもの。VContainer の必須解決に引っかからない
 - **Trade-offs**: `HomeScope` の Inspector 設定 (`autoInjectGameObjects`) に依存する。設定漏れは無言で no-op になる
 - **Follow-up**: `GridPreviewService` は View 未登録なら `Debug.LogWarning` を一度だけ出す
+
+### 予告面を家具より手前に描く (実機確認後の変更)
+- **Context**: 当初は線・予告とも家具より奥 (-10 / -9 / 面グループ内 -1) に置いたが、ドラッグ中の家具が予告面を覆い隠し、配置可否の色が読めなかった。家具の半透明化・持ち上げ表示も検討したが、予告だけを家具の手前に出す案を Editor で試したところ最も分かりやすかった
+- **Findings**:
+  - 床・壁の家具は root で `SortingGroup 0`。Home シーンの Default レイヤーにそれ以上の order は無いため、予告 (床・壁) は 100 で確実に手前になる (将来の差し込み用に余裕を持たせた)
+  - 家具上グリッドの面グループ内では子家具とドラッグ中家具が `(x+y)*1000+x` (現行最大 5003) で並ぶ。予告 (面グループ内) は上限 32767 に収まる 32000 にして常に勝たせる
+  - 線は -10 のまま家具の奥に残す。線まで手前に出すと家具全体に格子が被り、かえって読みにくい
+  - 予告の透明度 (通常 α0.25 / 不可 α0.35) は家具が透けて見える範囲なので据え置き
+- **Implications**: 要件 6.12 を「線・家具より手前」に改訂。コード変更は無く、`GridPreviewView` の Inspector 値のみ変更
 
 ## Risks & Mitigations
 - 面 `SortingGroup` 追加で既存の家具上家具の描画が変わる — 実機・Editor で全家具の目視確認をタスク化。問題があれば `FragmentedIsoGrid` 側の order を 0 にして予告のみ -1 → 0 の間を再検討

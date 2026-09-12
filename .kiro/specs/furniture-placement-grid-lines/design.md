@@ -33,7 +33,7 @@
 | 2.1 | 床家具は床線のみ | GridPreviewService | `ShowLines(GridSurface.Floor)` | ドラッグ開始 |
 | 2.2 | 壁家具は壁線のみ | GridPreviewService | `ShowLines(GridSurface.Walls)` | ドラッグ開始 |
 | 2.3 | 家具上家具も床線 | GridPreviewService | `IsWallPlacement == false` で床扱い | ドラッグ開始 |
-| 3.1 | 背景より手前・家具より奥 | GridPreviewView | `sortingOrder` -10 / -9、面グループ内 -1 | — |
+| 3.1 | 背景より手前・家具より奥 | GridPreviewView | `sortingOrder` -10 | — |
 | 3.2 | 入力を消費しない | GridPreviewView | Collider を持たない | — |
 | 3.3 | 既存の配置挙動を維持 | IsoDragService | `DropTarget` は既存判定の結果をそのまま使う | ドラッグ移動 |
 | 4.1 / 4.2 | 色・透明度・太さを Inspector 設定 | GridPreviewView | `[SerializeField]` | — |
@@ -48,7 +48,7 @@
 | 6.9 | 終了で予告非表示 | GridPreviewService | `Hide` | ドラッグ終了 |
 | 6.10 | 実配置と同一判定 | IsoDragService | `ResolveDropTarget` を予告と配置で共用 | ドラッグ移動・終了 |
 | 6.11 | 可否色を Inspector 設定 | GridPreviewView | `[SerializeField]` | — |
-| 6.12 | 線より手前・家具より奥 | GridPreviewView | `sortingOrder` -9 / 面グループ内 -1 | — |
+| 6.12 | 線・家具より手前 | GridPreviewView | `sortingOrder` 100 / 面グループ内 32000 | — |
 
 ## Architecture
 
@@ -355,7 +355,7 @@ namespace Home.GridPreviewLogic
 - `Awake` で `Hide` 相当の初期状態にする (1.3)
 - 子に 2 つの描画オブジェクトを持つ:
   - `GridLinesRenderer` — 床 / 左壁 / 右壁の 3 メッシュをキャッシュ。`sortingOrder = -10` (Inspector 変更可)
-  - `FootprintPreviewRenderer` — 毎フレーム再構築。床・壁では `sortingOrder = -9`、家具上では `target.Grid.transform` の子に付け替えて `sortingOrder = -1` (面グループ内)
+  - `FootprintPreviewRenderer` — 毎フレーム再構築。床・壁では `sortingOrder = 100`、家具上では `target.Grid.transform` の子に付け替えて `sortingOrder = 32000` (面グループ内、子家具の最大 order より上)
 
 **Dependencies**
 - Outbound: `GridPreviewService` — `[Inject] Init` で `AttachView(this)` (P0)
@@ -394,8 +394,8 @@ public sealed class GridPreviewView : MonoBehaviour
 | 線 `sortingOrder` | `int` | -10 |
 | 予告 通常色 | `Color` | 白 α0.25 |
 | 予告 不可色 | `Color` | 赤 α0.35 |
-| 予告 `sortingOrder` (床・壁) | `int` | -9 |
-| 予告 `sortingOrder` (面グループ内) | `int` | -1 |
+| 予告 `sortingOrder` (床・壁) | `int` | 100 |
+| 予告 `sortingOrder` (面グループ内) | `int` | 32000 |
 | マテリアル | `Material` | `Sprite-Unlit-Default` |
 
 **Implementation Notes**
@@ -407,7 +407,7 @@ public sealed class GridPreviewView : MonoBehaviour
 
 | Field | Detail |
 |---|---|
-| Intent | 面 `SortingGroup` (order 1) を提供し、予告 (-1) と子家具 (0 以上) を親スプライト (0) より手前で並べる |
+| Intent | 面 `SortingGroup` (order 1) を提供し、子家具 (0 以上) と予告 (32000) を親スプライト (0) より手前で並べる |
 | Requirements | 6.7, 6.12 |
 
 **Implementation Notes**
@@ -444,7 +444,7 @@ public sealed class GridPreviewView : MonoBehaviour
 ### Integration (Editor 手動)
 - 床家具ドラッグ: 床線が出る / 壁線が出ない / 予告が追従する / 離すと線と予告が消える
 - 壁家具ドラッグ: 左右の壁線が出る / 左右の壁をまたぐと予告が追従する
-- 家具上ドラッグ: Bed 上で予告が親スプライトの手前・ドラッグ中家具の奥に出る
+- 家具上ドラッグ: Bed 上で予告が親スプライト・ドラッグ中家具の手前に出る
 - 占有済み・範囲外へドラッグ: 予告が赤 / はみ出し分は描かれない / 離すと元位置に戻る
 - しまう (Stow) 経路とドラッグ中の Redecorate 離脱: 予告が残らない
 - `GridPreview` GameObject を無効化した状態: 警告 1 回のみでドラッグは従来どおり

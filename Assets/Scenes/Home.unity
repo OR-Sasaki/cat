@@ -2863,8 +2863,8 @@ MonoBehaviour:
   _lineSortingOrder: -10
   _footprintColor: {r: 1, g: 1, b: 1, a: 0.25}
   _footprintBlockedColor: {r: 1, g: 0, b: 0, a: 0.35}
-  _footprintSortingOrder: -9
-  _footprintSortingOrderInGroup: -1
+  _footprintSortingOrder: 100
+  _footprintSortingOrderInGroup: 32000
   _linesRenderer: {fileID: 1377158246}
   _footprintRenderer: {fileID: 668405756}
 --- !u!1001 &710278985

@@ -30,7 +30,6 @@ namespace EffectDemo
         public static void Play(Transform furniture, Vector3 basePosition, FurnitureEffectKind kind)
         {
             DOTween.Kill(furniture);
-            furniture.localScale = Vector3.one;
             furniture.position = basePosition;
 
             var bounds = ComputeBounds(furniture);

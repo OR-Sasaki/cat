@@ -21,6 +21,7 @@ namespace Home.Service
 
         readonly CharacterView _characterView;
         readonly ClosetUiView _closetUiView;
+        readonly OutfitChangeEffectView _outfitChangeEffectView;
         readonly UserEquippedOutfitState _userEquippedOutfitState;
         readonly UserEquippedOutfitService _userEquippedOutfitService;
         readonly MasterDataState _masterDataState;
@@ -37,6 +38,7 @@ namespace Home.Service
         public ClosetScrollerService(
             CharacterView characterView,
             ClosetUiView closetUiView,
+            OutfitChangeEffectView outfitChangeEffectView,
             UserEquippedOutfitState UserEquippedOutfitState,
             UserEquippedOutfitService userEquippedOutfitService,
             MasterDataState masterDataState,
@@ -48,6 +50,7 @@ namespace Home.Service
         {
             _characterView = characterView;
             _closetUiView = closetUiView;
+            _outfitChangeEffectView = outfitChangeEffectView;
             _userEquippedOutfitState = UserEquippedOutfitState;
             _userEquippedOutfitService = userEquippedOutfitService;
             _masterDataState = masterDataState;
@@ -175,8 +178,9 @@ namespace Home.Service
                 }
             }
 
-            // 選択されたOutfitをキャラクターに適用
-            _characterView.SetOutfit(selectedData.Outfit);
+            // 選択されたOutfitをキャラクターに適用 (演出のピークで着せ替える)
+            var outfit = selectedData.Outfit;
+            _outfitChangeEffectView.Play(_characterView, () => _characterView.SetOutfit(outfit));
 
             // PlayerOutfitServiceで保存
             var masterOutfit = _masterDataState.Outfits?.FirstOrDefault(o => o.Name == selectedData.Outfit.name);

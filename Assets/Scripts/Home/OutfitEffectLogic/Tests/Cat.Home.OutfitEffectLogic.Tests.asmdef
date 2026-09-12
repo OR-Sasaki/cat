@@ -1,0 +1,24 @@
+{
+    "name": "Cat.Home.OutfitEffectLogic.Tests",
+    "rootNamespace": "Home.OutfitEffectLogic.Tests",
+    "references": [
+        "Cat.Home.OutfitEffectLogic",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

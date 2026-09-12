@@ -27,6 +27,7 @@ namespace Home.Service
         readonly RedecorateTabState _redecorateTabState;
         readonly RedecorateTabService _redecorateTabService;
         readonly FurnitureStowService _furnitureStowService;
+        readonly FurniturePlaceEffectView _furniturePlaceEffectView;
         readonly UnityEvent<RedecorateRowCellView> _cellSelectedEvent = new();
         SmallList<RedecorateFurnitureData> _data = new();
         bool _suppressTabReload;
@@ -44,7 +45,8 @@ namespace Home.Service
             RoomBaseState roomBaseState,
             RedecorateTabState redecorateTabState,
             RedecorateTabService redecorateTabService,
-            FurnitureStowService furnitureStowService)
+            FurnitureStowService furnitureStowService,
+            FurniturePlaceEffectView furniturePlaceEffectView)
         {
             _redecorateUiView = redecorateUiView;
             _userFurnitureInstanceService = userFurnitureInstanceService;
@@ -58,6 +60,7 @@ namespace Home.Service
             _redecorateTabState = redecorateTabState;
             _redecorateTabService = redecorateTabService;
             _furnitureStowService = furnitureStowService;
+            _furniturePlaceEffectView = furniturePlaceEffectView;
         }
 
         public void Start()
@@ -172,6 +175,12 @@ namespace Home.Service
                 if (placedPosition.HasValue)
                 {
                     _redecorateCameraService.MoveTo(placedPosition.Value);
+
+                    var placedView = _furniturePlacementService.FindView(userFurnitureId);
+                    if (placedView is not null)
+                    {
+                        _furniturePlaceEffectView.Play(placedView);
+                    }
                 }
                 _redecorateTinyService.SetTiny(true);
             }

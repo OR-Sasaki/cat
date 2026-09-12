@@ -40,10 +40,16 @@ namespace EffectDemo
             new(0.65f, 0.45f, 0.9f, 1f),
         };
 
+        /// 直前の演出ルート。連打時に前回の swapOutfit (DelayedCall) が後から発火して最新の服を上書きしないよう、次の再生前に破棄する
+        static GameObject? _currentRoot;
+
         public static void Play(Transform character, Bounds bounds, OutfitEffectKind kind, Action swapOutfit)
         {
             DOTween.Kill(character);
-            character.localScale = Vector3.one;
+            if (_currentRoot != null)
+            {
+                Object.Destroy(_currentRoot);
+            }
 
             switch (kind)
             {
@@ -80,6 +86,7 @@ namespace EffectDemo
                 .OnKill(() => character.localScale = original);
 
             var root = new GameObject("SparklePopFx");
+            _currentRoot = root;
             var h = bounds.size.y;
             const int count = 9;
             var lastStart = 0f;
@@ -107,6 +114,7 @@ namespace EffectDemo
         static void PoofCloud(Transform character, Bounds bounds, Action swapOutfit)
         {
             var root = new GameObject("PoofCloudFx");
+            _currentRoot = root;
             var h = bounds.size.y;
             var center = bounds.center;
             const int count = 9;
@@ -150,6 +158,7 @@ namespace EffectDemo
                 .OnKill(() => character.localScale = original);
 
             var root = new GameObject("HeartShowerFx");
+            _currentRoot = root;
             var h = bounds.size.y;
             const int count = 9;
             var lastStart = 0f;
@@ -195,6 +204,7 @@ namespace EffectDemo
                 .OnKill(() => character.localPosition = original);
 
             var root = new GameObject("PawStampFx");
+            _currentRoot = root;
             const int count = 6;
             var radiusX = bounds.extents.x * 1.1f;
             var radiusY = bounds.extents.y * 0.9f;
@@ -229,6 +239,7 @@ namespace EffectDemo
         static void PoofCombo(Transform character, Bounds bounds, Action swapOutfit)
         {
             var root = new GameObject("PoofComboFx");
+            _currentRoot = root;
             var h = bounds.size.y;
             var center = bounds.center;
             var extents = bounds.extents;

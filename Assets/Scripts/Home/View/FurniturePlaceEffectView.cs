@@ -1,5 +1,4 @@
 #nullable enable
-using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -8,26 +7,15 @@ namespace Home.View
     /// 家具設置時の「上から落ちて潰れて弾む」演出。IsoDraggableView._viewPivot（グリッドスナップ座標を持つルートではない）のみをアニメーションする
     public class FurniturePlaceEffectView : MonoBehaviour
     {
-        // ViewPivotごとの本来のlocalPosition/localScale。初回に一度だけ記録し、以後は連打してもここから復元する
-        readonly Dictionary<Transform, (Vector3 Pos, Vector3 Scale)> _originals = new();
-
-        /// 家具設置演出を再生する。呼ぶたびにViewPivotを元の位置・スケールへリセットしてから開始するため、連打しても位置がずれない
+        /// 家具設置演出を再生する。呼ぶたびに ViewPivot を本来の位置・スケールから始めるため、連打しても位置がずれない
         public void Play(IsoDraggableView view)
         {
             var viewPivot = view.ViewPivot;
-
-            if (!_originals.TryGetValue(viewPivot, out var original))
-            {
-                original = (viewPivot.localPosition, viewPivot.localScale);
-                _originals[viewPivot] = original;
-            }
+            var originalPos = view.ViewPivotRestPosition;
+            var originalScale = view.ViewPivotRestScale;
 
             DOTween.Kill(viewPivot);
-            viewPivot.localPosition = original.Pos;
-            viewPivot.localScale = original.Scale;
-
-            var originalPos = original.Pos;
-            var originalScale = original.Scale;
+            viewPivot.localScale = originalScale;
 
             var bounds = ComputeBounds(view.gameObject);
             var f = Mathf.Max(bounds.size.x, bounds.size.y);

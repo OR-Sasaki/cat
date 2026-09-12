@@ -5,6 +5,7 @@ using Cat.Character;
 using DG.Tweening;
 using Home.OutfitEffectLogic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = System.Random;
 
 namespace Home.View
@@ -16,19 +17,9 @@ namespace Home.View
         [SerializeField] Sprite _glintSprite = null!;
         [SerializeField] Sprite _pawSprite = null!;
 
-        [SerializeField]
-        Color[] _cloudColors =
-        {
-            new(1f, 0.75f, 0.85f),
-            new(0.68f, 0.92f, 0.78f),
-            new(1f, 0.90f, 0.55f),
-            new(0.62f, 0.85f, 0.98f),
-            new(0.82f, 0.72f, 0.96f),
-            Color.white,
-        };
-
-        [SerializeField]
-        Color[] _glintColors =
+        /// 雲とキラキラで共有するパステル色
+        [SerializeField, FormerlySerializedAs("_cloudColors")]
+        Color[] _pastelColors =
         {
             new(1f, 0.75f, 0.85f),
             new(0.68f, 0.92f, 0.78f),
@@ -137,7 +128,7 @@ namespace Home.View
 
                 var renderer = GetPooledCloud();
                 renderer.sprite = _cloudSprite;
-                renderer.color = RandomColor(_cloudColors);
+                renderer.color = RandomColor(_pastelColors);
                 renderer.transform.localPosition = position;
                 renderer.transform.localScale = Vector3.zero;
 
@@ -175,7 +166,7 @@ namespace Home.View
 
                 var glint = GetPooledGlint();
                 glint.Tinted.sprite = _glintSprite;
-                glint.Tinted.color = RandomColor(_glintColors);
+                glint.Tinted.color = RandomColor(_pastelColors);
                 glint.White.sprite = _glintSprite;
                 glint.White.color = Color.white;
                 glint.Root.localPosition = spawn;
@@ -248,7 +239,6 @@ namespace Home.View
         {
             _sequence?.Kill();
         }
-
 
         /// upperRight から lowerLeft への進行度 t の位置に、進行方向と垂直な向きへランダムなジッターを加えた開始位置を返す
         static Vector3 FlowStart(Vector3 upperRight, Vector3 lowerLeft, float t, Vector3 perpDir, float jitterRange) =>

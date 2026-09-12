@@ -36,6 +36,9 @@ namespace Home.View
         public int UserFurnitureId => _userFurnitureId;
         public float ViewPivotY => _viewPivot.position.y;
         public Transform ViewPivot => _viewPivot;
+        /// 設置演出が毎回ここへ戻してから始めるための、ViewPivot の本来のローカル位置とスケール
+        public Vector3 ViewPivotRestPosition { get; private set; }
+        public Vector3 ViewPivotRestScale { get; private set; }
         public Vector3 Position => transform.position;
         public PlacementType PlacementType => _placementType;
         public WallSide WallSide => _wallSide;
@@ -44,6 +47,8 @@ namespace Home.View
 
         void Awake()
         {
+            ViewPivotRestPosition = _viewPivot.localPosition;
+            ViewPivotRestScale = _viewPivot.localScale;
 #if UNITY_EDITOR
             if (GetComponent<IsoDraggableGizmo>() is null)
             {

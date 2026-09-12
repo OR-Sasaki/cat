@@ -5,18 +5,6 @@ TextureImporter:
   - first:
       213: -370928419748208835
     second: outfit_paw_0
-  - first:
-      213: 2784640015619032671
-    second: outfit_paw_1
-  - first:
-      213: -4092908922027441163
-    second: outfit_paw_2
-  - first:
-      213: 6650644095500272991
-    second: outfit_paw_3
-  - first:
-      213: -7332914319787648791
-    second: outfit_paw_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -146,7 +134,7 @@ TextureImporter:
         width: 20
         height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -159,100 +147,12 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: outfit_paw_1
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 89
-        width: 20
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f568f4e275705a620800000000000000
-      internalID: 2784640015619032671
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: outfit_paw_2
-      rect:
-        serializedVersion: 2
-        x: 67
-        y: 89
-        width: 20
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5f3078445011337c0800000000000000
-      internalID: -4092908922027441163
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: outfit_paw_3
-      rect:
-        serializedVersion: 2
-        x: 89
-        y: 77
-        width: 20
-        height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f55c7d77195db4c50800000000000000
-      internalID: 6650644095500272991
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: outfit_paw_4
-      rect:
-        serializedVersion: 2
-        x: 27
-        y: 18
-        width: 74
-        height: 51
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9e89ea017414c3a90800000000000000
-      internalID: -7332914319787648791
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
-    internalID: 0
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -262,10 +162,6 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       outfit_paw_0: -370928419748208835
-      outfit_paw_1: 2784640015619032671
-      outfit_paw_2: -4092908922027441163
-      outfit_paw_3: 6650644095500272991
-      outfit_paw_4: -7332914319787648791
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

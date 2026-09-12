@@ -30,6 +30,24 @@ namespace EffectDemo
         public static Sprite Cloud => _cloud ??= Build(nameof(Cloud), InsideCloud, CloudSize, CloudPpu);
         public static Sprite Square => _square ??= Build(nameof(Square), InsideSquare, Size, Ppu);
 
+        /// 形状データは Build が画素ごとに述語を呼ぶため、呼び出しごとに配列を作らず static に持つ
+        static readonly (float x, float y, float rx, float ry)[] PawToes =
+        {
+                (-0.55f, 0.40f, 0.13f, 0.17f),
+                (-0.20f, 0.58f, 0.13f, 0.17f),
+                (0.20f, 0.58f, 0.13f, 0.17f),
+                (0.55f, 0.40f, 0.13f, 0.17f),
+        };
+
+        static readonly (float x, float y, float r)[] CloudCircles =
+        {
+                (-0.5f, -0.2f, 0.36f),
+                (-0.2f, 0.05f, 0.48f),
+                (0.2f, 0.12f, 0.46f),
+                (0.52f, -0.18f, 0.36f),
+                (0f, -0.3f, 0.42f),
+        };
+
         static bool InsideCircle(float x, float y) => x * x + y * y <= 0.85f * 0.85f;
 
         static bool InsideRing(float x, float y)
@@ -63,14 +81,7 @@ namespace EffectDemo
                 return true;
             }
 
-            var toes = new (float x, float y, float rx, float ry)[]
-            {
-                (-0.55f, 0.40f, 0.13f, 0.17f),
-                (-0.20f, 0.58f, 0.13f, 0.17f),
-                (0.20f, 0.58f, 0.13f, 0.17f),
-                (0.55f, 0.40f, 0.13f, 0.17f),
-            };
-            foreach (var toe in toes)
+            foreach (var toe in PawToes)
             {
                 var tx = (x - toe.x) / toe.rx;
                 var ty = (y - toe.y) / toe.ry;
@@ -86,15 +97,7 @@ namespace EffectDemo
         /// 円 4 つを重ねたもくもく雲
         static bool InsideCloud(float x, float y)
         {
-            var circles = new (float x, float y, float r)[]
-            {
-                (-0.5f, -0.2f, 0.36f),
-                (-0.2f, 0.05f, 0.48f),
-                (0.2f, 0.12f, 0.46f),
-                (0.52f, -0.18f, 0.36f),
-                (0f, -0.3f, 0.42f),
-            };
-            foreach (var c in circles)
+            foreach (var c in CloudCircles)
             {
                 var dx = x - c.x;
                 var dy = y - c.y;

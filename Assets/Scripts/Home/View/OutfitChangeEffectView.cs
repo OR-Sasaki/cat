@@ -89,7 +89,7 @@ namespace Home.View
             var characterTransform = character.transform;
 
             // 再生中に呼び出された場合は前回分を即時確定してから中断する
-            if (_sequence != null && _sequence.IsActive())
+            if (_sequence is not null && _sequence.IsActive())
             {
                 _pendingSwapOutfit?.Invoke();
                 _sequence.Kill();
@@ -217,7 +217,7 @@ namespace Home.View
 
         void LateUpdate()
         {
-            if (_container == null || _character == null || _sequence == null || !_sequence.IsActive())
+            if (_container == null || _character == null || _sequence is null || !_sequence.IsActive())
             {
                 return;
             }

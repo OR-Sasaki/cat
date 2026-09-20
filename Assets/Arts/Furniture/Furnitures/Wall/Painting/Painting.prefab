@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8548179750729308470}
-  m_Father: {fileID: 9070126973887670772}
+  m_Father: {fileID: 1265083456795445500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &1509296476378034793
 SortingGroup:
@@ -243,7 +243,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4335696245109907415}
-  m_Father: {fileID: 9070126973887670772}
+  m_Father: {fileID: 1265083456795445500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &7949373687754508696
 SortingGroup:
@@ -361,8 +361,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6604419550013954825}
-  - {fileID: 1752003432774797845}
+  - {fileID: 1265083456795445500}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &620936053747591544
@@ -379,7 +378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cat.IsoDraggable
   _footprintSize: {x: 2, y: 3}
   _pivotGridPosition: {x: 0, y: 0}
-  _viewPivot: {fileID: 9070126973887670772}
+  _viewPivot: {fileID: 1265083456795445500}
   _userFurnitureId: 0
   _rightViewPivot: {fileID: 3980378765237672595}
   _leftViewPivot: {fileID: 5519637415442247196}
@@ -475,3 +474,36 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &8212297446912538303
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1265083456795445500}
+  m_Layer: 0
+  m_Name: ViewPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1265083456795445500
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8212297446912538303}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6604419550013954825}
+  - {fileID: 1752003432774797845}
+  m_Father: {fileID: 9070126973887670772}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

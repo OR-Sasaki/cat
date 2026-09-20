@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8530820259853304788}
-  m_Father: {fileID: 3149847080431059872}
+  m_Father: {fileID: 4629107196473139152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &4909044652914650599
 SortingGroup:
@@ -1120,8 +1120,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6680052189320741630}
-  - {fileID: 6605153759480999936}
+  - {fileID: 4629107196473139152}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &570483549929756850
@@ -1138,11 +1137,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Home.View.IsoDraggableView
   _footprintSize: {x: 3, y: 3}
   _pivotGridPosition: {x: 0, y: 0}
-  _viewPivot: {fileID: 3149847080431059872}
+  _viewPivot: {fileID: 4629107196473139152}
   _userFurnitureId: 0
   _rightViewPivot: {fileID: 64384276553094807}
   _leftViewPivot: {fileID: 4088751555342549120}
   _sortingGroup: {fileID: 0}
+--- !u!1 &1854087196246879538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4629107196473139152}
+  m_Layer: 0
+  m_Name: ViewPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4629107196473139152
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854087196246879538}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6680052189320741630}
+  - {fileID: 6605153759480999936}
+  m_Father: {fileID: 3149847080431059872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4088751555342549120
 GameObject:
   m_ObjectHideFlags: 0
@@ -1175,7 +1207,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7739611785114501196}
-  m_Father: {fileID: 3149847080431059872}
+  m_Father: {fileID: 4629107196473139152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &651791452609864126
 SortingGroup:

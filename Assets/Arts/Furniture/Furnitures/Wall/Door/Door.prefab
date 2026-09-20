@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7691905342496095068}
-  m_Father: {fileID: 6805153165211297024}
+  m_Father: {fileID: 4899572804104695138}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &105675409589775812
 SortingGroup:
@@ -227,6 +227,39 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &2603857821483968152
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4899572804104695138}
+  m_Layer: 0
+  m_Name: ViewPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4899572804104695138
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2603857821483968152}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3735187639699717946}
+  - {fileID: 415498354230199473}
+  m_Father: {fileID: 6805153165211297024}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5766182290829897892
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,8 +290,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3735187639699717946}
-  - {fileID: 415498354230199473}
+  - {fileID: 4899572804104695138}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7112268513436635941
@@ -275,7 +307,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Home.View.IsoDraggableView
   _footprintSize: {x: 4, y: 7}
   _pivotGridPosition: {x: 0, y: 0}
-  _viewPivot: {fileID: 6805153165211297024}
+  _viewPivot: {fileID: 4899572804104695138}
   _userFurnitureId: 0
   _rightViewPivot: {fileID: 732774965237879250}
   _leftViewPivot: {fileID: 7683761144661856351}
@@ -312,7 +344,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4014770133565240764}
-  m_Father: {fileID: 6805153165211297024}
+  m_Father: {fileID: 4899572804104695138}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &4314407752014361585
 SortingGroup:

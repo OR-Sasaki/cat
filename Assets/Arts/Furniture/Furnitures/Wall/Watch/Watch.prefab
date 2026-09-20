@@ -1,5 +1,38 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1139065502580226455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5609431042656987887}
+  m_Layer: 0
+  m_Name: ViewPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5609431042656987887
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1139065502580226455}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7130565071478363640}
+  - {fileID: 2663720636247392254}
+  m_Father: {fileID: 2752891232835894410}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1492026229842055107
 GameObject:
   m_ObjectHideFlags: 0
@@ -32,7 +65,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3579322724668402848}
-  m_Father: {fileID: 2752891232835894410}
+  m_Father: {fileID: 5609431042656987887}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &336905234570205639
 SortingGroup:
@@ -790,8 +823,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7130565071478363640}
-  - {fileID: 2663720636247392254}
+  - {fileID: 5609431042656987887}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5470492822968240054
@@ -808,7 +840,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Home.View.IsoDraggableView
   _footprintSize: {x: 1, y: 1}
   _pivotGridPosition: {x: 0, y: 0}
-  _viewPivot: {fileID: 2752891232835894410}
+  _viewPivot: {fileID: 5609431042656987887}
   _userFurnitureId: 0
   _rightViewPivot: {fileID: 1492026229842055107}
   _leftViewPivot: {fileID: 3600416771601786760}
@@ -845,7 +877,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6833998988165050829}
-  m_Father: {fileID: 2752891232835894410}
+  m_Father: {fileID: 5609431042656987887}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!210 &5253397184754810068
 SortingGroup:

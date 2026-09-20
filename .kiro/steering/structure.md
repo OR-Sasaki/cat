@@ -35,7 +35,17 @@
 
 ### Testable Logic Assemblies
 決定論的な純粋ロジックは `{Scene|Root}/{Feature}Logic/` の独立アセンブリ (`.asmdef`, `noEngineReferences: true`) に切り出し、`Tests/` サブフォルダに EditMode テストアセンブリ (`{Name}.Tests`, `includePlatforms: [Editor]`, `defineConstraints: [UNITY_INCLUDE_TESTS]`) を同居させる
-**Examples**: `Shop/RewardAdLogic/` (`JstDateHelper`, `ShopProductCsvParser`, `RewardAdDailyCount`)、`Root/AudioLogic/` (`AudioVolumeLogic`, `SeSourcePicker`)
+**Examples**: `Shop/RewardAdLogic/` (`JstDateHelper`, `ShopProductCsvParser`, `RewardAdDailyCount`)、`Root/AudioLogic/` (`AudioVolumeLogic`, `SeSourcePicker`)、`Home/GridPreviewLogic/` (`FootprintEvaluator`)、`Home/OutfitEffectLogic/` (`CloudCoveragePlanner`)
+エンジン非依存にするため座標は自前の値型 (`GridCell`) で受け、グリッド状態への問い合わせは `Func` で注入する。Unity 型との変換は呼び出し側 Service が担う
+
+### In-Scene Effect / Preview Views
+シーン内ワールド空間の演出・プレビューは「判断を持たない View」として View 層に置き、Scope の `RegisterComponent` で登録する。Service は結果 (何をどこに描くか / いつ再生するか) だけを渡す
+- 演出 View は `Play(対象, ...)` の 1 メソッドを公開し、状態変更を演出のピークに合わせたい場合はコールバックで受ける (例: `OutfitChangeEffectView.Play(character, swapOutfit)`)
+- Service が View を必要とするが View 欠落でも機能を止めたくない場合は、View 側が `[Inject] Init` で `service.AttachView(this)` する (例: `GridPreviewView` → `GridPreviewService`)
+- 複数の消費者が同じ判定結果を使う場合は、生成元を 1 つに絞った readonly struct で受け渡す (例: `DropTarget` は `IsoDragService` だけが生成し、ドロップ処理と `GridPreviewService` が共有)
+
+### Demo / Sandbox Scenes
+演出の比較検討用シーン (`Assets/Scenes/EffectDemo.unity` + `Assets/Scripts/EffectDemo/`) は DI・層構造の対象外で、`Const.SceneName` にもビルドにも含めない。採用案は本番の View 層へ書き直して移す (デモのコードを本番から参照しない)
 
 ### Dialog-based Feature Folders
 シーンではないがシーン構造に準じたフォルダを持つ機能。使う層だけ作れば足りる (例: `TimerSetting/`, `Menu/`, `DebugPanel/`)
@@ -80,4 +90,4 @@ Starter    Manager
 
 ---
 _Document patterns, not file trees. New files following patterns shouldn't require updates_
-_更新: 2026-08-23 — 全体縮小 (サービス等の網羅列挙を廃止し RootScope.cs 参照に変更)。audio-manager / blob-shadow を反映_
+_更新: 2026-09-20 — In-Scene Effect / Preview Views、Demo / Sandbox Scenes を追加。Testable Logic の実例に GridPreviewLogic / OutfitEffectLogic を追記_

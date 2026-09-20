@@ -10,6 +10,8 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 - **マスターデータ管理**: ゲーム内データの一元管理 (MasterDataImportService)
 - **ダイアログシステム**: Addressables経由の動的ダイアログ表示。DialogService/IDialogService、BaseDialogView継承による確認・メッセージ等のプリセット対応、BackdropView連携
 - **アイソメトリックグリッド**: Homeシーン内のIsoGrid機能 (Service/State/View)
+- **設置予告 (グリッドプレビュー)**: 家具ドラッグ中に対象面 (床 / 壁) のグリッド線と、今離した場合の設置予告面 (置ける = 白 / 置けない = 赤) を表示する (`GridPreviewService` / `GridPreviewView`)
+- **操作フィードバック演出**: 着せ替え時はもくもく雲 + キラキラ + 肉球で覆って演出のピークで衣装を差し替え (`OutfitChangeEffectView`)、家具設置時は落下して弾む着地 (`FurniturePlaceEffectView`)。いずれも約 0.5 秒の短い一続きの動き
 - **ショップ**: 商品・ガチャの表示・購入機能 (時限ショップのサイクル抽選を含む)
 - **リワード広告**: LevelPlay SDK 経由のリワード広告視聴でアイテムを付与 (Shop に統合、日次視聴上限を管理)。`IRewardedAdService` で SDK を抽象化
 - **タイマー**: タイマー機能および設定 (TimerSettingダイアログ経由)、Pomodoro機能はTimerシーン内に統合
@@ -37,4 +39,4 @@ VContainerによる堅牢な依存性注入により、各シーンが独立し�
 
 ---
 _Focus on patterns and purpose, not exhaustive feature lists_
-_更新: 2026-08-23 — オーディオ (BGM/SE) とキャラクター丸影 (BlobShadow) を追記_
+_更新: 2026-09-20 — 設置予告 (グリッドプレビュー) と操作フィードバック演出 (着せ替え / 家具設置) を追記_

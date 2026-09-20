@@ -30,6 +30,8 @@
 - UniTask 非同期メソッドは末尾引数に `CancellationToken` を受け取り、外部キャンセル可能にする
 - VContainer が注入するコンストラクタには `[Inject]` を付与 (IL2CPP ストリッピング対策)
 - MonoBehaviour から回す Tween は `SetLink(gameObject)` で寿命に紐付け、保持している Tween は再生前と `OnDestroy` で `Kill()` (例: `Menu.View.MenuSwitchView`)
+- 連打されうる演出は、再生のたびに前回の Tween を `Kill` して対象を静止姿勢 (rest position / scale) に戻してから始める。現在値を起点にすると連打で位置・スケールがずれる (例: `FurniturePlaceEffectView` は `SetId(target)` + `DOTween.Kill(target)`)
+- 毎フレーム・高頻度で走る描画系は確保を避ける — スプライトはプール再利用、メッシュ用 `List` やデリゲートはフィールドで使い回す (例: `OutfitChangeEffectView`, `GridPreviewService` / `GridPreviewView`)
 
 ### Error Logging
 常にクラスコンテキスト付き:
@@ -63,6 +65,9 @@ Fade シーンを加算ロードし、FadeOut → ターゲットロード → F
 ### Config-as-Asset (機密のコード排除)
 構成値・機密はコードリテラルから排除し、ScriptableObject として `Resources` からロードする。アセット欠落時は RootScope で fail-fast (例: `RewardedAdConfig`, `AudioRegistry`)。キーはビルド時に env / ローカル `.env` から注入
 
+### World-Space Sorting (Home)
+家具は `SortingGroup` の `sortingOrder = (x + y) * 1000 + x` で前後関係を決める。これを基準に、グリッド線・床の設置予告は負値 (家具より奥)、ワールド空間の演出は 32000 (全家具より手前) に置く。家具の上面 (`FragmentedIsoGrid`) は自前の `SortingGroup` を持ち、グループ内で予告 (-1) < 子家具 (0 以上) の順に親スプライトより手前へ並べる
+
 ### Audio System
 - `IAudioService` (`AudioService`) が BGM クロスフェード・SE 再生・音量/ON-OFF 設定の永続化 (PlayerPrefs) を担う。音量計算・SE ソース選択の純粋計算は `Root/AudioLogic` に分離
 - `AudioSceneService` が `sceneLoaded` でシーン対応 BGM (`AudioRegistry` のシーン別割当) を再生し、`ButtonSeAttacher` でシーン内の Button に `ButtonSe` を自動付与する。個別ボタンの SE 上書き・無音化は `ButtonSe` を手置きして `SeId` を指定 (`None` で無音)
@@ -70,4 +75,4 @@ Fade シーンを加算ロードし、FadeOut → ターゲットロード → F
 
 ---
 _Document standards and patterns, not every dependency_
-_更新: 2026-08-23 — 全体縮小 (structure.md との重複を排除)。Audio System (IAudioService / AudioRegistry / AudioLogic) を追記_
+_更新: 2026-09-20 — 演出 Tween の再生規約 (Kill + 静止姿勢リセット、確保回避) と Home のワールド空間ソート順を追記_

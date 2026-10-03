@@ -1,42 +1,27 @@
 # Product Overview
 
-Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ替えや部屋のカスタマイズを中心とした機能を持つ。
+Unity 6 の 2D ゲーム。キャラクターの着せ替えと部屋のカスタマイズが中心。
+
+## Screens
+
+Logo → Title → Home。Home が着せ替え (Closet) / 模様替え (Redecorate) / メニュー (MenuDialog) を内包し、Shop / Timer / History は独立シーン。永続化は PlayerPrefs
 
 ## Core Capabilities
 
-- **シーン遷移**: フェード効果を用いた滑らかなシーン間の移動
-- **依存性注入**: VContainerによる疎結合なアーキテクチャ
-- **キャラクター管理**: プレイヤーの衣装や状態管理 (UserEquippedOutfit)。足元の丸影は BlobShadowView (タイマー完了ポップ中は非表示)
-- **マスターデータ管理**: ゲーム内データの一元管理 (MasterDataImportService)
-- **ダイアログシステム**: Addressables経由の動的ダイアログ表示。DialogService/IDialogService、BaseDialogView継承による確認・メッセージ等のプリセット対応、BackdropView連携
-- **アイソメトリックグリッド**: Homeシーン内のIsoGrid機能 (Service/State/View)
-- **設置予告 (グリッドプレビュー)**: 家具ドラッグ中に対象面 (床 / 壁) のグリッド線と、今離した場合の設置予告面 (置ける = 白 / 置けない = 赤) を表示する (`GridPreviewService` / `GridPreviewView`)
-- **操作フィードバック演出**: 着せ替え時はもくもく雲 + キラキラ + 肉球で覆って演出のピークで衣装を差し替え (`OutfitChangeEffectView`)、家具設置時は落下して弾む着地 (`FurniturePlaceEffectView`)。いずれも約 0.5 秒の短い一続きの動き
-- **ショップ**: 商品・ガチャの表示・購入機能 (時限ショップのサイクル抽選を含む)
-- **リワード広告**: LevelPlay SDK 経由のリワード広告視聴でアイテムを付与 (Shop に統合、日次視聴上限を管理)。`IRewardedAdService` で SDK を抽象化
-- **タイマー**: タイマー機能および設定 (TimerSettingダイアログ経由)、Pomodoro機能はTimerシーン内に統合。完了時に集中時間ぶんの毛糸玉を付与し結果をダイアログ表示 (TimerYarnRewardService、日次上限はショップと同じ JST 境界で判定)
-- **集中時間の記録**: 日別の集中時間 (秒) を永続化 (TimerRecordService)。Historyシーンのカレンダー表示・ストリーク集計の単一ソース
-- **ユーザー資産管理**: ポイント (UserPointService) とアイテム所持 (UserItemInventoryService) の状態保持・スナップショット。初回起動時の付与は初期アイテム (InitialItemService) のみで、それ以外はショップ等の獲得経路を通す
-- **メニュー / 設定**: ホーム右上のメニューボタンから開く設定ダイアログ (MenuDialog)。サウンド・通知のON/OFFを永続化し、所持金 (毛糸) 残高の確認と規約類への導線を持つ
-- **タップエフェクト**: 画面のどこを押しても指先で波紋 (リング) と粒が弾ける共通演出 (`TapEffectView`)。RootScope 常駐の最前面 Canvas で全シーン共通に動き、入力は消費しない
-- **オーディオ (BGM / SE)**: `IAudioService` による BGM クロスフェード再生と SE 再生。シーンロードに応じた BGM 自動切替とボタンクリック SE の自動付与 (`AudioSceneService` / `ButtonSeAttacher`)。音量・ON/OFF はメニューのサウンド設定と連動し PlayerPrefs に永続化
-- **時刻抽象**: テスト容易性と決定論のため `IClock` 経由で現在時刻を取得
-
-## Target Use Cases
-
-- ロゴ画面 → タイトル画面 → ホーム画面への遷移
-- 着せ替え (Closet)、模様替え (Redecorate) はHomeシーン内のUI機能として統合
-- ショップ (Shop): 商品・ガチャ機能
-- タイマー (Timer): タイマー機能 (設定はTimerSettingDialogで実施)
-- 履歴 (History): 集中時間のカレンダー表示・月次集計・連続日数 (ストリーク) 表示
-- メニュー (Menu): 設定トグル・所持金確認・規約類の確認 (ホームシーン上のダイアログ)
-- プレイヤーデータの永続化 (PlayerPrefs)
-- ダイアログを介したユーザーインタラクション (確認、メッセージ通知)
-
-## Value Proposition
-
-VContainerによる堅牢な依存性注入により、各シーンが独立しつつも共通サービスを利用可能。シーンベースのアーキテクチャで機能が明確に分離されている。
+- **キャラクター**: 衣装と状態 (`UserEquippedOutfit`)。足元の丸影 `BlobShadowView` はタイマー完了ポップ中のみ非表示
+- **着せ替え / 模様替え**: 所持している Outfit・家具をグリッド表示して即時適用する
+- **アイソメトリックグリッド**: 家具配置の基盤 (Home の IsoGrid)
+- **設置予告**: 家具ドラッグ中に対象面 (床 / 壁) のグリッド線と設置予告面を出す (置ける = 白 / 置けない = 赤)
+- **操作フィードバック演出**: 着せ替えはもくもく雲 + キラキラ + 肉球で覆いピークで差し替え、家具設置は落下して弾む着地。いずれも約 0.5 秒の一続きの動き
+- **タップエフェクト**: 全シーン共通で指先に波紋と粒 (`TapEffectView`)。入力は消費しない
+- **ショップ**: 商品・ガチャの購入 (時限ショップのサイクル抽選を含む)。リワード広告の視聴でもアイテムを付与する (日次視聴上限あり)
+- **タイマー**: Pomodoro を Timer シーンに統合、設定は TimerSetting ダイアログ。完了時に集中時間ぶんの毛糸玉を付与 (日次上限は JST 境界)
+- **集中時間の記録**: 日別の秒数を永続化 (`TimerRecordService`)。History のカレンダー・月次集計・ストリークの単一ソース
+- **ユーザー資産**: ポイント (`UserPointService`) とアイテム所持 (`UserItemInventoryService`)。初回付与は初期アイテムのみで、他はショップ等の獲得経路を通す
+- **メニュー / 設定**: サウンド・通知の ON/OFF 永続化、毛糸残高の確認、規約類への導線
+- **オーディオ**: BGM クロスフェードと SE。シーン別 BGM 自動切替とボタン SE 自動付与。音量・ON/OFF はメニュー設定と連動
+- **マスターデータ**: CSV を `MasterDataImportService` が一元ロード
+- **ダイアログ**: Addressables 経由の動的表示 (`IDialogService`)。確認・メッセージは `BaseDialogView` のプリセット
 
 ---
-_Focus on patterns and purpose, not exhaustive feature lists_
-_更新: 2026-09-20 — 設置予告 (グリッドプレビュー) と操作フィードバック演出 (着せ替え / 家具設置) を追記_
+_目的とパターンのみ記す。機能の網羅列挙はしない_

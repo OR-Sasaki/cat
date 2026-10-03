@@ -284,11 +284,13 @@ namespace Home.Service
 
         /// FragmentedIsoGrid上に家具を配置する
         /// 親家具のUserFurnitureIdと配置するローカル座標を指定
+        /// gridIndex: 親家具が複数のFragmentedIsoGridを持つ場合の家具内グリッド番号
         public Vector3? PlaceFragmentedFurnitureAt(
             int parentUserFurnitureId,
             int userFurnitureId,
             Furniture furniture,
-            Vector2Int localGridPos)
+            Vector2Int localGridPos,
+            int gridIndex = 0)
         {
             if (furniture.SceneObject is null) return null;
 
@@ -317,12 +319,12 @@ namespace Home.Service
                 return null;
             }
 
-            // FragmentedIsoGridを取得（親自身に紐づくものだけを対象とし、子家具のgridを拾わないようにする）
+            // FragmentedIsoGridを取得（親自身に紐づくもののうちGridIndexが一致するものだけを対象とし、子家具のgridを拾わないようにする）
             FragmentedIsoGrid fragmentedGrid = null;
             var candidateGrids = parentView.GetComponentsInChildren<FragmentedIsoGrid>();
             foreach (var candidate in candidateGrids)
             {
-                if (candidate.IsoDraggableView == parentView)
+                if (candidate.IsoDraggableView == parentView && candidate.GridIndex == gridIndex)
                 {
                     fragmentedGrid = candidate;
                     break;
@@ -330,7 +332,7 @@ namespace Home.Service
             }
             if (fragmentedGrid is null)
             {
-                Debug.LogWarning($"[FurniturePlacementService] FragmentedIsoGrid not found on parent furniture {parentUserFurnitureId}");
+                Debug.LogWarning($"[FurniturePlacementService] FragmentedIsoGrid (index={gridIndex}) not found on parent furniture {parentUserFurnitureId}");
                 return null;
             }
 

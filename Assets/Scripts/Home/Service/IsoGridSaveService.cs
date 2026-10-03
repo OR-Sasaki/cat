@@ -50,7 +50,8 @@ namespace Home.Service
             var fragmentedGrids = _isoGridState.FragmentedGrids
                 .Select(parent => new FragmentedGridSaveEntry
                 {
-                    ParentUserFurnitureId = parent.Key,
+                    ParentUserFurnitureId = parent.Key.ParentUserFurnitureId,
+                    GridIndex = parent.Key.GridIndex,
                     ObjectPositions = ToSaveEntries(parent.Value.ObjectPositions),
                 })
                 .ToArray();

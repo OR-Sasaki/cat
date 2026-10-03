@@ -33,6 +33,7 @@ namespace Root.State
     public class FragmentedGridSaveEntry
     {
         public int ParentUserFurnitureId; // FragmentedIsoGridを持つ親家具のID
+        public int GridIndex; // 親家具内のグリッド番号（1家具に複数グリッドを持つ場合に使用。旧データは0に復元される）
         public ObjectPlacementSaveEntry[] ObjectPositions;
     }
 

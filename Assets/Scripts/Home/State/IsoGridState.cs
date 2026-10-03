@@ -16,8 +16,9 @@ namespace Home.State
         public GridEntry LeftWall { get; private set; }
         public GridEntry RightWall { get; private set; }
 
-        // 親家具ID → FragmentedGrid の GridEntry
-        public Dictionary<int, GridEntry> FragmentedGrids { get; } = new();
+        // (親家具ID, 家具内グリッド番号) → FragmentedGrid の GridEntry
+        // 1つの家具が複数のFragmentedIsoGrid（本棚の各段など）を持てるよう複合キーにしている
+        public Dictionary<(int ParentUserFurnitureId, int GridIndex), GridEntry> FragmentedGrids { get; } = new();
 
         // セル配列を初期化
         public void Initialize(int gridWidth, int gridHeight, int wallHeight)

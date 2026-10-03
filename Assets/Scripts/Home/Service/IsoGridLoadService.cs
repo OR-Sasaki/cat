@@ -136,11 +136,11 @@ namespace Home.Service
 
             // Depthが浅い順（昇順）にソートしてロード（親→子の順で配置する必要があるため）
             var sortedPositions = fragmentedGrids
-                .SelectMany(parent => parent.ObjectPositions.Select(child => (parent.ParentUserFurnitureId, Placement: child)))
+                .SelectMany(parent => parent.ObjectPositions.Select(child => (parent.ParentUserFurnitureId, parent.GridIndex, Placement: child)))
                 .OrderBy(p => p.Placement.Depth);
 
             var loadedCount = 0;
-            foreach (var (parentUserFurnitureId, placement) in sortedPositions)
+            foreach (var (parentUserFurnitureId, gridIndex, placement) in sortedPositions)
             {
                 var furnitureAsset = GetFurnitureAsset(placement.UserFurnitureId);
                 if (furnitureAsset == null) continue;
@@ -150,7 +150,8 @@ namespace Home.Service
                     parentUserFurnitureId,
                     placement.UserFurnitureId,
                     furnitureAsset,
-                    localGridPos);
+                    localGridPos,
+                    gridIndex);
 
                 if (result is not null) loadedCount++;
             }

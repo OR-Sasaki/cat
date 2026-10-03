@@ -11,11 +11,14 @@ namespace Home.View
     {
         [SerializeField] Vector2Int _size = Vector2Int.one;
         [SerializeField] IsoDraggableView _isoDraggableView;
+        [Tooltip("同一家具内でのグリッド識別番号。1家具に複数のグリッドを持たせる場合に0,1,2...と振る（セーブデータに保存される）")]
+        [SerializeField] int _gridIndex;
 
         IsoCoordinateConverterService _converter;
 
         public Vector2Int Size => _size;
         public IsoDraggableView IsoDraggableView => _isoDraggableView;
+        public int GridIndex => _gridIndex;
         public float CellSize => IsoGridSettingsView.CellSize;
 
         void Awake()

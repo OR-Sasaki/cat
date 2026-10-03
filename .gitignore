@@ -107,5 +107,9 @@ InitTestScene*.unity*
 # Local secrets (LevelPlay ad keys etc.) — never commit. CI passes the same keys as env vars.
 /.env
 
+# Android の署名鍵。漏れるとアプリの署名を偽装できるため絶対にコミットしない。
+*.keystore
+*.jks
+
 # メモ程度に置いている作業用の素材置き場。ローカル限定でコミット対象外。
 /TempResource/

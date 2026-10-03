@@ -197,7 +197,7 @@ namespace Shop.Service
                         Debug.LogWarning($"[ShopService] Furniture master not found for item_id={product.ItemId} (product_id={product.Id})");
                         return null;
                     }
-                    displayName = string.IsNullOrEmpty(product.Name) ? furniture.Name : product.Name;
+                    displayName = string.IsNullOrEmpty(product.Name) ? furniture.DisplayName : product.Name;
                     iconPath = ResolveFurnitureIconPath(furniture);
                     break;
                 }
@@ -209,7 +209,7 @@ namespace Shop.Service
                         Debug.LogWarning($"[ShopService] Outfit master not found for item_id={product.ItemId} (product_id={product.Id})");
                         return null;
                     }
-                    displayName = string.IsNullOrEmpty(product.Name) ? outfit.Name : product.Name;
+                    displayName = string.IsNullOrEmpty(product.Name) ? outfit.DisplayName : product.Name;
                     iconPath = ResolveOutfitIconPath(outfit);
                     break;
                 }
@@ -786,7 +786,7 @@ namespace Shop.Service
         {
             var lookup = GetFurnitureLookup();
             if (lookup != null && lookup.TryGetValue(furnitureId, out var furniture))
-                return furniture.Name;
+                return furniture.DisplayName;
             return furnitureId.ToString();
         }
 

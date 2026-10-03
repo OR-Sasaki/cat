@@ -19,7 +19,7 @@ Home シーン内の着せ替え UI。`HomeFooterView` のボタンで `HomeStat
 
 ## データ追加のフロー
 
-- **新 Outfit**: `Assets/Resources/outfits.csv` (id,type,name) に追記 → Addressables に `{type}/{name}.asset` を配置 (例: `Body/Body001.asset`) → 必要なら `default_outfits.csv` (id, outfit_id=マスターの name) に追記。コード変更不要。ただし一覧は所持分のみ表示なので、入手経路 (Shop / 初期アイテム) がないと表示されない
+- **新 Outfit**: `Assets/Resources/outfits.csv` (id,type,name,display_name。display_name は UI 表示名で、空欄なら name で代替) に追記 → Addressables に `{type}/{name}.asset` を配置 (例: `Body/Body001.asset`) → 必要なら `default_outfits.csv` (id, outfit_id=マスターの name) に追記。コード変更不要。ただし一覧は所持分のみ表示なので、入手経路 (Shop / 初期アイテム) がないと表示されない
 - **OutfitType 追加**: enum は明示的な数値を持つ (`Body = 1` 〜 `Effect = 9`)。末尾に次の番号で追加し、`CharacterView.GetPartTypes` の switch、`OutfitPart.PartType`、`OutfitPartOrderSetting._partOrder` (OnValidate で検査)、`MajorTab` のタブマッピングをセットで更新する。※ `FaceMakeup` / `Effect` は enum とタブマッピングのみで、具象 Outfit クラス (`Outfits/*.cs`) は未作成
 
 ## ハマりどころ

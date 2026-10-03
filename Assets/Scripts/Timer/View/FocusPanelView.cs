@@ -1,4 +1,7 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Root.Service;
+using Root.View;
 using Timer.Service;
 using Timer.State;
 using UnityEngine;
@@ -22,13 +25,23 @@ namespace Timer.View
         PomodoroState _state;
         PomodoroService _service;
         SceneLoader _sceneLoader;
+        IDialogService _dialogService;
+
+        /// HasOpenDialog はプレハブのロード完了後に true になるため、
+        /// ロード中の連打で確認ダイアログが二重に開くのを自前のフラグで防ぐ
+        bool _isConfirmingBreak;
 
         [Inject]
-        public void Construct(PomodoroState state, PomodoroService service, SceneLoader sceneLoader)
+        public void Construct(
+            PomodoroState state,
+            PomodoroService service,
+            SceneLoader sceneLoader,
+            IDialogService dialogService)
         {
             _state = state;
             _service = service;
             _sceneLoader = sceneLoader;
+            _dialogService = dialogService;
         }
 
         void Start()
@@ -94,6 +107,38 @@ namespace Timer.View
 
         void OnBreakButtonClicked()
         {
+            // 設定どおりの集中時間を終えてからの押下は、そのまま休憩へ進む
+            if (_state.IsTimerExpired)
+            {
+                _service.TransitionToBreak();
+                return;
+            }
+
+            ConfirmBreakAsync(destroyCancellationToken).Forget();
+        }
+
+        /// 集中時間が残っているうちに休憩ボタンが押された。誤操作でないか確認してから遷移する
+        async UniTaskVoid ConfirmBreakAsync(CancellationToken cancellationToken)
+        {
+            if (_isConfirmingBreak || _dialogService.HasOpenDialog) return;
+
+            _isConfirmingBreak = true;
+            DialogResult result;
+            try
+            {
+                result = await _dialogService.OpenAsync<CommonConfirmDialog, CommonConfirmDialogArgs>(
+                    new CommonConfirmDialogArgs(
+                        Title: "休憩確認",
+                        Message: "まだ集中時間が残っていますが、休憩に入りますか？"),
+                    cancellationToken);
+            }
+            finally
+            {
+                _isConfirmingBreak = false;
+            }
+
+            if (result != DialogResult.Ok) return;
+
             _service.TransitionToBreak();
         }
 

@@ -45,6 +45,10 @@ namespace Root.Scope
             builder.Register<TimerRecordState>(Lifetime.Singleton);
             builder.Register<TimerRecordService>(Lifetime.Singleton)
                 .As<ITimerRecordService>().AsSelf();
+            // タイマー完了報酬の日次上限はシーンを跨いで持ち越す
+            builder.Register<TimerYarnRewardState>(Lifetime.Singleton);
+            builder.Register<TimerYarnRewardService>(Lifetime.Singleton)
+                .As<ITimerYarnRewardService>().AsSelf();
 
             builder.Register<DialogState>(Lifetime.Singleton);
             builder.Register<DialogContainer>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();

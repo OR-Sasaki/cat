@@ -11,6 +11,7 @@ namespace Root.Service
         UserItemInventory,
         UserPoint,
         TimerRecord,
+        TimerYarnReward,
         RewardAdDailyCount,
         MenuSetting,
         AudioSetting,

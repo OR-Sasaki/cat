@@ -13,6 +13,7 @@ namespace Timer.Service
         readonly PomodoroState _state;
         readonly PlayerPrefsService _playerPrefsService;
         readonly ITimerRecordService _timerRecordService;
+        readonly ITimerYarnRewardService _timerYarnRewardService;
         readonly CancellationToken _cancellationToken;
 
         float _focusSeconds;
@@ -25,11 +26,13 @@ namespace Timer.Service
             PomodoroState state,
             PlayerPrefsService playerPrefsService,
             ITimerRecordService timerRecordService,
+            ITimerYarnRewardService timerYarnRewardService,
             CancellationToken cancellationToken)
         {
             _state = state;
             _playerPrefsService = playerPrefsService;
             _timerRecordService = timerRecordService;
+            _timerYarnRewardService = timerYarnRewardService;
             _cancellationToken = cancellationToken;
         }
 
@@ -75,6 +78,10 @@ namespace Timer.Service
             if (_state.CurrentSet == _state.TotalSets)
             {
                 _isRunning = false;
+                // Complete の購読者 (完了演出) が結果を読めるよう、フェーズ通知より先に付与する。
+                // 日跨ぎセッションでも上限はこの時点 (= タイマー終了時点) の日付で判定される
+                _state.SetYarnReward(
+                    _timerYarnRewardService.GrantForCompletedSession(RewardableFocusSeconds()));
                 _state.SetPhase(PomodoroPhase.Complete);
                 return;
             }
@@ -151,6 +158,14 @@ namespace Timer.Service
                 // シーン破棄・キャンセル・例外いずれの脱出経路でも確定する
                 Flush();
             }
+        }
+
+        /// 報酬の対象になる集中秒数。
+        /// タイマーが 0 に到達してもユーザーが休憩ボタンを押すまで Focus のまま TotalFocusTime は伸び続けるため、
+        /// 放置した分が報酬に乗らないよう設定どおりの集中時間 (集中時間 × セット数) で頭打ちにする。
+        float RewardableFocusSeconds()
+        {
+            return Mathf.Min(_state.TotalFocusTime, _focusSeconds * _state.TotalSets);
         }
 
         /// 集中時間を記録に確定する。差分 (= floor(TotalFocusTime) - _flushedSeconds) のみを加算する。

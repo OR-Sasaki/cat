@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using Root.Service;
 
 namespace Timer.State
 {
@@ -36,6 +37,9 @@ namespace Timer.State
         /// 一時停止中か
         public bool IsPaused { get; private set; }
 
+        /// 完了時に付与された毛糸玉の内訳。Complete 到達前は null
+        public TimerYarnRewardResult? YarnReward { get; private set; }
+
         /// フェーズ変更イベント
         public event Action<PomodoroPhase>? OnPhaseChanged;
 
@@ -57,6 +61,7 @@ namespace Timer.State
             RemainingSeconds = 0f;
             IsTimerExpired = false;
             IsPaused = false;
+            YarnReward = null;
         }
 
         public void SetPhase(PomodoroPhase phase)
@@ -89,6 +94,11 @@ namespace Timer.State
         public void SetTotalFocusTime(float time)
         {
             TotalFocusTime = time;
+        }
+
+        public void SetYarnReward(TimerYarnRewardResult reward)
+        {
+            YarnReward = reward;
         }
 
         public void SetPaused(bool paused)

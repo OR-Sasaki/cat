@@ -16,6 +16,18 @@ namespace Root.Scope
         {
             base.Awake();
             Application.targetFrameRate = 60;
+            ConfigureLogging();
+        }
+
+        /// リリースビルドでは Debug.Log / LogWarning を出力しない。
+        /// Error / Exception は端末ログで不具合を追えるよう残す
+        /// (全停止したい場合は Debug.unityLogger.logEnabled = false に替える)。
+        /// 文字列補間のコスト自体は残るため、ホットパスへのログ追加は引き続き避ける
+        static void ConfigureLogging()
+        {
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+            Debug.unityLogger.filterLogType = LogType.Error;
+#endif
         }
 
         protected override void Configure(IContainerBuilder builder)

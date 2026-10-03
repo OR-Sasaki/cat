@@ -26,6 +26,8 @@ namespace Timer.Scope
 
             // Service
             builder.Register<PomodoroService>(Lifetime.Scoped);
+            // Scoped 登録の Dispose がシーン離脱時にスリープ設定を戻す
+            builder.Register<ScreenSleepService>(Lifetime.Scoped);
 
             // Manager
             builder.RegisterComponentInHierarchy<UiSlideManager>();

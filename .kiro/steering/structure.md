@@ -53,9 +53,14 @@
 - UI をコード生成するダイアログ (デバッグ用途など) はプレハブを器 (RectTransform + CanvasGroup + 本体スクリプト) に留め、`[Inject] Construct` 内で組み立てる (`DebugPanelDialog` + `DebugUiFactory`)。`BaseDialogView` の `_animator` / `_closeButton` 未設定なら開閉アニメはスキップされる
 - 開くボタンは各シーンの View 層に置き `IDialogService.OpenAsync<TDialog>` を呼ぶ
 
+### Screen Safe Area
+画面端に寄せた UI (戻るボタン / ヘッダー / フッター / タブ) は Canvas 直下の `SafeArea` を挟んだ配下に置く。`SafeAreaView` (`Root/View/`) が `Screen.safeArea` を自身の anchor へ毎フレーム反映する。全画面の背景だけは `SafeArea` の外に残し、ノッチ下まで塗る
+Android は `androidRenderOutsideSafeArea: 1` でカットアウト内まで描画するため、対応漏れはそのまま欠けになる。コード生成する Canvas (`DebugOpenButtonView` 等) も同じく `SafeArea` を 1 枚挟む
+中央アンカーのみのシーン (Title / Logo / Timer) は対象外。実機確認は Device Simulator (`com.unity.device-simulator.devices` 導入済み)
+
 ### Debug-Only Features
 開発時のみの機能は RootScope の `RegisterEntryPoint` を `#if UNITY_EDITOR || DEVELOPMENT_BUILD` で囲み、リリースでは起点ごと消す。クラス本体は条件コンパイルしない (プレハブのスクリプト参照が切れるため)
-**Note**: DebugPanel の透明ボタン (画面左上) は raycast を奪う。各シーン左上の UI と重ねない (Shop / History の戻るボタンは上端 90px 以降)。Canvas の sortingOrder は DialogCanvas (1000) より下に置く
+**Note**: DebugPanel の透明ボタン (画面左上) は raycast を奪う。各シーン左上の UI と重ねない (Shop / History の戻るボタンはセーフエリア上端から 90px 以降、ボタン側も `SafeArea` 内なので基準は揃う)。Canvas の sortingOrder は DialogCanvas (1000) より下に置く
 
 ### Root-Resident Overlay Effects
 全シーン常駐の演出 (タップエフェクト等) は View のみの機能フォルダ + 専用 Overlay Canvas プレハブを `RootScope.prefab` にネストする。sortingOrder は最前面 (TapEffect 30000 > ダイアログ 1000+ > フェード 999)。GraphicRaycaster を付けず `raycastTarget = false` で入力を奪わない。全画面の押下検出は PassThrough `InputAction` の変化通知で拾う (ポーリングは同一フレーム押下→離しを取りこぼす)

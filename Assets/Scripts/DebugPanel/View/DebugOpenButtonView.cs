@@ -3,6 +3,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Root.Service;
+using Root.View;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,8 +20,9 @@ namespace DebugPanel.View
         static readonly Vector2 ReferenceResolution = new(1080f, 1920f);
 
         /// 透明でも raycast を奪うため、各シーンの左上 UI を塞がないサイズに抑える
-        /// Shop の戻るボタン (上端から 100px 以降) と History の戻るボタン (同 90px 以降) は完全に回避できる
-        /// Home の Closet / Redecorate 中の戻るボタン (x 33..172, 上端から 34..174) だけは左上角が重なるが、
+        /// 各シーンの戻るボタンと同じく SafeAreaView の内側に置くので、ノッチ端末でも下記の位置関係は変わらない
+        /// Shop の戻るボタン (セーフエリア上端から 100px 以降) と History の戻るボタン (同 90px 以降) は完全に回避できる
+        /// Home の Closet / Redecorate 中の戻るボタン (x 33..172, 同 34..174) だけは左上角が重なるが、
         /// 残りの領域で操作できる
         static readonly Vector2 ButtonSize = new(90f, 90f);
 
@@ -49,8 +51,15 @@ namespace DebugPanel.View
 
             gameObject.AddComponent<GraphicRaycaster>();
 
+            // ノッチ / ステータスバーに潜って押しづらくなるのを避けるため、セーフエリアの内側に入れる
+            var safeArea = new GameObject("SafeArea", typeof(RectTransform));
+            var safeAreaRect = (RectTransform)safeArea.transform;
+            safeAreaRect.SetParent(transform, false);
+            DebugUiFactory.Stretch(safeAreaRect);
+            safeArea.AddComponent<SafeAreaView>();
+
             // alpha 0 の Image でも raycastTarget が true なら入力は拾える
-            var image = DebugUiFactory.CreateImage("OpenButton", transform, new Color(1f, 1f, 1f, 0f));
+            var image = DebugUiFactory.CreateImage("OpenButton", safeAreaRect, new Color(1f, 1f, 1f, 0f));
             var rect = image.rectTransform;
             rect.anchorMin = new Vector2(0f, 1f);
             rect.anchorMax = new Vector2(0f, 1f);

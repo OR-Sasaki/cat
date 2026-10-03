@@ -8,6 +8,7 @@ namespace Cat.Character
     {
         static readonly int Walk = Animator.StringToHash("Walk");
         static readonly int Run = Animator.StringToHash("Run");
+        static readonly int Speed = Animator.StringToHash("Speed");
 
         [SerializeField] CharacterWalkableArea _characterWalkableArea;
         [SerializeField] float _minWaitTime = 1f;
@@ -19,7 +20,13 @@ namespace Cat.Character
         [SerializeField] float _walkSpeed;
         [SerializeField] float _runSpeed;
 
+        /// Walk.anim / Run.anim が接地するように作られた移動速度。
+        /// CatLocomotionClipBuilder と同じ値にしておく (変えたらクリップを作り直す)
+        [SerializeField] float _walkClipSpeed = 0.9f;
+        [SerializeField] float _runClipSpeed = 1.9f;
+
         NavMeshAgent _navMeshAgent;
+        float _currentClipSpeed = 1f;
 
         void Start()
         {
@@ -32,6 +39,9 @@ namespace Cat.Character
 
         void Update()
         {
+            // 歩幅はクリップに焼かれているので、実速度に合わせて再生速度を変えないと加減速中に足が滑る
+            _animator.SetFloat(Speed, Mathf.Clamp(_navMeshAgent.velocity.magnitude / _currentClipSpeed, 0.2f, 2f));
+
             if (_navMeshAgent.velocity.magnitude < 0.1f)
                 return;
 
@@ -47,12 +57,14 @@ namespace Cat.Character
                 _navMeshAgent.SetDestination(destination);
 
                 var runOrWalk = Random.Range(0, 2);
-                _navMeshAgent.speed = runOrWalk == 0 ? _runSpeed : _walkSpeed;
-                _animator.SetBool(runOrWalk == 0 ? Run : Walk, true);
+                var isRun = runOrWalk == 0;
+                _navMeshAgent.speed = isRun ? _runSpeed : _walkSpeed;
+                _currentClipSpeed = isRun ? _runClipSpeed : _walkClipSpeed;
+                _animator.SetBool(isRun ? Run : Walk, true);
 
                 yield return new WaitUntil(HasArrived);
 
-                _animator.SetBool(runOrWalk == 0 ? Run : Walk, false);
+                _animator.SetBool(isRun ? Run : Walk, false);
 
                 var waitTime = Random.Range(_minWaitTime, _maxWaitTime);
                 yield return new WaitForSeconds(waitTime);

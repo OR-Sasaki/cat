@@ -89,6 +89,8 @@ MonoBehaviour:
   _animator: {fileID: 1047109620717048903}
   _walkSpeed: 0.9
   _runSpeed: 1.9
+  _walkClipSpeed: 0.9
+  _runClipSpeed: 1.9
 --- !u!1 &2918224357332521156
 GameObject:
   m_ObjectHideFlags: 0

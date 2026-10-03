@@ -316,10 +316,33 @@ namespace Shop.Service
             return data.ItemType switch
             {
                 ItemType.Outfit => data.ItemId.HasValue && _userItemInventoryService.HasOutfit(data.ItemId.Value),
-                ItemType.Furniture => false,
+                // 通常家具は重複所持できるが、床・壁を構成するベース家具だけは所持済みなら売り切れ扱いにする
+                ItemType.Furniture => data.ItemId.HasValue
+                    && IsBaseFurniture(data.ItemId.Value)
+                    && _userItemInventoryService.GetFurnitureCount(data.ItemId.Value) > 0,
                 ItemType.Point => false,
                 _ => false,
             };
+        }
+
+        /// 家具商品の現在の所持数。家具以外の商品は null（所持数を表示しない）。
+        public int? GetOwnedFurnitureCount(ProductData data)
+        {
+            if (data.ItemType != ItemType.Furniture || !data.ItemId.HasValue)
+                return null;
+
+            return _userItemInventoryService.GetFurnitureCount(data.ItemId.Value);
+        }
+
+        // ベース家具（部屋そのもの）かどうか。マスターの type 列は Cat.Furniture.PlacementType と同名で運用している。
+        bool IsBaseFurniture(uint furnitureId)
+        {
+            var lookup = GetFurnitureLookup();
+            if (lookup is null || !lookup.TryGetValue(furnitureId, out var furniture))
+                return false;
+
+            return System.Enum.TryParse<Cat.Furniture.PlacementType>(furniture.Type, out var placementType)
+                   && placementType == Cat.Furniture.PlacementType.Base;
         }
 
         // 当該商品の本日残り視聴回数（下限 0）。日付跨ぎを検知したら遡及リセットする（要件 10-6）。

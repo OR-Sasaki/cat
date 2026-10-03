@@ -183,6 +183,7 @@ namespace Shop.View
             if (_userItemInventoryService != null)
             {
                 _userItemInventoryService.OutfitChanged += OnOutfitChanged;
+                _userItemInventoryService.FurnitureChanged += OnFurnitureChanged;
             }
 
             if (_rewardedAdService != null)
@@ -203,7 +204,10 @@ namespace Shop.View
                 _userPointService.YarnBalanceChanged -= OnYarnBalanceChanged;
 
             if (_userItemInventoryService != null)
+            {
                 _userItemInventoryService.OutfitChanged -= OnOutfitChanged;
+                _userItemInventoryService.FurnitureChanged -= OnFurnitureChanged;
+            }
 
             if (_rewardedAdService != null)
                 _rewardedAdService.StateChanged -= OnRewardedAdStateChanged;
@@ -228,6 +232,12 @@ namespace Shop.View
         }
 
         void OnOutfitChanged(uint _)
+        {
+            RefreshAllCellsAppearance();
+        }
+
+        // 家具の所持数変化（購入・ガチャ）で所持数表示とベース家具の売り切れ表示を再評価する
+        void OnFurnitureChanged(FurnitureChange _)
         {
             RefreshAllCellsAppearance();
         }
@@ -273,6 +283,7 @@ namespace Shop.View
                 cell.SetSoldOut(isSoldOut);
                 cell.SetDimmed(!isAffordable);
                 cell.SetInteractable(isAffordable);
+                cell.SetOwnedCount(_shopService.GetOwnedFurnitureCount(data));
             }
         }
 

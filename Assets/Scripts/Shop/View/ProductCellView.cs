@@ -19,6 +19,7 @@ namespace Shop.View
         [SerializeField] Button? _button;
         [SerializeField] GameObject? _dimOverlay;
         [SerializeField] GameObject? _soldOutOverlay;
+        [SerializeField] TMP_Text? _ownedCountText;
 
         public ProductData? Data { get; private set; }
 
@@ -29,8 +30,11 @@ namespace Shop.View
         bool? _isSoldOut;
         bool? _lastDimmed;
         bool? _lastInteractable;
+        int? _lastOwnedCount;
+        bool _hasAppliedOwnedCount;
         bool _hasWarnedMissingDimOverlay;
         bool _hasWarnedMissingSoldOutOverlay;
+        bool _hasWarnedMissingOwnedCountText;
 
         void Start()
         {
@@ -113,6 +117,29 @@ namespace Shop.View
             }
 
             _soldOutOverlay.SetActive(isSoldOut);
+        }
+
+        /// 所持数表示を更新する。null を渡すと表示自体を隠す（所持数の概念がない商品）。
+        public void SetOwnedCount(int? ownedCount)
+        {
+            if (_hasAppliedOwnedCount && _lastOwnedCount == ownedCount) return;
+            _hasAppliedOwnedCount = true;
+            _lastOwnedCount = ownedCount;
+
+            if (_ownedCountText == null)
+            {
+                if (!_hasWarnedMissingOwnedCountText)
+                {
+                    Debug.LogWarning("[ProductCellView] _ownedCountText is not assigned. SetOwnedCount is ignored.");
+                    _hasWarnedMissingOwnedCountText = true;
+                }
+                return;
+            }
+
+            _ownedCountText.gameObject.SetActive(ownedCount.HasValue);
+
+            if (ownedCount.HasValue)
+                _ownedCountText.text = $"所持数 {ownedCount.Value}";
         }
 
         void OnButtonClicked()

@@ -10,6 +10,9 @@ namespace Root.Service
 {
     public class MasterDataImportService
     {
+        /// outfits.csv / furnitures.csv の display_name 列 (0 始まり)
+        const int DisplayNameColumnIndex = 3;
+
         readonly MasterDataState _masterDataState;
 
         /// Import 完了時に 1 度だけ発火する (Import は冪等で再発火しない)
@@ -45,11 +48,13 @@ namespace Root.Service
             _masterDataState.Outfits = lines.Select(line =>
             {
                 var columns = line.Split(',');
+                var name = columns[2].Trim();
                 return new Outfit
                 {
                     Id = uint.Parse(columns[0].Trim()),
                     Type = columns[1].Trim(),
-                    Name = columns[2].Trim()
+                    Name = name,
+                    DisplayName = ResolveDisplayName(columns, name)
                 };
             }).ToArray();
         }
@@ -67,13 +72,25 @@ namespace Root.Service
             _masterDataState.Furnitures = lines.Select(line =>
             {
                 var columns = line.Split(',');
+                var name = columns[2].Trim();
                 return new Furniture
                 {
                     Id = uint.Parse(columns[0].Trim()),
                     Type = columns[1].Trim(),
-                    Name = columns[2].Trim()
+                    Name = name,
+                    DisplayName = ResolveDisplayName(columns, name)
                 };
             }).ToArray();
+        }
+
+        /// outfits.csv / furnitures.csv の display_name 列を読む。
+        /// 列ごと無い / 空欄の場合はアセット名 (name 列) で代替する
+        static string ResolveDisplayName(string[] columns, string fallback)
+        {
+            if (columns.Length <= DisplayNameColumnIndex) return fallback;
+
+            var displayName = columns[DisplayNameColumnIndex].Trim();
+            return string.IsNullOrEmpty(displayName) ? fallback : displayName;
         }
 
         void ImportShopProducts()

@@ -16,7 +16,10 @@ namespace Root.State
     {
         public uint Id;
         public string Type;
+        /// アセット名 (Addressables のキー兼 CSV 間の参照キー)
         public string Name;
+        /// UI 表示用の名前。CSV の display_name 列が空なら Name で代替される
+        public string DisplayName;
     }
 
     [Serializable]
@@ -24,6 +27,9 @@ namespace Root.State
     {
         public uint Id;
         public string Type;
+        /// アセット名 (Addressables のキー兼 CSV 間の参照キー)
         public string Name;
+        /// UI 表示用の名前。CSV の display_name 列が空なら Name で代替される
+        public string DisplayName;
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Root.Service;
 using Timer.State;
 using Timer.View;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Timer.Manager
     /// 2. キャラクターが大きく画面下から飛び出す
     /// 3. 完了 UI が画面上部からスライドイン
     /// 4. クラッカーの紙吹雪
+    /// 5. 獲得した毛糸玉を知らせるダイアログ
     public class CompleteSequenceManager : MonoBehaviour
     {
         [SerializeField] CompleteTransitionView _transitionView;
@@ -22,16 +24,20 @@ namespace Timer.Manager
         [SerializeField, Min(0f)] float _popDelay = 0.1f;
         [SerializeField, Min(0f)] float _completePanelDelay = 0.15f;
         [SerializeField, Min(0f)] float _confettiDelay = 0.1f;
+        [SerializeField, Min(0f)] float _rewardDialogDelay = 0.6f;
 
         PomodoroState _state;
+        IDialogService _dialogService;
         CancellationToken _cancellationToken;
         CancellationTokenSource _sequenceCts;
         bool _isPlayed;
 
         [Inject]
-        public void Construct(PomodoroState state, CancellationToken cancellationToken)
+        public void Construct(
+            PomodoroState state, IDialogService dialogService, CancellationToken cancellationToken)
         {
             _state = state;
+            _dialogService = dialogService;
             _cancellationToken = cancellationToken;
         }
 
@@ -96,6 +102,11 @@ namespace Timer.Manager
                 await UniTask.Delay(
                     TimeSpan.FromSeconds(_confettiDelay), cancellationToken: cancellationToken);
                 _confettiView.Burst();
+
+                // 紙吹雪が開いてから報酬ダイアログを重ねる
+                await UniTask.Delay(
+                    TimeSpan.FromSeconds(_rewardDialogDelay), cancellationToken: cancellationToken);
+                await ShowYarnRewardDialogAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -105,6 +116,18 @@ namespace Timer.Manager
             {
                 Debug.LogError($"[CompleteSequenceManager] {e.Message}\n{e.StackTrace}", this);
             }
+        }
+
+        /// 今回獲得した毛糸玉の数を知らせるダイアログを開く。
+        /// 付与は PomodoroService が Complete 遷移の直前に済ませており、ここでは表示のみを担う
+        async UniTask ShowYarnRewardDialogAsync(CancellationToken cancellationToken)
+        {
+            if (_state.YarnReward is not { } reward) return;
+
+            await _dialogService.OpenAsync<TimerYarnRewardDialog, TimerYarnRewardDialogArgs>(
+                new TimerYarnRewardDialogArgs(
+                    reward.GrantedYarn, reward.EarnedToday, reward.DailyCap, reward.IsCapped),
+                cancellationToken);
         }
     }
 }

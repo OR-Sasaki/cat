@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Menu.View;
 using Root.View;
+using Timer.View;
 using TimerSetting.View;
 using UnityEngine;
 using VContainer;
@@ -38,7 +39,8 @@ namespace Root.Service
                     _dialogService.PreloadAsync<MenuDialog>(cancellationToken),
                     _dialogService.PreloadAsync<TimerSettingDialog>(cancellationToken),
                     _dialogService.PreloadAsync<CommonMessageDialog>(cancellationToken),
-                    _dialogService.PreloadAsync<CommonConfirmDialog>(cancellationToken));
+                    _dialogService.PreloadAsync<CommonConfirmDialog>(cancellationToken),
+                    _dialogService.PreloadAsync<TimerYarnRewardDialog>(cancellationToken));
             }
             catch (OperationCanceledException)
             {

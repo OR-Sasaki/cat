@@ -14,7 +14,7 @@ Unity 6ベースの2Dゲームプロジェクト。キャラクターの着せ�
 - **操作フィードバック演出**: 着せ替え時はもくもく雲 + キラキラ + 肉球で覆って演出のピークで衣装を差し替え (`OutfitChangeEffectView`)、家具設置時は落下して弾む着地 (`FurniturePlaceEffectView`)。いずれも約 0.5 秒の短い一続きの動き
 - **ショップ**: 商品・ガチャの表示・購入機能 (時限ショップのサイクル抽選を含む)
 - **リワード広告**: LevelPlay SDK 経由のリワード広告視聴でアイテムを付与 (Shop に統合、日次視聴上限を管理)。`IRewardedAdService` で SDK を抽象化
-- **タイマー**: タイマー機能および設定 (TimerSettingダイアログ経由)、Pomodoro機能はTimerシーン内に統合
+- **タイマー**: タイマー機能および設定 (TimerSettingダイアログ経由)、Pomodoro機能はTimerシーン内に統合。完了時に集中時間ぶんの毛糸玉を付与し結果をダイアログ表示 (TimerYarnRewardService、日次上限はショップと同じ JST 境界で判定)
 - **集中時間の記録**: 日別の集中時間 (秒) を永続化 (TimerRecordService)。Historyシーンのカレンダー表示・ストリーク集計の単一ソース
 - **ユーザー資産管理**: ポイント (UserPointService) とアイテム所持 (UserItemInventoryService) の状態保持・スナップショット。初回起動時の付与は初期アイテム (InitialItemService) のみで、それ以外はショップ等の獲得経路を通す
 - **メニュー / 設定**: ホーム右上のメニューボタンから開く設定ダイアログ (MenuDialog)。サウンド・通知のON/OFFを永続化し、所持金 (毛糸) 残高の確認と規約類への導線を持つ

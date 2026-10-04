@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Home.State;
 using Home.View;
@@ -11,18 +12,23 @@ namespace Home.Service
     /// IsoGridのセル操作と座標変換を行うService
     /// ここではあくまでstateベースでIsoGridを管理している
     /// シーン上に配置されているオブジェクトの管理については、IsoDragServiceやFurniturePlacementServiceなどで行なっている
-    public class IsoGridService
+    public class IsoGridService : IDisposable
     {
+        /// Colliderの移動がPhysicsへ反映されるまでのラグを吸収するための待ちフレーム数
+        const int NavMeshRebuildDelayFrames = 10;
+
         readonly IsoGridState _state;
         readonly IsoGridSettingsView _isoGridSettingsView;
         readonly IsoCoordinateConverterService _converter;
+        readonly CancellationTokenSource _cts = new();
 
         // グリッド設定
         readonly Vector3 _origin;
         readonly float _cellSize;
 
-        // NavMesh再構築用イベント
-        public event Action OnObjectPlaced;
+        // NavMesh再ビルドの合体用
+        bool _navMeshDirty;
+        bool _navMeshRebuilding;
 
         /// Homeシーンへの参照（Instantiate先の指定に使用）
         public Scene HomeScene => _isoGridSettingsView.gameObject.scene;
@@ -45,16 +51,66 @@ namespace Home.Service
 
             // 座標変換サービスを初期化
             _converter = new IsoCoordinateConverterService(_cellSize, IsoGridSettingsView.Angle);
-
-            // オブジェクトが置かれた時にNavMeshを再ビルドする
-            // BuildNavMeshは、シーン上に配置されたColliderによってビルドされるが、
-            // オブジェクトが動いた時に、それが反映されるまでに少しラグがあるため10フレーム待っている
-            OnObjectPlaced += async () =>
-            {
-                await UniTask.DelayFrame(10);
-                _isoGridSettingsView.Surface2D.BuildNavMesh();
-            };
         }
+
+        public void Dispose()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
+        }
+
+        #region NavMesh再ビルド
+
+        /// シーン上の家具Colliderが増減・移動したことをNavMeshへ反映するよう要求する
+        /// BuildNavMeshはシーン全体のColliderから同期的にベイクするため、家具1個ごとに走らせると
+        /// ロード時に家具数ぶんのベイクが1フレームへ集中する。連続した要求は1回のベイクにまとめる
+        ///
+        /// 呼ぶ場所のルール:
+        /// - Place{Floor,Wall,Fragmented}Object: 家具が最終位置に落ち着くので呼ぶ
+        /// - Remove*Object: ドラッグ開始の持ち上げでも呼ばれ、必ず後続でPlaceかしまう処理が走るので呼ばない
+        ///   (呼ぶとドラッグ中の宙に浮いた位置でベイクしてしまう)
+        /// - シーンからの除去 (FurnitureStowService.Stow / FurniturePlacementService.RemoveFurniture): 呼ぶ
+        public void RequestNavMeshRebuild()
+        {
+            _navMeshDirty = true;
+            if (_navMeshRebuilding) return;
+
+            RebuildNavMeshAsync(_cts.Token).Forget();
+        }
+
+        /// 最後の要求からNavMeshRebuildDelayFrames空いたタイミングで1回だけベイクする
+        async UniTaskVoid RebuildNavMeshAsync(CancellationToken cancellationToken)
+        {
+            _navMeshRebuilding = true;
+            try
+            {
+                // 待っている間に来た要求は待ち直して同じ1回のベイクへ吸収する
+                while (_navMeshDirty)
+                {
+                    _navMeshDirty = false;
+                    await UniTask.DelayFrame(NavMeshRebuildDelayFrames, cancellationToken: cancellationToken);
+                }
+
+                // シーン破棄と競合した場合はベイクせず終了する
+                if (_isoGridSettingsView == null || _isoGridSettingsView.Surface2D == null) return;
+
+                _isoGridSettingsView.Surface2D.BuildNavMesh();
+            }
+            catch (OperationCanceledException)
+            {
+                // シーン破棄によるキャンセルは正常動作
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[IsoGridService] NavMeshの再ビルドに失敗しました: {e.Message}\n{e.StackTrace}");
+            }
+            finally
+            {
+                _navMeshRebuilding = false;
+            }
+        }
+
+        #endregion
 
         #region 床グリッド操作
 
@@ -109,7 +165,7 @@ namespace Home.Service
             // 自分の上に積まれている子孫オブジェクトのDepthを追従させる
             UpdateDescendantDepths(userFurnitureId, 0);
 
-            OnObjectPlaced?.Invoke();
+            RequestNavMeshRebuild();
         }
 
         /// 床の指定範囲のセルからオブジェクトを削除
@@ -263,7 +319,7 @@ namespace Home.Service
                 Depth = 0,
             };
 
-            OnObjectPlaced?.Invoke();
+            RequestNavMeshRebuild();
         }
 
         /// 壁からオブジェクトを削除
@@ -392,6 +448,8 @@ namespace Home.Service
 
             // 自分の上に積まれている子孫オブジェクトのDepthを追従させる
             UpdateDescendantDepths(userFurnitureId, depth);
+
+            RequestNavMeshRebuild();
         }
 
         /// 指定オブジェクトを根とするサブツリー（そのFragmentedGrid上の家具とその子孫）のDepthを再帰的に更新する

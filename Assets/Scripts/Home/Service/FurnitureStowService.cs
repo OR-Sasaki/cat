@@ -57,6 +57,9 @@ namespace Home.Service
 
             Object.Destroy(view.gameObject);
 
+            // グリッドからの除去はドラッグ開始時に済んでいてPlaceが走らないため、ここでNavMeshの再ビルドを要求する
+            _isoGridService.RequestNavMeshRebuild();
+
             _audioService.PlaySe(SeId.RoomStow);
 
             OnFurnitureStowed.Invoke();

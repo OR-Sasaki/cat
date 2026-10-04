@@ -110,6 +110,9 @@ namespace Home.Service
             // シーンからオブジェクトを削除
             Object.Destroy(targetView.gameObject);
 
+            // Colliderが消えたことをNavMeshへ反映する (Remove*Objectは再ビルドを要求しない)
+            _isoGridService.RequestNavMeshRebuild();
+
             return true;
         }
 

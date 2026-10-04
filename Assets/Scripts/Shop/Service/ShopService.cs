@@ -532,6 +532,9 @@ namespace Shop.Service
             var grantFailed = !TryGrantPurchasedItem(data);
             var yarnPackAddFailed = data.ProductType == ProductType.YarnPack && !TryAddYarnPack(data);
 
+            // 毛糸の減算とアイテム付与は別キーに書かれるため、両方書き終えてからディスクへ確定させる
+            _playerPrefsService.Flush();
+
             string completeMessage;
             if (grantFailed)
                 completeMessage = $"{data.Name}を購入しました！\n（アイテムの付与に失敗しました）";
@@ -619,6 +622,9 @@ namespace Shop.Service
                 IncrementDailyCount(productId);
                 _audioService.PlaySe(SeId.ShopPurchase);
             }
+
+            // アイテム付与と日次視聴回数を書き終えてからディスクへ確定させる
+            _playerPrefsService.Flush();
 
             var message = grantSucceeded
                 ? $"「{data.Name}」を獲得しました！"
@@ -722,6 +728,9 @@ namespace Shop.Service
                     failedCount++;
                 }
             }
+
+            // 毛糸の減算と全家具の付与を書き終えてからディスクへ確定させる
+            _playerPrefsService.Flush();
 
             var resultMessage = BuildGachaResultMessage(grantedNames, failedCount);
             await _dialogService.OpenAsync<CommonMessageDialog, CommonMessageDialogArgs>(

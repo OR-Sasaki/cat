@@ -26,6 +26,16 @@ namespace Root.Service
             PlayerPrefs.SetString(key.ToString(), json);
         }
 
+        /// SetString はメモリ上のキャッシュを書き換えるだけで、ディスクへの書き出しは
+        /// この Flush か正常終了時 (OnApplicationQuit) の自動保存で起きる。
+        /// 同期ディスク書き込みなので毎フレームやホットパスからは呼ばず、
+        /// バックグラウンド遷移時 (AppLifecycleManager) と、
+        /// 複数キーをまたぐ取引の完了時 (購入・ガチャ) にまとめて呼ぶ
+        public void Flush()
+        {
+            PlayerPrefs.Save();
+        }
+
         public T Load<T>(PlayerPrefsKey key)
         {
             var json = PlayerPrefs.GetString(key.ToString());

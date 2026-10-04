@@ -1,4 +1,5 @@
 using System;
+using Root.Manager;
 using Root.Service;
 using Root.State;
 using Root.View;
@@ -11,6 +12,7 @@ namespace Root.Scope
     public class RootScope : LifetimeScope
     {
         [SerializeField] AudioPlayerView _audioPlayerView;
+        [SerializeField] AppLifecycleManager _appLifecycleManager;
 
         protected override void Awake()
         {
@@ -39,6 +41,13 @@ namespace Root.Scope
             builder.Register<SystemClock>(Lifetime.Singleton).As<IClock>();
             builder.Register<UserState>(Lifetime.Singleton);
             builder.Register<PlayerPrefsService>(Lifetime.Singleton);
+            // バックグラウンド遷移時に PlayerPrefs をディスクへ確定させる。
+            // 未設定のまま出荷すると保存が消えても気付けないので、ここで止める
+            if (_appLifecycleManager == null)
+            {
+                throw new InvalidOperationException("[RootScope] AppLifecycleManager が RootScope.prefab に設定されていません。");
+            }
+            builder.RegisterComponent(_appLifecycleManager);
             builder.Register<UserEquippedOutfitState>(Lifetime.Singleton);
             builder.Register<UserEquippedOutfitService>(Lifetime.Singleton);
             // Outfit アセットのキャッシュと適用はシーンを跨いで共通化する

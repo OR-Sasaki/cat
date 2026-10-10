@@ -106,6 +106,14 @@ namespace Root.Scope
 #endif
             builder.RegisterEntryPoint<RewardedAdServiceStarter>();
 
+            // Editor の再生セッションはダッシュボードへ送らない (DAU / 継続率が歪む)
+#if UNITY_EDITOR
+            builder.Register<EditorAnalyticsService>(Lifetime.Singleton).As<IAnalyticsService>();
+#else
+            builder.Register<UnityAnalyticsService>(Lifetime.Singleton).As<IAnalyticsService>();
+#endif
+            builder.RegisterEntryPoint<AnalyticsServiceStarter>();
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // 画面左上の透明なデバッグボタン。エディタと開発ビルドでのみ生成する
             builder.RegisterEntryPoint<DebugPanel.Starter.DebugPanelStarter>();

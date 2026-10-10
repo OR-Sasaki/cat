@@ -9,6 +9,7 @@
 - **Audio**: 自作 `IAudioService`。SE はプリロード・BGM はストリーム (インポート設定)、クリップは `AudioRegistry` (SO) に登録
 - **Assets**: Addressables
 - **Ads**: LevelPlay (ironSource)。`IRewardedAdService` で隠蔽し SDK 型を上位層へ出さない
+- **Analytics**: Unity Analytics (UGS)。`IAnalyticsService` で隠蔽。収集同意は `EndUserConsent` (Unity 6 の Developer Data framework) で付与し、obsolete な `StartDataCollection` 系とは混用しない。Editor はスタブ
 - **他**: NavMeshPlus (2D NavMesh)、2D Animation、Cinemachine、Timeline
 
 ## Coding Conventions

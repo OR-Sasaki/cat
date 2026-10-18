@@ -40,9 +40,9 @@ Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
 ## Unity Development
-- When UnityMCP is available, use it for Unity access and operations
-- Use UnityMCP for C# script creation (creates .meta files automatically)
-- Use UnityMCP for reading scene and prefab structures (more token-efficient)
+- Use unity-cli (`unity` command, see the `unity-cli` skill) for Unity Editor access and operations
+- Use `unity command create_script` for C# script creation (creates .meta files automatically)
+- Use `unity command get_scene_hierarchy` / `find_gameobjects` for reading scene structures (more token-efficient)
 
 ## Coding Style
 - Do not use `/// <summary>` for comments. Use `/// comment` directly

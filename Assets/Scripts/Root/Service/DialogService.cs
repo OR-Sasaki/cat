@@ -125,6 +125,11 @@ namespace Root.Service
         {
             if (_dialogState.Current is { } currentDialog)
             {
+                if (!currentDialog.View.CanCloseByBackdrop)
+                {
+                    return;
+                }
+
                 _audioService.PlaySe(SeId.Back);
                 CloseDialogFireAndForget(currentDialog, DialogResult.Cancel).Forget();
             }

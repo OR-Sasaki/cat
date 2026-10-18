@@ -12,28 +12,10 @@ namespace Root.View
         [SerializeField] Canvas? _dialogCanvas;
         [SerializeField] BackdropView? _backdropView;
 
-        DialogContainer? _dialogContainer;
-
+        /// シーンの IStartable は MonoBehaviour.Start より先に走るので、起動直後にダイアログを開けるよう注入時点で登録する
         [Inject]
         public void Init(DialogContainer dialogContainer)
         {
-            _dialogContainer = dialogContainer;
-        }
-
-        void Reset()
-        {
-            _dialogCanvas = GetComponent<Canvas>();
-            _backdropView = GetComponentInChildren<BackdropView>();
-        }
-
-        void Start()
-        {
-            if (_dialogContainer == null)
-            {
-                Debug.LogError("[DialogCanvasView] DialogContainer is not injected.");
-                return;
-            }
-
             if (_dialogCanvas == null)
             {
                 Debug.LogError("[DialogCanvasView] DialogCanvas is not assigned.");
@@ -46,10 +28,16 @@ namespace Root.View
                 return;
             }
 
-            _dialogContainer.SetCanvas(_dialogCanvas);
-            _dialogContainer.SetBackdrop(_backdropView);
+            dialogContainer.SetCanvas(_dialogCanvas);
+            dialogContainer.SetBackdrop(_backdropView);
 
             _backdropView.gameObject.SetActive(false);
+        }
+
+        void Reset()
+        {
+            _dialogCanvas = GetComponent<Canvas>();
+            _backdropView = GetComponentInChildren<BackdropView>();
         }
     }
 }

@@ -4,6 +4,8 @@ using History.State;
 using History.View;
 using Root.Scope;
 using UnityEngine;
+using Tutorial.Starter;
+using Tutorial.State;
 using VContainer;
 using VContainer.Unity;
 
@@ -32,6 +34,7 @@ namespace History.Scope
 
             // EntryPoint
             builder.RegisterEntryPoint<HistoryStarter>();
+            builder.RegisterEntryPoint<TutorialStarter>().WithParameter(TutorialId.History);
         }
     }
 }

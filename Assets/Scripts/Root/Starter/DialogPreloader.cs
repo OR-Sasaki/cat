@@ -7,6 +7,7 @@ using Menu.View;
 using Root.View;
 using Timer.View;
 using TimerSetting.View;
+using Tutorial.View;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -40,7 +41,8 @@ namespace Root.Service
                     _dialogService.PreloadAsync<TimerSettingDialog>(cancellationToken),
                     _dialogService.PreloadAsync<CommonMessageDialog>(cancellationToken),
                     _dialogService.PreloadAsync<CommonConfirmDialog>(cancellationToken),
-                    _dialogService.PreloadAsync<TimerYarnRewardDialog>(cancellationToken));
+                    _dialogService.PreloadAsync<TimerYarnRewardDialog>(cancellationToken),
+                    _dialogService.PreloadAsync<TutorialDialog>(cancellationToken));
             }
             catch (OperationCanceledException)
             {

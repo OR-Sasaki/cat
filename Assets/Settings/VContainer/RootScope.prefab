@@ -55,6 +55,7 @@ MonoBehaviour:
   - {fileID: 4191894738525083418}
   _audioPlayerView: {fileID: 7000000000000000005}
   _appLifecycleManager: {fileID: 4106691054417446445}
+  _tutorialRegistry: {fileID: 11400000, guid: 03fa8b83af0866242934036b5fe07aa1, type: 2}
 --- !u!114 &4106691054417446445
 MonoBehaviour:
   m_ObjectHideFlags: 0

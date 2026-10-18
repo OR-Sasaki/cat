@@ -7,6 +7,8 @@ using Timer.Starter;
 using Timer.State;
 using Timer.Manager;
 using Timer.View;
+using Tutorial.Starter;
+using Tutorial.State;
 using VContainer;
 using VContainer.Unity;
 
@@ -46,6 +48,7 @@ namespace Timer.Scope
 
             // EntryPoint
             builder.RegisterEntryPoint<TimerStarter>();
+            builder.RegisterEntryPoint<TutorialStarter>().WithParameter(TutorialId.Timer);
             builder.RegisterEntryPoint<CharacterOutfitStarter>();
         }
 

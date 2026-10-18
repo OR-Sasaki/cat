@@ -32,6 +32,20 @@ namespace Root.View
         [SerializeField] Button? _closeButton;
         [SerializeField] CanvasGroup? _canvasGroup;
 
+        bool _closeEnabled = true;
+
+        public bool CanCloseByBackdrop => _closeEnabled;
+
+        protected void SetCloseEnabled(bool enabled)
+        {
+            _closeEnabled = enabled;
+
+            if (_closeButton != null)
+            {
+                _closeButton.gameObject.SetActive(enabled);
+            }
+        }
+
         public event Action<DialogResult>? OnCloseRequested;
 
         Tween? _fadeTween;

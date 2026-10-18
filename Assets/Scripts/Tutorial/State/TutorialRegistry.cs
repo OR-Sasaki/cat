@@ -33,15 +33,7 @@ namespace Tutorial.State
 
         public Page[]? FindPages(TutorialId id)
         {
-            foreach (var entry in _entries)
-            {
-                if (entry.Id == id)
-                {
-                    return entry.Pages.Length > 0 ? entry.Pages : null;
-                }
-            }
-
-            return null;
+            return Array.Find(_entries, entry => entry.Id == id) is { Pages: { Length: > 0 } pages } ? pages : null;
         }
     }
 }

@@ -32,6 +32,10 @@ namespace Root.View
         [SerializeField] Button? _closeButton;
         [SerializeField] CanvasGroup? _canvasGroup;
 
+        protected Button? CloseButton => _closeButton;
+
+        public virtual bool CanCloseByBackdrop => true;
+
         public event Action<DialogResult>? OnCloseRequested;
 
         Tween? _fadeTween;

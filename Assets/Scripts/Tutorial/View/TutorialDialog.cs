@@ -23,22 +23,25 @@ namespace Tutorial.View
         [SerializeField] Button _nextButton = null!;
 
         readonly List<TutorialNavigationDotView> _dots = new();
-        TutorialPager? _pager;
-
-        public override bool CanCloseByBackdrop => _pager?.HasReachedLast ?? true;
+        TutorialPager _pager = null!;
 
         protected override void OnInitialize(TutorialDialogArgs args)
         {
-            var pager = new TutorialPager(args.Pages.Length);
-            _pager = pager;
-            _navigationRoot.SetActive(pager.ShowsNavigation);
+            _pager = new TutorialPager(args.Pages.Length);
+            _navigationRoot.SetActive(_pager.ShowsNavigation);
 
             for (var i = 0; i < args.Pages.Length; i++)
             {
                 var index = i;
                 var dot = Instantiate(_dotTemplate, _dotsRoot);
                 dot.gameObject.SetActive(true);
-                dot.Initialize(() => Move(pager.JumpTo(index)));
+                dot.Initialize(() =>
+                {
+                    if (_pager.JumpTo(index))
+                    {
+                        Refresh();
+                    }
+                });
                 _dots.Add(dot);
             }
 
@@ -48,13 +51,17 @@ namespace Tutorial.View
             Refresh();
         }
 
-        void OnPrevClicked() => Move(_pager!.Previous());
-
-        void OnNextClicked() => Move(_pager!.Next());
-
-        void Move(bool changed)
+        void OnPrevClicked()
         {
-            if (changed)
+            if (_pager.Previous())
+            {
+                Refresh();
+            }
+        }
+
+        void OnNextClicked()
+        {
+            if (_pager.Next())
             {
                 Refresh();
             }
@@ -62,20 +69,16 @@ namespace Tutorial.View
 
         void Refresh()
         {
-            var pager = _pager!;
-            var page = Args.Pages[pager.Index];
+            var page = Args.Pages[_pager.Index];
             _image.sprite = page.Image;
             _text.text = page.Text;
 
             for (var i = 0; i < _dots.Count; i++)
             {
-                _dots[i].SetCurrent(i == pager.Index);
+                _dots[i].SetCurrent(i == _pager.Index);
             }
 
-            if (CloseButton != null)
-            {
-                CloseButton.gameObject.SetActive(pager.HasReachedLast);
-            }
+            SetCloseEnabled(_pager.HasReachedLast);
         }
 
         protected override void OnDestroy()

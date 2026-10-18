@@ -15,6 +15,7 @@ namespace Root.Service
         RewardAdDailyCount,
         MenuSetting,
         AudioSetting,
+        Tutorial,
     }
 
     public class PlayerPrefsService

@@ -3,6 +3,8 @@ using Root.Manager;
 using Root.Service;
 using Root.State;
 using Root.View;
+using Tutorial.Service;
+using Tutorial.State;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -13,6 +15,7 @@ namespace Root.Scope
     {
         [SerializeField] AudioPlayerView _audioPlayerView;
         [SerializeField] AppLifecycleManager _appLifecycleManager;
+        [SerializeField] TutorialRegistry _tutorialRegistry;
 
         protected override void Awake()
         {
@@ -90,6 +93,12 @@ namespace Root.Scope
                 throw new InvalidOperationException("[RootScope] Assets/Resources/AudioRegistry.asset が見つかりません。");
             }
             builder.RegisterInstance(audioRegistry);
+            if (_tutorialRegistry == null)
+            {
+                throw new InvalidOperationException("[RootScope] TutorialRegistry が RootScope.prefab に設定されていません。");
+            }
+            builder.RegisterInstance(_tutorialRegistry);
+            builder.Register<TutorialService>(Lifetime.Singleton).As<ITutorialService>();
             builder.RegisterComponent(_audioPlayerView);
             builder.Register<AudioState>(Lifetime.Singleton);
             builder.Register<AudioService>(Lifetime.Singleton).As<IAudioService>().AsSelf();

@@ -6,6 +6,8 @@ using Home.View;
 using Root.Scope;
 using Root.Starter;
 using UnityEngine;
+using Tutorial.Starter;
+using Tutorial.State;
 using VContainer;
 using VContainer.Unity;
 
@@ -66,6 +68,7 @@ namespace Home.Scope
 
             // EntryPoint
             builder.RegisterEntryPoint<OutfitAssetStarter>();
+            builder.RegisterEntryPoint<TutorialStarter>().WithParameter(TutorialId.Home);
             builder.RegisterEntryPoint<FurnitureAssetStarter>();
             builder.RegisterEntryPoint<IsoDraggableStarter>();
             builder.RegisterEntryPoint<ClosetScrollerService>();

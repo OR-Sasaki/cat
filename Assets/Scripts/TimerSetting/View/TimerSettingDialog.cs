@@ -1,9 +1,12 @@
 #nullable enable
 
+using Cysharp.Threading.Tasks;
 using Root.Service;
 using Root.View;
 using TimerSetting.State;
 using TMPro;
+using Tutorial.Service;
+using Tutorial.State;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -26,15 +29,17 @@ namespace TimerSetting.View
         [SerializeField] Button _setsDownButton = null!;
 
         PlayerPrefsService _playerPrefsService = null!;
+        ITutorialService _tutorialService = null!;
 
         int _focusTime;
         int _breakTime;
         int _sets;
 
         [Inject]
-        public void Construct(PlayerPrefsService playerPrefsService)
+        public void Construct(PlayerPrefsService playerPrefsService, ITutorialService tutorialService)
         {
             _playerPrefsService = playerPrefsService;
+            _tutorialService = tutorialService;
 
             LoadSettings();
             UpdateTexts();
@@ -46,6 +51,11 @@ namespace TimerSetting.View
             _setsUpButton.onClick.AddListener(() => SetSets(_sets + 1));
             _setsDownButton.onClick.AddListener(() => SetSets(_sets - 1));
             _startButton.onClick.AddListener(OnStartButtonClicked);
+        }
+
+        void Start()
+        {
+            _tutorialService.ShowIfFirstTimeAsync(TutorialId.TimerSetting, destroyCancellationToken).Forget();
         }
 
         void LoadSettings()

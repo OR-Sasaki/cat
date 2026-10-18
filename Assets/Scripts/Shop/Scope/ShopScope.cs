@@ -6,6 +6,8 @@ using Shop.Starter;
 using Shop.State;
 using Shop.View;
 using UnityEngine;
+using Tutorial.Starter;
+using Tutorial.State;
 using VContainer;
 using VContainer.Unity;
 
@@ -31,6 +33,7 @@ namespace Shop.Scope
 
             // EntryPoint
             builder.RegisterEntryPoint<ShopStarter>();
+            builder.RegisterEntryPoint<TutorialStarter>().WithParameter(TutorialId.Shop);
         }
     }
 }

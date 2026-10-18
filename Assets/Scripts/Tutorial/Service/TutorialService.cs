@@ -44,10 +44,6 @@ namespace Tutorial.Service
                 return;
             }
 
-            // シーンの IStartable は MonoBehaviour.Start より先に走り、DialogCanvasView は Start でキャンバスを登録する。
-            // Update まで待つと Start の後かつ入力処理の前に着地する
-            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
-
             await _dialogService.OpenAsync<TutorialDialog, TutorialDialogArgs>(new TutorialDialogArgs(pages), cancellationToken);
 
             _data.shownIds.Add(key);
